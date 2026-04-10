@@ -39,8 +39,8 @@ export const userRepository = {
       [
         data.telegram_id,
         data.first_name,
-        data.last_name || null,
-        data.username || null,
+        data.last_name || '',
+        data.username || '',
         data.language_code || 'ru',
       ]
     );
@@ -87,8 +87,8 @@ export const transactionRepository = {
         data.amount,
         data.type,
         data.status,
-        data.telegram_payment_charge_id || null,
-        data.description || null,
+        data.telegram_payment_charge_id || '',
+        data.description || '',
       ]
     );
 
