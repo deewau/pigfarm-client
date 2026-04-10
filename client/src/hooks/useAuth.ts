@@ -10,26 +10,16 @@ export function useAuth() {
   const login = useCallback(async () => {
     const tg = (window as any).Telegram?.WebApp;
 
-    if (!tg?.initData) {
-      // Для тестирования вне Telegram — используем mock данные
-      console.warn('Telegram WebApp not available, using mock data for development');
-      setUser({
-        id: 1,
-        telegram_id: 999999,
-        first_name: 'Тестовый',
-        last_name: 'Пользователь',
-        username: 'test_user',
-        language_code: 'ru',
-        balance: 150,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       setError(null);
+
+      if (!tg?.initData) {
+        console.warn('Telegram WebApp initData not available');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const response = await authApi.login(tg.initData);
 
       if (response.success && response.data) {
@@ -45,13 +35,14 @@ export function useAuth() {
           updated_at: new Date().toISOString(),
           last_name: tg.initDataUnsafe?.user?.last_name,
         });
-        console.log('✅ Auth successful:', userData);
       } else {
         setError(response.error || 'Authentication failed');
       }
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.response?.data?.error || 'Network error');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
