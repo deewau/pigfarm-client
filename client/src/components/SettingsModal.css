@@ -1,0 +1,209 @@
+.settings-modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: settings-overlay-in 0.3s ease;
+}
+
+.settings-modal__overlay--closing {
+  animation: settings-overlay-out 0.3s ease forwards;
+}
+
+.settings-modal__sheet {
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  background: #1c1c1e;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: settings-sheet-in 0.3s ease;
+}
+
+.settings-modal__sheet--closing {
+  animation: settings-sheet-out 0.3s ease forwards;
+}
+
+@keyframes settings-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes settings-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes settings-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes settings-sheet-out {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+.settings-modal__drag-handle {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.settings-modal__drag-handle:active {
+  cursor: grabbing;
+}
+
+.settings-modal__drag-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.settings-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 16px;
+  flex-shrink: 0;
+}
+
+.settings-modal__title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.settings-modal__close {
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.settings-modal__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.settings-modal__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 32px;
+}
+
+/* Секции */
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section__title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #8e8e93;
+  margin: 0 0 12px;
+  text-transform: none;
+}
+
+/* Опции в ряд */
+.settings-section__options {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.settings-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #8e8e93;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.settings-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.settings-option--active {
+  background: #007aff;
+  color: #ffffff;
+}
+
+.settings-option--active:hover {
+  background: #007aff;
+}
+
+/* Сетка языков */
+.settings-section__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.settings-lang {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: #f3f4f6;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.settings-lang:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-lang--active {
+  border-color: #007aff;
+  background: rgba(0, 122, 255, 0.15);
+}
+
+/* Тактильный отклик */
+.settings-section__options--haptic {
+  gap: 4px;
+}
+
+.settings-option--haptic {
+  padding: 10px 4px;
+  font-size: 12px;
+}
