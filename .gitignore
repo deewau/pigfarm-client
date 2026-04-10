@@ -1,6 +1,25 @@
-node_modules
-dist
+node_modules/
+dist/
 .env
-.env.local
-.DS_Store
+*.db
 *.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Client build
+client/dist/
+client/node_modules/
+
+# Server build
+server/dist/
+server/node_modules/
+server/*.db
+
+# Qwen
+.qwen/

@@ -1,14 +1,55 @@
-import express from 'express'
-import cors from 'cors'
-import dotenv from 'dotenv'
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { initializeDatabase } from './db/connection.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import depositRoutes from './routes/deposit.routes.js';
+import webhookRoutes from './routes/webhook.routes.js';
 
-dotenv.config()
-const app = express()
+dotenv.config();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }))
-app.use(express.json())
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.get('/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }))
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const PORT = Number(process.env.PORT) || 3000
-app.listen(PORT, () => console.log(`🟢 Server running on http://localhost:${PORT}`))
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true,
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/deposit', depositRoutes);
+app.use('/api/webhook', webhookRoutes);
+
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Error handling
+app.use(errorHandler);
+
+// Инициализация БД и запуск сервера
+async function start() {
+  await initializeDatabase();
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+start();
