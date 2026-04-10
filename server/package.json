@@ -10,7 +10,8 @@
     "build:deploy": "cd ../client && npm install && npx vite build && cd ../server && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc && npx shx cp src/db/schema.sql dist/db/",
     "start": "node dist/index.js",
     "db:migrate": "tsx src/db/migrate.ts",
-    "webhook:setup": "tsx src/setup-webhook.ts"
+    "webhook:setup": "tsx src/setup-webhook.ts",
+    "ping": "tsx src/ping.ts"
   },
   "keywords": [],
   "author": "",
