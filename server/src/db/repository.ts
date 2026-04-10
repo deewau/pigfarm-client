@@ -5,24 +5,32 @@ import type { QueryExecResult } from 'sql.js';
 export const userRepository = {
   findById(id: number): User | undefined {
     const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-    stmt.bind([id]);
-    if (stmt.step()) {
-      const row = stmt.getAsObject();
-      return row as unknown as User;
+    const numId = Number(id);
+    if (isNaN(numId)) return undefined;
+    const results = db.exec(`SELECT * FROM users WHERE id = ${numId}`);
+    if (!results.length || !results[0].values.length) {
+      return undefined;
     }
-    return undefined;
+    const columns = results[0].columns;
+    const row = results[0].values[0];
+    const obj: Record<string, any> = {};
+    columns.forEach((col, i) => { obj[col] = row[i]; });
+    return obj as unknown as User;
   },
 
   findByTelegramId(telegramId: number): User | undefined {
     const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM users WHERE telegram_id = ?');
-    stmt.bind([telegramId]);
-    if (stmt.step()) {
-      const row = stmt.getAsObject();
-      return row as unknown as User;
+    const id = Number(telegramId);
+    if (isNaN(id)) return undefined;
+    const results = db.exec(`SELECT * FROM users WHERE telegram_id = ${id}`);
+    if (!results.length || !results[0].values.length) {
+      return undefined;
     }
-    return undefined;
+    const columns = results[0].columns;
+    const row = results[0].values[0];
+    const obj: Record<string, any> = {};
+    columns.forEach((col, i) => { obj[col] = row[i]; });
+    return obj as unknown as User;
   },
 
   create(data: {
