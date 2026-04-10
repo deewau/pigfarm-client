@@ -17,6 +17,7 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, onDeposit
   const [amount, setAmount] = useState(25);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorFading, setErrorFading] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const currentYRef = useRef(0);
@@ -45,6 +46,20 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, onDeposit
       if (visible) handleClose();
     }
   }, [isOpen]);
+
+  // Автоматическое скрытие ошибки через 2 секунды
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setErrorFading(true);
+        setTimeout(() => {
+          setError(null);
+          setErrorFading(false);
+        }, 400);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startYRef.current = e.touches[0].clientY;
@@ -236,7 +251,7 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, onDeposit
 
           {/* Ошибка */}
           {error && (
-            <div className="deposit-modal__error">
+            <div className={`deposit-modal__error ${errorFading ? 'deposit-modal__error--fading' : ''}`}>
               {error}
             </div>
           )}
