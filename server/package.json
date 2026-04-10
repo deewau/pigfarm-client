@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "npm run build --prefix ../client && npx shx mkdir -p public && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc && npx shx cp src/db/schema.sql dist/db/",
+    "build": "cd ../client && npm run build && cd ../server && tsc && npx shx cp src/db/schema.sql dist/db/",
+    "build:deploy": "cd ../client && npx vite build && cd ../server && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc && npx shx cp src/db/schema.sql dist/db/",
     "start": "node dist/index.js",
     "db:migrate": "tsx src/db/migrate.ts"
   },
