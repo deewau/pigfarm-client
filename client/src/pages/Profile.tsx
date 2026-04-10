@@ -19,7 +19,7 @@ export function Profile() {
   const balance = user?.balance || 0;
 
   // Debug info
-  const debugInfo = `${tgDebug}`;
+  const debugInfo = `${tgDebug} | authError: ${error}`;
 
   return (
     <div className="profile">
