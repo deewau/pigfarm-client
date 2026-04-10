@@ -29,6 +29,6 @@ async function ping() {
   }
 }
 
-// Пингуем раз в 5 минут
+// Пингуем раз в 30 секунд
 ping();
-setInterval(ping, 5 * 60 * 1000);
+setInterval(ping, 30 * 1000);

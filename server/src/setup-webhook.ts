@@ -33,7 +33,7 @@ async function setupWebhook() {
     console.log(`🔗 Setting webhook to: ${baseUrl}`);
     const response = await axios.post(`https://api.telegram.org/bot${botToken}/setWebhook`, {
       url: baseUrl,
-      allowed_updates: ['message'],
+      allowed_updates: ['message', 'pre_checkout_query'],
     });
 
     if (response.data.ok) {

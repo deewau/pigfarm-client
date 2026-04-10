@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Request, Response } from 'express';
 import { handleSuccessfulPayment, handleRefundedPayment } from '../services/telegram.js';
 
@@ -21,6 +22,19 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
         payment.invoice_payload,
         payment.total_amount
       );
+    }
+
+    // Обработка pre_checkout_query — бот должен подтвердить платёж
+    if (update.pre_checkout_query) {
+      const { pre_checkout_query } = update;
+      await axios.post(
+        `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/answerPreCheckoutQuery`,
+        {
+          pre_checkout_query_id: pre_checkout_query.id,
+          ok: true,
+        }
+      );
+      console.log(`✅ Pre-checkout query answered: ${pre_checkout_query.id}`);
     }
 
     // Обработка возврата
