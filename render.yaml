@@ -4,8 +4,8 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm start
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -16,4 +16,4 @@ services:
       - key: TELEGRAM_BOT_USERNAME
         sync: false
       - key: CLIENT_URL
-        value: https://your-app.vercel.app
+        value: https://your-domain.com

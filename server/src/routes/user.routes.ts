@@ -4,14 +4,14 @@ import { getUserProfile, getUserBalance, getUserTransactions } from '../controll
 
 const router = Router();
 
-// Все роуты требуют авторизации
+// Публичный роут — должен быть ДО middleware
+router.get('/:id', getUserProfile);
+
+// Все остальные роуты требуют авторизации
 router.use(authenticateTelegram);
 
 router.get('/profile', getUserProfile);
 router.get('/balance', getUserBalance);
 router.get('/transactions', getUserTransactions);
-
-// Получить пользователя по ID (публичный, без авторизации)
-router.get('/:id', getUserProfile);
 
 export default router;

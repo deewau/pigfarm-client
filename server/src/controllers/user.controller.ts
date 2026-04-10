@@ -3,7 +3,7 @@ import { userRepository, transactionRepository } from '../db/repository.js';
 
 export function getUserProfile(req: Request, res: Response) {
   try {
-    const userId = req.params.id ? parseInt(req.params.id) : req.user?.id;
+    const userId = req.params.id ? parseInt(req.params.id as string) : req.user?.id;
 
     if (!userId) {
       res.status(400).json({

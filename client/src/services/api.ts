@@ -1,7 +1,9 @@
 import axios from 'axios';
-import type { ApiResponse, AuthResponse, DepositResponse, User, Transaction } from '../types';
+import type { ApiResponse, AuthResponse, DepositResponse } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// В разработке используем относительные пути (через Vite proxy),
+// в продакшене — VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -29,19 +31,8 @@ export const authApi = {
 
 // User
 export const userApi = {
-  getProfile: async (userId?: number): Promise<ApiResponse<{ user: User }>> => {
-    const url = userId ? `/api/user/${userId}` : '/api/user/profile';
-    const response = await api.get<ApiResponse<{ user: User }>>(url);
-    return response.data;
-  },
-
   getBalance: async (): Promise<ApiResponse<{ balance: number }>> => {
     const response = await api.get<ApiResponse<{ balance: number }>>('/api/user/balance');
-    return response.data;
-  },
-
-  getTransactions: async (): Promise<ApiResponse<{ transactions: Transaction[] }>> => {
-    const response = await api.get<ApiResponse<{ transactions: Transaction[] }>>('/api/user/transactions');
     return response.data;
   },
 };

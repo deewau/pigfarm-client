@@ -1,5 +1,6 @@
 import { getDatabase } from './connection.js';
 import type { User, Transaction } from '../types/index.js';
+import type { QueryExecResult } from 'sql.js';
 
 export const userRepository = {
   findById(id: number): User | undefined {
@@ -120,19 +121,23 @@ export const transactionRepository = {
 
   findByUserId(userId: number): Transaction[] {
     const db = getDatabase();
-    const results = db.exec(
-      'SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
-    );
+    const stmt = db.prepare('SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC');
+    stmt.bind([userId]);
+    const results: QueryExecResult[] = [];
+    while (stmt.step()) {
+      const row = stmt.get();
+      if (row) results.push({ columns: [], values: [row] });
+    }
+    stmt.free();
 
-    if (!results.length || !results[0].values.length) {
+    if (!results.length) {
       return [];
     }
 
     const columns = results[0].columns;
-    return results[0].values.map((row) => {
+    return results[0].values.map((row: any) => {
       const obj: any = {};
-      columns.forEach((col, i) => {
+      columns.forEach((col: string, i: number) => {
         obj[col] = row[i];
       });
       return obj as Transaction;

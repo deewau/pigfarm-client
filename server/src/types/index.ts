@@ -20,16 +20,3 @@ export interface Transaction {
   description?: string;
   created_at: string;
 }
-
-export interface CreateInvoicePayload {
-  user_id: number;
-  amount: number;
-  description?: string;
-}
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
