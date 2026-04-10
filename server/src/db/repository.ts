@@ -33,16 +33,18 @@ export const userRepository = {
     language_code?: string;
   }): User {
     const db = getDatabase();
+    const params = [
+      data.telegram_id,
+      data.first_name,
+      data.last_name || '',
+      data.username || '',
+      data.language_code || 'ru',
+    ];
+    console.log('  [db.create] params:', params.map((v, i) => `#${i}: ${typeof v}=${JSON.stringify(v)}`).join(', '));
     db.run(
       `INSERT INTO users (telegram_id, first_name, last_name, username, language_code)
        VALUES (?, ?, ?, ?, ?)`,
-      [
-        data.telegram_id,
-        data.first_name,
-        data.last_name || '',
-        data.username || '',
-        data.language_code || 'ru',
-      ]
+      params
     );
 
     const result = db.exec('SELECT last_insert_rowid() as id');
