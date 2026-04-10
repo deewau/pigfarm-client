@@ -6,10 +6,6 @@ export async function authWithTelegram(req: Request, res: Response) {
   try {
     const { initData } = req.body;
 
-    console.log('🔐 Auth request received');
-    console.log('  initData present:', !!initData);
-    console.log('  initData preview:', initData ? initData.substring(0, 80) + '...' : 'missing');
-
     if (!initData) {
       res.status(400).json({
         success: false,
@@ -19,7 +15,6 @@ export async function authWithTelegram(req: Request, res: Response) {
     }
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    console.log('  botToken present:', !!botToken);
     if (!botToken) {
       res.status(500).json({
         success: false,
@@ -28,9 +23,7 @@ export async function authWithTelegram(req: Request, res: Response) {
       return;
     }
 
-    console.log('  validating initData...');
     const validatedData = validateTelegramInitData(initData, botToken);
-    console.log('  validation result:', validatedData ? 'SUCCESS' : 'FAILED');
 
     if (!validatedData) {
       res.status(401).json({

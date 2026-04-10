@@ -8,7 +8,7 @@ import { DepositModal } from '../components/DepositModal';
 import './Profile.css';
 
 export function Profile() {
-  const { user: tgUser, debug: tgDebug } = useTelegram();
+  const { user: tgUser } = useTelegram();
   const { user, loading, error, refreshBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
@@ -17,9 +17,6 @@ export function Profile() {
   const avatarUrl = tgUser?.photo_url || '';
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
   const balance = user?.balance || 0;
-
-  // Debug info
-  const debugInfo = `${tgDebug} | authError: ${error}`;
 
   return (
     <div className="profile">
@@ -65,11 +62,6 @@ export function Profile() {
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={refreshBalance} />
-
-      <div style={{ padding: 10, fontSize: 10, color: '#888', wordBreak: 'break-all', marginTop: 20 }}>
-        <strong>Debug:</strong><br />
-        {debugInfo}
-      </div>
     </div>
   );
 }

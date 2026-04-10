@@ -40,10 +40,7 @@ export function useAuth() {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      console.error('  response status:', err.response?.status);
-      console.error('  response data:', JSON.stringify(err.response?.data));
-      const errMessage = `[${err.response?.status || '?'}] ${err.response?.data?.error || err.response?.statusText || err.message || 'Network error'}`;
-      setError(errMessage);
+      setError(err.response?.data?.error || 'Network error');
     } finally {
       setLoading(false);
     }

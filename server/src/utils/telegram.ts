@@ -23,13 +23,7 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
     const hash = urlParams.get('hash');
     const userData = urlParams.get('user');
 
-    console.log('  [validate] hash present:', !!hash);
-    console.log('  [validate] userData present:', !!userData);
-
-    if (!hash) {
-      console.error('  [validate] No hash in initData');
-      return null;
-    }
+    if (!hash) return null;
 
     urlParams.delete('hash');
 
@@ -37,8 +31,6 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
-
-    console.log('  [validate] dataCheckString (first 100):', dataCheckArr.substring(0, 100));
 
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
@@ -50,35 +42,18 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
       .update(dataCheckArr)
       .digest('hex');
 
-    console.log('  [validate] calculatedHash:', calculatedHash.substring(0, 20) + '...');
-    console.log('  [validate] providedHash:', hash.substring(0, 20) + '...');
-    console.log('  [validate] hashes match:', calculatedHash === hash);
+    if (calculatedHash !== hash) return null;
 
-    if (calculatedHash !== hash) {
-      console.error('  [validate] Hash validation failed');
-      return null;
-    }
-
-    if (!userData) {
-      console.error('  [validate] No user data in initData');
-      return null;
-    }
+    if (!userData) return null;
 
     const parsedUser = JSON.parse(userData);
     const authDate = parseInt(urlParams.get('auth_date') || '0');
 
-    // Проверяем что данные не старше 24 часов
     const now = Math.floor(Date.now() / 1000);
-    if (now - authDate > 86400) {
-      console.error('  [validate] initData expired');
-      return null;
-    }
+    if (now - authDate > 86400) return null;
 
-    // Удаляем user чтобы spread не перезаписал объект
     urlParams.delete('user');
 
-    console.log('  [validate] validation SUCCESS for user:', parsedUser.first_name);
-    console.log('  [validate] parsedUser:', JSON.stringify(parsedUser));
     return {
       user: parsedUser,
       auth_date: authDate,
