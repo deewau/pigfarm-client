@@ -18,6 +18,9 @@ export function Profile() {
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
   const balance = user?.balance || 0;
 
+  // Debug info
+  const debugInfo = `tgUser: ${JSON.stringify(tgUser)} | authUser: ${JSON.stringify(user)} | loading: ${loading} | error: ${error}`;
+
   return (
     <div className="profile">
       <div className="profile__card">
@@ -62,6 +65,11 @@ export function Profile() {
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={refreshBalance} />
+
+      <div style={{ padding: 10, fontSize: 10, color: '#888', wordBreak: 'break-all', marginTop: 20 }}>
+        <strong>Debug:</strong><br />
+        {debugInfo}
+      </div>
     </div>
   );
 }
