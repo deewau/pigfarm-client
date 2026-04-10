@@ -21,8 +21,10 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
   try {
     const urlParams = new URLSearchParams(initData);
     const hash = urlParams.get('hash');
+    const userData = urlParams.get('user');
 
     console.log('  [validate] hash present:', !!hash);
+    console.log('  [validate] userData present:', !!userData);
 
     if (!hash) {
       console.error('  [validate] No hash in initData');
@@ -57,7 +59,6 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
       return null;
     }
 
-    const userData = urlParams.get('user');
     if (!userData) {
       console.error('  [validate] No user data in initData');
       return null;
@@ -73,7 +74,11 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
       return null;
     }
 
+    // Удаляем user чтобы spread не перезаписал объект
+    urlParams.delete('user');
+
     console.log('  [validate] validation SUCCESS for user:', parsedUser.first_name);
+    console.log('  [validate] parsedUser:', JSON.stringify(parsedUser));
     return {
       user: parsedUser,
       auth_date: authDate,
