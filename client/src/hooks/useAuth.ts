@@ -59,6 +59,11 @@ export function useAuth() {
     }
   }, [user]);
 
+  // Мгновенное обновление баланса на клиенте
+  const addBalance = useCallback((amount: number) => {
+    setUser((prev) => (prev ? { ...prev, balance: prev.balance + amount } : null));
+  }, []);
+
   useEffect(() => {
     login();
   }, [login]);
@@ -68,6 +73,7 @@ export function useAuth() {
     loading,
     error,
     refreshBalance,
+    addBalance,
     login,
   };
 }

@@ -8,7 +8,7 @@ const MAX_STARS = 10000;
 interface DepositModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onDepositSuccess?: () => void;
+  onDepositSuccess?: (amount: number) => void;
 }
 
 export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, onDepositSuccess }) => {
@@ -157,16 +157,16 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, onDeposit
           tg.openInvoice(invoiceUrl, (status: string) => {
             console.log('Invoice status:', status);
             if (status === 'paid') {
-              onDepositSuccess?.();
+              // Мгновенное обновление баланса на клиенте
+              onDepositSuccess?.(amount);
               handleClose();
             } else if (status === 'failed' || status === 'cancelled') {
               setError('Платёж не был завершён');
             }
           });
         } else {
-          // Для тестирования в браузере
           window.open(invoiceUrl, '_blank');
-          setError('Открыли invoice в новой вкладке (для Telegram WebApp откроется автоматически)');
+          setError('Открыли invoice в новой вкладке');
         }
       } else {
         setError(response.error || 'Не удалось создать платёж');

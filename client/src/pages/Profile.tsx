@@ -9,7 +9,7 @@ import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, refreshBalance } = useAuth();
+  const { user, loading, error, refreshBalance, addBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const level = 1;
@@ -61,7 +61,7 @@ export function Profile() {
       </div>
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={refreshBalance} />
+      <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={(amount) => { addBalance(amount); }} />
     </div>
   );
 }
