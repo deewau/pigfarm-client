@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
 import { TrophyIcon, GiftsIcon, GameIcon, ProfileIcon } from './components/icons';
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="play" element={<PlaceholderPage title="Играть" />} />
           <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="inventory" element={<Inventory />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -32,6 +34,7 @@ function Layout() {
           <Route path="play" element={<PlaceholderPage title="Играть" />} />
           <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="inventory" element={<Inventory />} />
         </Routes>
       </div>
       <BottomBar />

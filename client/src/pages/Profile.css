@@ -19,6 +19,53 @@
   margin-bottom: 20px;
 }
 
+/* Кнопки действий */
+.profile__actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.profile__action-btn {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s ease;
+}
+
+.profile__action-btn:hover {
+  opacity: 0.9;
+}
+
+.profile__action-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile__action-btn--primary {
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  color: #ffffff;
+}
+
+.profile__action-icon {
+  font-size: 18px;
+}
+
+.profile__action-arrow {
+  font-size: 16px;
+  margin-left: 4px;
+}
+
 /* Реферальный баннер */
 .profile__referral-banner {
   background: linear-gradient(135deg, #007aff, #5856d6);

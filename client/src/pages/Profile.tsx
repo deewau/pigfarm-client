@@ -28,6 +28,10 @@ export function Profile() {
     tg.openTelegramLink(shareUrl);
   };
 
+  const handleInventory = () => {
+    navigate('/inventory');
+  };
+
   const avatarUrl = tgUser?.photo_url || '';
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
   const balance = user?.balance || 0;
@@ -35,15 +39,16 @@ export function Profile() {
   return (
     <div className="profile">
       <div className="profile__card">
-        {/* Реферальный блок */}
-        <div className="profile__referral-banner" onClick={handleInvite}>
-          <div className="profile__referral-content">
-            <div>
-              <h3 className="profile__referral-title">Приглашай друзей</h3>
-              <p className="profile__referral-subtitle">и зарабатывай 10% от их депозитов</p>
-            </div>
-            <span className="profile__referral-arrow">→</span>
-          </div>
+        {/* Кнопки действий */}
+        <div className="profile__actions">
+          <button className="profile__action-btn profile__action-btn--secondary" onClick={handleInventory}>
+            <span className="profile__action-icon">🎁</span>
+            Инвентарь
+          </button>
+          <button className="profile__action-btn profile__action-btn--primary" onClick={handleInvite}>
+            Приглашай друзей
+            <span className="profile__action-arrow">→</span>
+          </button>
         </div>
 
         <div className="profile__header">

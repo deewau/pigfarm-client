@@ -11,6 +11,7 @@ import userRoutes from './routes/user.routes.js';
 import depositRoutes from './routes/deposit.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import referralRoutes from './routes/referral.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/deposit', depositRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/referral', referralRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

@@ -48,6 +48,14 @@ export const depositApi = {
   },
 };
 
+// Transaction
+export const transactionApi = {
+  getHistory: async () => {
+    const response = await api.get('/api/transactions/history');
+    return response.data;
+  },
+};
+
 // Referral
 export const referralApi = {
   getLink: async () => {
