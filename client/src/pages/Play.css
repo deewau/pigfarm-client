@@ -200,12 +200,30 @@
   color: #8e8e93;
   text-align: center;
   margin: 0;
+  flex-shrink: 0;
 }
 
 .play__gifts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+  overflow-y: auto;
+  max-height: 320px;
+  padding-right: 4px;
+}
+
+.play__gifts-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.play__gifts-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 2px;
+}
+
+.play__gifts-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
 }
 
 .play__gift-card {
