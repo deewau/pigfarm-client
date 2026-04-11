@@ -61,9 +61,9 @@ export function Referral() {
     const tg = (window as any).Telegram?.WebApp;
     if (!tg || !referral) return;
 
-    const text = `Присоединяйся к Pigfarm! 🐷\n${referral.referralLink}\n\nПолучи бонус за регистрацию по моей ссылке!`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referral.referralLink)}&text=${encodeURIComponent(`Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию по моей ссылке!`)}`;
     
-    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referral.referralLink)}&text=${encodeURIComponent(text)}`);
+    tg.openTelegramLink(shareUrl);
   };
 
   if (loading) {

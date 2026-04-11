@@ -3,7 +3,7 @@ import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { Referral } from './pages/Referral';
 import { TabBar } from './components/TabBar';
-import { TrophyIcon, GiftsIcon, GameIcon, ReferralIcon, ProfileIcon } from './components/icons';
+import { TrophyIcon, GiftsIcon, GameIcon, ProfileIcon } from './components/icons';
 
 function App() {
   return (
@@ -67,12 +67,6 @@ function BottomBar() {
           label: 'Играть',
           path: '/play',
           icon: <GameIcon />,
-        },
-        {
-          id: 'tasks',
-          label: 'Задания',
-          path: '/tasks',
-          icon: <ReferralIcon />,
         },
         {
           id: 'profile',
