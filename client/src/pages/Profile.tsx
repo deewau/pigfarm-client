@@ -17,7 +17,15 @@ export function Profile() {
   const level = 1;
 
   const handleInvite = () => {
-    navigate('/referral');
+    const tg = (window as any).Telegram?.WebApp;
+    if (!tg) return;
+
+    const botUsername = 'piggitbot';
+    const userId = user?.telegram_id || tgUser?.id;
+    const text = `Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию по моей ссылке!`;
+    
+    // Открывает диалог выбора чата для пересылки
+    tg.switchInlineQuery(`ref_${userId} ${text}`);
   };
 
   const avatarUrl = tgUser?.photo_url || '';
