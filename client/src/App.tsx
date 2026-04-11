@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+import { Referral } from './pages/Referral';
 import { TabBar } from './components/TabBar';
-import { TrophyIcon, GiftsIcon, GameIcon, TasksIcon, ProfileIcon } from './components/icons';
+import { TrophyIcon, GiftsIcon, GameIcon, ReferralIcon, ProfileIcon } from './components/icons';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="play" element={<PlaceholderPage title="Играть" />} />
           <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="referral" element={<Referral />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -32,6 +34,7 @@ function Layout() {
           <Route path="play" element={<PlaceholderPage title="Играть" />} />
           <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="referral" element={<Referral />} />
         </Routes>
       </div>
       <BottomBar />
@@ -69,8 +72,7 @@ function BottomBar() {
           id: 'tasks',
           label: 'Задания',
           path: '/tasks',
-          icon: <TasksIcon />,
-          badge: true,
+          icon: <ReferralIcon />,
         },
         {
           id: 'profile',

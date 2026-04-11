@@ -47,3 +47,15 @@ export const depositApi = {
     return response.data;
   },
 };
+
+// Referral
+export const referralApi = {
+  getLink: async () => {
+    const response = await api.get('/api/referral/link');
+    return response.data;
+  },
+  getStats: async () => {
+    const response = await api.get('/api/referral/stats');
+    return response.data;
+  },
+};

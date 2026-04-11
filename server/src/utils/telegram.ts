@@ -10,6 +10,7 @@ export interface TelegramInitData {
   };
   auth_date: number;
   hash: string;
+  start_param?: string;
   [key: string]: any;
 }
 
@@ -58,6 +59,7 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
       user: parsedUser,
       auth_date: authDate,
       hash,
+      start_param: urlParams.get('start_param') || undefined,
       ...Object.fromEntries(urlParams),
     };
   } catch (error) {

@@ -19,6 +19,46 @@
   margin-bottom: 20px;
 }
 
+/* Реферальный баннер */
+.profile__referral-banner {
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.profile__referral-banner:hover {
+  opacity: 0.9;
+}
+
+.profile__referral-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile__referral-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.profile__referral-subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.profile__referral-arrow {
+  font-size: 24px;
+  color: #ffffff;
+}
+
 .profile__user-info {
   display: flex;
   align-items: center;

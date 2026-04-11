@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT,
   language_code TEXT DEFAULT 'ru',
   balance INTEGER DEFAULT 0 CHECK(balance >= 0),
+  referred_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  referral_earnings INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
@@ -8,11 +9,16 @@ import { DepositModal } from '../components/DepositModal';
 import './Profile.css';
 
 export function Profile() {
+  const navigate = useNavigate();
   const { user: tgUser } = useTelegram();
   const { user, loading, error, addBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const level = 1;
+
+  const handleInvite = () => {
+    navigate('/referral');
+  };
 
   const avatarUrl = tgUser?.photo_url || '';
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
@@ -21,6 +27,17 @@ export function Profile() {
   return (
     <div className="profile">
       <div className="profile__card">
+        {/* Реферальный блок */}
+        <div className="profile__referral-banner" onClick={handleInvite}>
+          <div className="profile__referral-content">
+            <div>
+              <h3 className="profile__referral-title">Приглашай друзей</h3>
+              <p className="profile__referral-subtitle">и зарабатывай 10% от их депозитов</p>
+            </div>
+            <span className="profile__referral-arrow">→</span>
+          </div>
+        </div>
+
         <div className="profile__header">
           <div className="profile__user-info">
             <div className="profile__avatar-wrapper">

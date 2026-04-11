@@ -35,6 +35,19 @@ export async function authWithTelegram(req: Request, res: Response) {
 
     const telegramUser = validatedData.user;
 
+    // Получаем реферера из start_param (если есть)
+    let referredBy: number | undefined;
+    if (validatedData.start_param && validatedData.start_param.startsWith('ref_')) {
+      const referrerId = parseInt(validatedData.start_param.replace('ref_', ''));
+      if (!isNaN(referrerId)) {
+        const referrer = await userRepository.findById(referrerId);
+        if (referrer) {
+          referredBy = referrerId;
+          console.log(`🔗 User referred by ${referrerId}`);
+        }
+      }
+    }
+
     // Ищем или создаём пользователя
     let user = await userRepository.findByTelegramId(telegramUser.id);
 
@@ -45,6 +58,7 @@ export async function authWithTelegram(req: Request, res: Response) {
         last_name: telegramUser.last_name,
         username: telegramUser.username,
         language_code: telegramUser.language_code || 'ru',
+        referredBy,
       });
       console.log(`🆕 New user registered: ${user.first_name} (@${user.username || user.telegram_id})`);
     }

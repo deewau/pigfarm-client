@@ -101,6 +101,17 @@ export async function handleSuccessfulPayment(
   await transactionRepository.updateStatus(transaction.id, 'completed');
   await userRepository.addBalance(transaction.user_id, amount);
 
+  // Начисляем 10% пригласившему
+  const user = await userRepository.findById(transaction.user_id);
+  if (user?.referred_by) {
+    const commission = Math.floor(amount * 0.1); // 10%
+    if (commission > 0) {
+      await userRepository.addBalance(user.referred_by, commission);
+      await userRepository.addReferralEarnings(user.referred_by, commission);
+      console.log(`🎁 Referral bonus: ${commission} stars to user ${user.referred_by}`);
+    }
+  }
+
   console.log(`✅ Payment completed: ${amount} stars added to user ${transaction.user_id}`);
 }
 

@@ -22,17 +22,19 @@ export const userRepository = {
     last_name?: string;
     username?: string;
     language_code?: string;
+    referredBy?: number;
   }): Promise<User> {
     const pool = getPool();
     const result = await pool.query(
-      `INSERT INTO users (telegram_id, first_name, last_name, username, language_code)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      `INSERT INTO users (telegram_id, first_name, last_name, username, language_code, referred_by)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [
         data.telegram_id,
         data.first_name,
         data.last_name || null,
         data.username || null,
         data.language_code || 'ru',
+        data.referredBy || null,
       ]
     );
     return result.rows[0] as User;
@@ -54,6 +56,21 @@ export const userRepository = {
       [amount, userId]
     );
     return result.rows[0] as User;
+  },
+
+  async addReferralEarnings(userId: number, amount: number): Promise<User> {
+    const pool = getPool();
+    const result = await pool.query(
+      'UPDATE users SET referral_earnings = referral_earnings + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+      [amount, userId]
+    );
+    return result.rows[0] as User;
+  },
+
+  async getReferrals(userId: number): Promise<User[]> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM users WHERE referred_by = $1 ORDER BY created_at DESC', [userId]);
+    return result.rows as User[];
   },
 };
 
