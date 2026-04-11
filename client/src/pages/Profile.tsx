@@ -20,12 +20,14 @@ export function Profile() {
     const tg = (window as any).Telegram?.WebApp;
     if (!tg) return;
 
-    const botUsername = 'piggitbot';
     const userId = user?.telegram_id || tgUser?.id;
-    const text = `Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию по моей ссылке!`;
+    const botUsername = 'piggitbot';
+    const referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
     
-    // Открывает диалог выбора чата для пересылки
-    tg.switchInlineQuery(`ref_${userId} ${text}`);
+    // Используем Telegram share — открывает выбор чата
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию!`)}`;
+    
+    tg.openTelegramLink(shareUrl);
   };
 
   const avatarUrl = tgUser?.photo_url || '';
