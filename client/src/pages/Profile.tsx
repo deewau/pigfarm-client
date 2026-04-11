@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
@@ -6,14 +5,15 @@ import { GameIcon } from '../components/icons';
 import { CircularAvatar } from '../components/CircularAvatar';
 import { SettingsModal } from '../components/SettingsModal';
 import { DepositModal } from '../components/DepositModal';
+import { timeAgo } from '../utils/timeAgo';
 import './Profile.css';
 
 export function Profile() {
-  const navigate = useNavigate();
   const { user: tgUser } = useTelegram();
   const { user, loading, error, addBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
+  const [tab, setTab] = useState<'gifts' | 'friends' | 'history'>('gifts');
   const level = 1;
 
   const handleInvite = () => {
@@ -28,29 +28,32 @@ export function Profile() {
     tg.openTelegramLink(shareUrl);
   };
 
-  const handleInventory = () => {
-    navigate('/inventory');
-  };
-
   const avatarUrl = tgUser?.photo_url || '';
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
   const balance = user?.balance || 0;
 
+  // History data
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const loadHistory = async () => {
+    if (transactions.length > 0) return;
+    setHistoryLoading(true);
+    try {
+      const api = await import('../services/api');
+      const response = await api.transactionApi.getHistory();
+      if (response.success) setTransactions(response.data?.transactions || []);
+    } catch (err) {
+      console.error('Failed to load history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   return (
     <div className="profile">
+      {/* Карточка профиля */}
       <div className="profile__card">
-        {/* Кнопки действий */}
-        <div className="profile__actions">
-          <button className="profile__action-btn profile__action-btn--secondary" onClick={handleInventory}>
-            <span className="profile__action-icon">🎁</span>
-            Инвентарь
-          </button>
-          <button className="profile__action-btn profile__action-btn--primary" onClick={handleInvite}>
-            Приглашай друзей
-            <span className="profile__action-arrow">→</span>
-          </button>
-        </div>
-
         <div className="profile__header">
           <div className="profile__user-info">
             <div className="profile__avatar-wrapper">
@@ -89,6 +92,86 @@ export function Profile() {
         </div>
         <button className="profile__deposit" onClick={() => setDepositOpen(true)}>Пополнить баланс</button>
       </div>
+
+      {/* Реферальный баннер */}
+      <div className="profile__referral-banner" onClick={handleInvite}>
+        <h3 className="profile__referral-title">Приглашай друзей</h3>
+        <p className="profile__referral-subtitle">и зарабатывай 10% от их депозитов</p>
+        <button className="profile__referral-btn">Пригласить друзей</button>
+      </div>
+
+      {/* Вкладки */}
+      <div className="profile__tabs">
+        <button
+          className={`profile__tab ${tab === 'gifts' ? 'profile__tab--active' : ''}`}
+          onClick={() => setTab('gifts')}
+        >
+          Подарки
+        </button>
+        <button
+          className={`profile__tab ${tab === 'friends' ? 'profile__tab--active' : ''}`}
+          onClick={() => setTab('friends')}
+        >
+          Друзья
+        </button>
+        <button
+          className={`profile__tab ${tab === 'history' ? 'profile__tab--active' : ''}`}
+          onClick={() => { setTab('history'); loadHistory(); }}
+        >
+          История
+        </button>
+      </div>
+
+      {/* Содержимое вкладок */}
+      {tab === 'gifts' && (
+        <div className="profile__tab-content">
+          <div className="profile__empty">
+            <div className="profile__empty-icon">🔍</div>
+            <p>У вас ещё нет подарков</p>
+          </div>
+        </div>
+      )}
+
+      {tab === 'friends' && (
+        <div className="profile__tab-content">
+          <div className="profile__empty">
+            <div className="profile__empty-icon">👥</div>
+            <p>У вас ещё нет друзей</p>
+          </div>
+        </div>
+      )}
+
+      {tab === 'history' && (
+        <div className="profile__tab-content">
+          {historyLoading ? (
+            <div className="profile__loading">Загрузка...</div>
+          ) : transactions.length === 0 ? (
+            <div className="profile__empty">
+              <div className="profile__empty-icon">📋</div>
+              <p>Нет транзакций</p>
+            </div>
+          ) : (
+            <div className="profile__history-list">
+              {transactions.map((tx) => (
+                <div key={tx.id} className="profile__history-item">
+                  <div className="profile__history-icon">
+                    {tx.type === 'deposit' ? '💳' : tx.type === 'withdrawal' ? '📤' : '🎮'}
+                  </div>
+                  <div className="profile__history-info">
+                    <span className="profile__history-title">
+                      {tx.type === 'deposit' ? 'Пополнение баланса' : tx.type === 'withdrawal' ? 'Вывод средств' : 'Трата'}
+                    </span>
+                    <span className="profile__history-time">{timeAgo(tx.created_at)}</span>
+                  </div>
+                  <span className={`profile__history-amount ${tx.type === 'deposit' ? 'profile__history-amount--positive' : 'profile__history-amount--negative'}`}>
+                    {tx.type === 'deposit' ? '+' : tx.type === 'withdrawal' ? '-' : ''}{tx.amount} ⭐
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={(amount) => { addBalance(amount); }} />

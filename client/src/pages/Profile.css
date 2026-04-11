@@ -1,109 +1,22 @@
 .profile {
-  padding: 24px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
+/* Карточка профиля */
 .profile__card {
   background: #1c1c1e;
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .profile__header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-/* Кнопки действий */
-.profile__actions {
-  display: flex;
-  gap: 10px;
   margin-bottom: 16px;
-}
-
-.profile__action-btn {
-  flex: 1;
-  padding: 14px 16px;
-  border: none;
-  border-radius: 14px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity 0.15s ease;
-}
-
-.profile__action-btn:hover {
-  opacity: 0.9;
-}
-
-.profile__action-btn--secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.profile__action-btn--primary {
-  background: linear-gradient(135deg, #007aff, #5856d6);
-  color: #ffffff;
-}
-
-.profile__action-icon {
-  font-size: 18px;
-}
-
-.profile__action-arrow {
-  font-size: 16px;
-  margin-left: 4px;
-}
-
-/* Реферальный баннер */
-.profile__referral-banner {
-  background: linear-gradient(135deg, #007aff, #5856d6);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 16px;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.profile__referral-banner:hover {
-  opacity: 0.9;
-}
-
-.profile__referral-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.profile__referral-title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 4px;
-}
-
-.profile__referral-subtitle {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-}
-
-.profile__referral-arrow {
-  font-size: 24px;
-  color: #ffffff;
 }
 
 .profile__user-info {
@@ -114,24 +27,20 @@
 
 .profile__avatar-wrapper {
   position: relative;
-  display: flex;
-  flex-shrink: 0;
 }
 
 .profile__level {
   position: absolute;
-  bottom: -2px;
+  bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.65);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 600;
-  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #000;
+  padding: 2px 6px;
   border-radius: 6px;
   white-space: nowrap;
-  letter-spacing: 0.3px;
-  z-index: 2;
 }
 
 .profile__details {
@@ -142,10 +51,9 @@
 
 .profile__name {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   color: #ffffff;
-  line-height: 1.2;
 }
 
 .profile__balance {
@@ -156,57 +64,220 @@
 
 .profile__balance-value {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1;
 }
 
 .profile__balance-icon {
   display: flex;
   align-items: center;
-  color: #007aff;
-}
-
-.profile__balance-icon svg {
-  width: 22px;
-  height: 22px;
+  color: #5ac8fa;
 }
 
 .profile__settings {
   background: rgba(255, 255, 255, 0.08);
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: #8e8e93;
-  flex-shrink: 0;
+  border-radius: 50%;
   transition: background 0.15s ease;
 }
 
 .profile__settings:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .profile__deposit {
   width: 100%;
-  padding: 14px 16px;
+  padding: 14px;
   background: #007aff;
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.profile__deposit:hover {
+  opacity: 0.9;
+}
+
+/* Реферальный баннер */
+.profile__referral-banner {
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.profile__referral-banner:hover {
+  opacity: 0.95;
+}
+
+.profile__referral-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.profile__referral-subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 14px;
+}
+
+.profile__referral-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
-  letter-spacing: 0.2px;
 }
 
-.profile__deposit:hover {
-  background: #0062cc;
+.profile__referral-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Вкладки */
+.profile__tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.profile__tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: #8e8e93;
+}
+
+.profile__tab--active {
+  background: #007aff;
+  color: #ffffff;
+}
+
+/* Содержимое вкладок */
+.profile__tab-content {
+  min-height: 120px;
+}
+
+.profile__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+}
+
+.profile__empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.profile__empty p {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #8e8e93;
+  margin: 0;
+}
+
+.profile__loading {
+  text-align: center;
+  padding: 40px;
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+/* История */
+.profile__history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile__history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+.profile__history-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.profile__history-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile__history-title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.profile__history-time {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.profile__history-amount {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.profile__history-amount--positive {
+  color: #34c759;
+}
+
+.profile__history-amount--negative {
+  color: #ff4444;
 }
