@@ -24,8 +24,8 @@ function App() {
 
 function Layout() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <div style={{ flex: 1, paddingBottom: 80 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
         <Routes>
           <Route index element={<Home />} />
           <Route path="tournaments" element={<ComingSoon title="Турниры" subtitle="Соревнуйся с другими игроками и выигрывай призы!" icon="🏆" />} />
