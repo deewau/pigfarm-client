@@ -21,10 +21,11 @@ export function Profile() {
     if (!tg) return;
 
     const userId = user?.telegram_id || tgUser?.id;
-    const query = `ref_${userId}`;
+    const referralLink = `https://t.me/piggitbot?start=ref_${userId}`;
+    const message = `Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию!`;
     
-    // switchInlineQuery открывает диалог выбора чата с превью бота
-    tg.switchInlineQuery(query, ['users', 'groups', 'channels']);
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(message)}`;
+    tg.openTelegramLink(shareUrl);
   };
 
   const avatarUrl = tgUser?.photo_url || '';
