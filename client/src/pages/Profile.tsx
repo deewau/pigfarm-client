@@ -21,13 +21,10 @@ export function Profile() {
     if (!tg) return;
 
     const userId = user?.telegram_id || tgUser?.id;
-    const botUsername = 'piggitbot';
-    const referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
+    const query = `ref_${userId}`;
     
-    // Используем Telegram share — открывает выбор чата
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`Присоединяйся к Pigfarm! 🐷\n\nПолучи бонус за регистрацию!`)}`;
-    
-    tg.openTelegramLink(shareUrl);
+    // switchInlineQuery открывает диалог выбора чата с превью бота
+    tg.switchInlineQuery(query, ['users', 'groups', 'channels']);
   };
 
   const avatarUrl = tgUser?.photo_url || '';
