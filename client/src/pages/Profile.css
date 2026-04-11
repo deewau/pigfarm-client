@@ -3,6 +3,31 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.profile__card {
+  flex-shrink: 0;
+}
+
+.profile__referral-banner {
+  flex-shrink: 0;
+}
+
+.profile__tabs {
+  flex-shrink: 0;
+}
+
+.profile__tab-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.profile__tab-content--scrollable {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Карточка профиля */
@@ -236,10 +261,9 @@
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  flex: 1 1 auto;
+  flex: 1;
   min-height: 0;
   padding-right: 4px;
-  -webkit-overflow-scrolling: touch;
 }
 
 .profile__history-list::-webkit-scrollbar {
