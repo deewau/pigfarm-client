@@ -7,6 +7,32 @@
   overflow: hidden;
 }
 
+.profile__card {
+  flex-shrink: 0;
+}
+
+.profile__referral-banner {
+  flex-shrink: 0;
+}
+
+.profile__tabs {
+  flex-shrink: 0;
+}
+
+.profile__tab-content {
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.profile__tab-content--scrollable {
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Карточка профиля */
 .profile__card {
   background: #1c1c1e;

@@ -142,7 +142,7 @@ export function Profile() {
       )}
 
       {tab === 'history' && (
-        <div className="profile__tab-content">
+        <div className="profile__tab-content profile__tab-content--scrollable">
           {historyLoading ? (
             <div className="profile__loading">Загрузка...</div>
           ) : transactions.length === 0 ? (
