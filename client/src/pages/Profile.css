@@ -3,34 +3,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
-  overflow: hidden;
-}
-
-.profile__card {
-  flex-shrink: 0;
-}
-
-.profile__referral-banner {
-  flex-shrink: 0;
-}
-
-.profile__tabs {
-  flex-shrink: 0;
-}
-
-.profile__tab-content {
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-}
-
-.profile__tab-content--scrollable {
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 /* Карточка профиля */
@@ -215,7 +187,17 @@
 
 /* Содержимое вкладок */
 .profile__tab-content {
-  min-height: 120px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.profile__tab-content--scrollable {
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .profile__empty {
@@ -249,21 +231,15 @@
 }
 
 /* История */
-.profile__tab-content {
-  overflow: hidden;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .profile__history-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .profile__history-list::-webkit-scrollbar {
