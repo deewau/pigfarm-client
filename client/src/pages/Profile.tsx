@@ -9,7 +9,7 @@ import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, refreshBalance, addBalance } = useAuth();
+  const { user, loading, error, addBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const level = 1;

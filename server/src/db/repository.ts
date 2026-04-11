@@ -1,160 +1,113 @@
-import { getDatabase } from './connection.js';
+import { getPool } from './connection.js';
 import type { User, Transaction } from '../types/index.js';
-import type { QueryExecResult } from 'sql.js';
 
 export const userRepository = {
-  findById(id: number): User | undefined {
-    const db = getDatabase();
-    const numId = Number(id);
-    if (isNaN(numId)) return undefined;
-    const results = db.exec(`SELECT * FROM users WHERE id = ${numId}`);
-    if (!results.length || !results[0].values.length) {
-      return undefined;
-    }
-    const columns = results[0].columns;
-    const row = results[0].values[0];
-    const obj: Record<string, any> = {};
-    columns.forEach((col, i) => { obj[col] = row[i]; });
-    return obj as unknown as User;
+  async findById(id: number): Promise<User | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as User;
   },
 
-  findByTelegramId(telegramId: number): User | undefined {
-    const db = getDatabase();
-    const id = Number(telegramId);
-    if (isNaN(id)) return undefined;
-    const results = db.exec(`SELECT * FROM users WHERE telegram_id = ${id}`);
-    if (!results.length || !results[0].values.length) {
-      return undefined;
-    }
-    const columns = results[0].columns;
-    const row = results[0].values[0];
-    const obj: Record<string, any> = {};
-    columns.forEach((col, i) => { obj[col] = row[i]; });
-    return obj as unknown as User;
+  async findByTelegramId(telegramId: number): Promise<User | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM users WHERE telegram_id = $1', [telegramId]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as User;
   },
 
-  create(data: {
+  async create(data: {
     telegram_id: number;
     first_name: string;
     last_name?: string;
     username?: string;
     language_code?: string;
-  }): User {
-    const db = getDatabase();
-    db.run(
+  }): Promise<User> {
+    const pool = getPool();
+    const result = await pool.query(
       `INSERT INTO users (telegram_id, first_name, last_name, username, language_code)
-       VALUES (?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [
         data.telegram_id,
         data.first_name,
-        data.last_name || '',
-        data.username || '',
+        data.last_name || null,
+        data.username || null,
         data.language_code || 'ru',
       ]
     );
-
-    const result = db.exec('SELECT last_insert_rowid() as id');
-    const newId = result[0].values[0][0] as number;
-    return this.findById(newId)!;
+    return result.rows[0] as User;
   },
 
-  updateBalance(userId: number, newBalance: number): User {
-    const db = getDatabase();
-    db.run('UPDATE users SET balance = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [
-      newBalance,
-      userId,
-    ]);
-    return this.findById(userId)!;
+  async updateBalance(userId: number, newBalance: number): Promise<User> {
+    const pool = getPool();
+    const result = await pool.query(
+      'UPDATE users SET balance = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+      [newBalance, userId]
+    );
+    return result.rows[0] as User;
   },
 
-  addBalance(userId: number, amount: number): User {
-    const db = getDatabase();
-    db.run(
-      'UPDATE users SET balance = balance + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+  async addBalance(userId: number, amount: number): Promise<User> {
+    const pool = getPool();
+    const result = await pool.query(
+      'UPDATE users SET balance = balance + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
       [amount, userId]
     );
-    return this.findById(userId)!;
+    return result.rows[0] as User;
   },
 };
 
 export const transactionRepository = {
-  create(data: {
+  async create(data: {
     user_id: number;
     amount: number;
     type: 'deposit' | 'withdrawal' | 'spend';
     status: 'pending' | 'completed' | 'failed' | 'refunded';
     telegram_payment_charge_id?: string;
     description?: string;
-  }): Transaction {
-    const db = getDatabase();
-    db.run(
+  }): Promise<Transaction> {
+    const pool = getPool();
+    const result = await pool.query(
       `INSERT INTO transactions (user_id, amount, type, status, telegram_payment_charge_id, description)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [
         data.user_id,
         data.amount,
         data.type,
         data.status,
-        data.telegram_payment_charge_id || '',
-        data.description || '',
+        data.telegram_payment_charge_id || null,
+        data.description || null,
       ]
     );
-
-    const result = db.exec('SELECT last_insert_rowid() as id');
-    const newId = result[0].values[0][0] as number;
-    return this.findById(newId)!;
+    return result.rows[0] as Transaction;
   },
 
-  findById(id: number): Transaction | undefined {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM transactions WHERE id = ?');
-    stmt.bind([id]);
-    if (stmt.step()) {
-      const row = stmt.getAsObject();
-      return row as unknown as Transaction;
-    }
-    return undefined;
+  async findById(id: number): Promise<Transaction | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM transactions WHERE id = $1', [id]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as Transaction;
   },
 
-  findByTelegramChargeId(chargeId: string): Transaction | undefined {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM transactions WHERE telegram_payment_charge_id = ?');
-    stmt.bind([chargeId]);
-    if (stmt.step()) {
-      const row = stmt.getAsObject();
-      return row as unknown as Transaction;
-    }
-    return undefined;
+  async findByTelegramChargeId(chargeId: string): Promise<Transaction | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM transactions WHERE telegram_payment_charge_id = $1', [chargeId]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as Transaction;
   },
 
-  findByUserId(userId: number): Transaction[] {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC');
-    stmt.bind([userId]);
-    const results: QueryExecResult[] = [];
-    while (stmt.step()) {
-      const row = stmt.get();
-      if (row) results.push({ columns: [], values: [row] });
-    }
-    stmt.free();
-
-    if (!results.length) {
-      return [];
-    }
-
-    const columns = results[0].columns;
-    return results[0].values.map((row: any) => {
-      const obj: any = {};
-      columns.forEach((col: string, i: number) => {
-        obj[col] = row[i];
-      });
-      return obj as Transaction;
-    });
+  async findByUserId(userId: number): Promise<Transaction[]> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+    return result.rows as Transaction[];
   },
 
-  updateStatus(id: number, status: Transaction['status']): Transaction {
-    const db = getDatabase();
-    db.run('UPDATE transactions SET status = ? WHERE id = ?', [status, id]);
-    return this.findById(id)!;
+  async updateStatus(id: number, status: Transaction['status']): Promise<Transaction> {
+    const pool = getPool();
+    const result = await pool.query(
+      'UPDATE transactions SET status = $1 WHERE id = $2 RETURNING *',
+      [status, id]
+    );
+    return result.rows[0] as Transaction;
   },
 };

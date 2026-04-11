@@ -1,33 +1,32 @@
--- Pigfarm Database Schema
+-- Pigfarm Database Schema (PostgreSQL)
 
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  telegram_id INTEGER UNIQUE NOT NULL,
+  id SERIAL PRIMARY KEY,
+  telegram_id BIGINT UNIQUE NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT,
   username TEXT,
   language_code TEXT DEFAULT 'ru',
   balance INTEGER DEFAULT 0 CHECK(balance >= 0),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   amount INTEGER NOT NULL CHECK(amount > 0),
   type TEXT NOT NULL CHECK(type IN ('deposit', 'withdrawal', 'spend')),
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'failed', 'refunded')),
   telegram_payment_charge_id TEXT,
   description TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS migrations (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
-  applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);

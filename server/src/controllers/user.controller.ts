@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { userRepository, transactionRepository } from '../db/repository.js';
 
-export function getUserProfile(req: Request, res: Response) {
+export async function getUserProfile(req: Request, res: Response) {
   try {
     const userId = req.params.id ? parseInt(req.params.id as string) : req.user?.id;
 
@@ -13,7 +13,7 @@ export function getUserProfile(req: Request, res: Response) {
       return;
     }
 
-    const user = userRepository.findById(userId);
+    const user = await userRepository.findById(userId);
 
     if (!user) {
       res.status(404).json({
@@ -47,7 +47,7 @@ export function getUserProfile(req: Request, res: Response) {
   }
 }
 
-export function getUserBalance(req: Request, res: Response) {
+export async function getUserBalance(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
 
@@ -59,7 +59,7 @@ export function getUserBalance(req: Request, res: Response) {
       return;
     }
 
-    const user = userRepository.findById(userId);
+    const user = await userRepository.findById(userId);
 
     if (!user) {
       res.status(404).json({
@@ -84,7 +84,7 @@ export function getUserBalance(req: Request, res: Response) {
   }
 }
 
-export function getUserTransactions(req: Request, res: Response) {
+export async function getUserTransactions(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
 
@@ -96,7 +96,7 @@ export function getUserTransactions(req: Request, res: Response) {
       return;
     }
 
-    const transactions = transactionRepository.findByUserId(userId);
+    const transactions = await transactionRepository.findByUserId(userId);
 
     res.json({
       success: true,

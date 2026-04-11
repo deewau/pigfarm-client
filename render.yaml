@@ -15,3 +15,7 @@ services:
         sync: false
       - key: TELEGRAM_BOT_USERNAME
         sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: TELEGRAM_WEBHOOK_URL
+        sync: false

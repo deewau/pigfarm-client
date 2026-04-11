@@ -64,3 +64,10 @@ async function start() {
 }
 
 start();
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  const { getPool } = await import('./db/connection.js');
+  await getPool().end();
+  process.exit(0);
+});

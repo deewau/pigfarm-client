@@ -1,4 +1,4 @@
-import initSqlJs, { type Database } from 'sql.js';
+import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,46 +6,29 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.resolve(__dirname, '../../pigfarm.db');
-const schemaPath = path.resolve(__dirname, './schema.sql');
+const databaseUrl = process.env.DATABASE_URL;
 
-const schema = fs.readFileSync(schemaPath, 'utf-8');
-
-let db: Database | null = null;
-
-export function getDatabase(): Database {
-  if (!db) {
-    throw new Error('Database not initialized. Call initializeDatabase() first.');
-  }
-  return db;
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL environment variable is required');
 }
 
-function saveDatabase() {
-  if (!db) return;
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(dbPath, buffer);
+const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+export function getPool() {
+  return pool;
 }
 
 export async function initializeDatabase(): Promise<void> {
-  const SQL = await initSqlJs();
-
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath);
-    db = new SQL.Database(fileBuffer);
-    console.log('📂 Database loaded from file');
-  } else {
-    db = new SQL.Database();
-    console.log('🆕 New database created');
+  const client = await pool.connect();
+  try {
+    const schemaPath = path.resolve(__dirname, './schema.sql');
+    const schema = fs.readFileSync(schemaPath, 'utf-8');
+    await client.query(schema);
+    console.log('✅ PostgreSQL schema applied');
+  } finally {
+    client.release();
   }
-
-  db.run(schema);
-  saveDatabase();
-  console.log('✅ Database initialized successfully');
 }
-
-process.on('exit', saveDatabase);
-process.on('SIGINT', () => {
-  saveDatabase();
-  process.exit(0);
-});

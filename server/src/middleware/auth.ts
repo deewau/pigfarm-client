@@ -3,7 +3,6 @@ import { validateTelegramInitData } from '../utils/telegram.js';
 import { userRepository } from '../db/repository.js';
 import type { User as UserType } from '../types/index.js';
 
-// Расширяем Request для хранения пользователя
 declare global {
   namespace Express {
     interface Request {
@@ -12,7 +11,7 @@ declare global {
   }
 }
 
-export function authenticateTelegram(req: Request, res: Response, next: NextFunction) {
+export async function authenticateTelegram(req: Request, res: Response, next: NextFunction) {
   const initData = req.headers['x-telegram-init-data'] as string;
 
   if (!initData) {
@@ -45,10 +44,10 @@ export function authenticateTelegram(req: Request, res: Response, next: NextFunc
   const telegramUser = validatedData.user;
 
   // Ищем или создаём пользователя
-  let user = userRepository.findByTelegramId(telegramUser.id);
+  let user = await userRepository.findByTelegramId(telegramUser.id);
 
   if (!user) {
-    user = userRepository.create({
+    user = await userRepository.create({
       telegram_id: telegramUser.id,
       first_name: telegramUser.first_name,
       last_name: telegramUser.last_name,

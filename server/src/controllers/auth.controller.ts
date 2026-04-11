@@ -36,10 +36,10 @@ export async function authWithTelegram(req: Request, res: Response) {
     const telegramUser = validatedData.user;
 
     // Ищем или создаём пользователя
-    let user = userRepository.findByTelegramId(telegramUser.id);
+    let user = await userRepository.findByTelegramId(telegramUser.id);
 
     if (!user) {
-      user = userRepository.create({
+      user = await userRepository.create({
         telegram_id: telegramUser.id,
         first_name: telegramUser.first_name,
         last_name: telegramUser.last_name,

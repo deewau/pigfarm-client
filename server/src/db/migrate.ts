@@ -1,7 +1,7 @@
 // Миграции для базы данных
 // Запуск: npm run db:migrate
 
-import initSqlJs from 'sql.js';
+import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,9 +9,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.resolve(__dirname, '../../pigfarm.db');
-const schemaPath = path.resolve(__dirname, './schema.sql');
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error('DATABASE_URL not set');
+  process.exit(1);
+}
 
+const schemaPath = path.resolve(__dirname, './schema.sql');
 const schema = fs.readFileSync(schemaPath, 'utf-8');
 
 const migrations = [
@@ -22,46 +26,40 @@ const migrations = [
 ];
 
 async function runMigrations() {
-  const SQL = await initSqlJs();
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false },
+  });
 
-  let db: any;
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath);
-    db = new SQL.Database(fileBuffer);
-  } else {
-    db = new SQL.Database();
-  }
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS migrations (
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS migrations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT UNIQUE NOT NULL,
-      applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+    const applied = await client.query('SELECT name FROM migrations');
+    const appliedNames = new Set(applied.rows.map((r: any) => r.name));
 
-  const results = db.exec('SELECT name FROM migrations');
-  const appliedNames = new Set(
-    results.length ? results[0].values.map((row: any) => row[0]) : []
-  );
-
-  for (const migration of migrations) {
-    if (!appliedNames.has(migration.name)) {
-      console.log(`Applying migration: ${migration.name}`);
-      db.run(migration.sql);
-      db.run('INSERT INTO migrations (name) VALUES (?)', [migration.name]);
-      console.log(`✅ Migration ${migration.name} applied`);
-    } else {
-      console.log(`⏭️  Migration ${migration.name} already applied`);
+    for (const migration of migrations) {
+      if (!appliedNames.has(migration.name)) {
+        console.log(`Applying migration: ${migration.name}`);
+        await client.query(migration.sql);
+        await client.query('INSERT INTO migrations (name) VALUES ($1)', [migration.name]);
+        console.log(`✅ Migration ${migration.name} applied`);
+      } else {
+        console.log(`⏭️  Migration ${migration.name} already applied`);
+      }
     }
+
+    console.log('✅ All migrations completed');
+  } finally {
+    client.release();
+    await pool.end();
   }
-
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(dbPath, buffer);
-
-  db.close();
-  console.log('✅ All migrations completed');
 }
 
 runMigrations();
