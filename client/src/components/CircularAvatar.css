@@ -1,32 +1,18 @@
 .circular-avatar {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
-}
-
-.circular-avatar__progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.circular-avatar__ring {
-  transition: stroke-dashoffset 0.5s ease;
+  overflow: hidden;
 }
 
 .circular-avatar__image {
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  position: relative;
-  z-index: 1;
+  border-radius: 50%;
 }
 
 .circular-avatar__image--placeholder {
-  background: #2c2c2e;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
 }

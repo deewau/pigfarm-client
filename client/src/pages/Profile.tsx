@@ -62,7 +62,7 @@ export function Profile() {
                 alt={displayName}
                 progress={0}
               />
-              <span className="profile__level">Ур. {level}</span>
+              <span className="profile__level-badge">Ур. {level}</span>
             </div>
             <div className="profile__details">
               <span className="profile__name">{displayName}</span>
