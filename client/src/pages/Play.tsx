@@ -26,12 +26,18 @@ function getRandomItems(count: number): any[] {
   }));
 }
 
+const INITIAL_ITEMS = Array.from({ length: 30 }, (_, i) => {
+  const idx = i % 10;
+  const gift = ALL_GIFTS[idx];
+  return { ...gift, id: i };
+});
+
 export function Play() {
   const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
-  const [rouletteItems, setRouletteItems] = useState<any[]>([]);
-  const [possibleGifts, setPossibleGifts] = useState<any[]>([]);
+  const [rouletteItems, setRouletteItems] = useState<any[]>(INITIAL_ITEMS);
+  const [possibleGifts, setPossibleGifts] = useState<any[]>(getRandomItems(10));
   const rouletteRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
 
