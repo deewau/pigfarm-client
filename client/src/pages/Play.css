@@ -1,0 +1,234 @@
+.play {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Выбор ставки */
+.play__bets {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.play__bets::-webkit-scrollbar {
+  display: none;
+}
+
+.play__bet-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  color: #8e8e93;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.play__bet-btn--active {
+  background: rgba(0, 122, 255, 0.15);
+  border-color: #007aff;
+  color: #ffffff;
+}
+
+.play__bet-icon {
+  font-size: 18px;
+}
+
+/* Рулетка */
+.play__roulette-container {
+  position: relative;
+  height: 160px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.play__roulette-pointer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: rgba(0, 122, 255, 0.6);
+  z-index: 10;
+}
+
+.play__roulette {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  transition: transform 0.1s linear;
+}
+
+.play__roulette-item {
+  flex-shrink: 0;
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.play__roulette-emoji {
+  font-size: 48px;
+}
+
+.play__roulette-cost {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8e8e93;
+  background: rgba(0, 122, 255, 0.15);
+  padding: 4px 12px;
+  border-radius: 10px;
+}
+
+/* Контролы */
+.play__controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.play__play-btn {
+  flex: 1;
+  padding: 16px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.play__play-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.play__play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.play__play-btn--spinning {
+  background: #5856d6;
+}
+
+.play__demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.play__demo-label {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8e8e93;
+}
+
+.play__demo-toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.play__demo-toggle input {
+  display: none;
+}
+
+.play__demo-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  transition: background 0.2s ease;
+}
+
+.play__demo-slider::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.play__demo-toggle input:checked + .play__demo-slider {
+  background: #34c759;
+}
+
+.play__demo-toggle input:checked + .play__demo-slider::before {
+  transform: translateX(18px);
+}
+
+/* Возможные призы */
+.play__subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #8e8e93;
+  text-align: center;
+  margin: 0;
+}
+
+.play__gifts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.play__gift-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 14px 10px;
+}
+
+.play__gift-emoji {
+  font-size: 36px;
+}
+
+.play__gift-chance {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.play__gift-cost {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5ac8fa;
+  background: rgba(0, 122, 255, 0.15);
+  padding: 3px 10px;
+  border-radius: 8px;
+}

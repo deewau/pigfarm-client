@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+import { Play } from './pages/Play';
 import { TabBar } from './components/TabBar';
 import { ComingSoon } from './components/ComingSoon';
 import { GiftsIcon, GameIcon, ProfileIcon } from './components/icons';
@@ -12,7 +13,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
-          <Route path="play" element={<ComingSoon title="Играть" subtitle="Увлекательные мини-игры уже скоро!" icon="🎮" />} />
+          <Route path="play" element={<Play />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Route>
@@ -28,7 +29,7 @@ function Layout() {
         <Routes>
           <Route index element={<Home />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
-          <Route path="play" element={<ComingSoon title="Играть" subtitle="Увлекательные мини-игры уже скоро!" icon="🎮" />} />
+          <Route path="play" element={<Play />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Routes>
