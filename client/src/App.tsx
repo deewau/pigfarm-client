@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { TabBar } from './components/TabBar';
+import { ComingSoon } from './components/ComingSoon';
 import { TrophyIcon, GiftsIcon, GameIcon, ProfileIcon } from './components/icons';
 
 function App() {
@@ -10,10 +11,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="tournaments" element={<PlaceholderPage title="Турниры" />} />
-          <Route path="giveaways" element={<PlaceholderPage title="Розыгрыши" />} />
-          <Route path="play" element={<PlaceholderPage title="Играть" />} />
-          <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
+          <Route path="tournaments" element={<ComingSoon title="Турниры" subtitle="Соревнуйся с другими игроками и выигрывай призы!" icon="🏆" />} />
+          <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
+          <Route path="play" element={<ComingSoon title="Играть" subtitle="Увлекательные мини-игры уже скоро!" icon="🎮" />} />
+          <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
@@ -27,10 +28,10 @@ function Layout() {
       <div style={{ flex: 1, paddingBottom: 80 }}>
         <Routes>
           <Route index element={<Home />} />
-          <Route path="tournaments" element={<PlaceholderPage title="Турниры" />} />
-          <Route path="giveaways" element={<PlaceholderPage title="Розыгрыши" />} />
-          <Route path="play" element={<PlaceholderPage title="Играть" />} />
-          <Route path="tasks" element={<PlaceholderPage title="Задания" />} />
+          <Route path="tournaments" element={<ComingSoon title="Турниры" subtitle="Соревнуйся с другими игроками и выигрывай призы!" icon="🏆" />} />
+          <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
+          <Route path="play" element={<ComingSoon title="Играть" subtitle="Увлекательные мини-игры уже скоро!" icon="🎮" />} />
+          <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Routes>
       </div>
@@ -73,15 +74,6 @@ function BottomBar() {
         },
       ]}
     />
-  );
-}
-
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div style={{ padding: 20, textAlign: 'center' }}>
-      <h1>{title}</h1>
-      <p>Страница в разработке</p>
-    </div>
   );
 }
 

@@ -1,0 +1,60 @@
+.coming-soon {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.coming-soon__content {
+  background: linear-gradient(180deg, rgba(0, 122, 255, 0.15), rgba(88, 86, 214, 0.1));
+  border-radius: 24px;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.coming-soon__icon {
+  font-size: 64px;
+  margin-bottom: 8px;
+}
+
+.coming-soon__title {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.coming-soon__subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #8e8e93;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.coming-soon__btn {
+  margin-top: 16px;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  width: 100%;
+}
+
+.coming-soon__btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
