@@ -3,8 +3,7 @@
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   animation: fade-in 0.25s ease;
 }
 
@@ -13,35 +12,32 @@
   to { opacity: 1; }
 }
 
-/* Тёмный оверлей - усиленное затемнение для Telegram WebView */
+/* Затемнение + блюр через box-shadow hack для Telegram WebView */
 .result-modal-overlay::before {
   content: '';
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .result-modal {
   position: relative;
   z-index: 1;
-  background: #1e2530;
-  border-radius: 20px;
-  width: calc(100% - 40px);
-  max-width: 340px;
-  padding: 28px 20px 24px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  padding: 40px 24px;
   animation: scale-in 0.3s ease;
 }
 
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.9);
   }
   to {
     opacity: 1;
@@ -49,40 +45,10 @@
   }
 }
 
-.result-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.result-modal__title {
-  font-size: 17px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.result-modal__close {
-  background: none;
-  border: none;
-  color: #8e8e93;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
-}
-
-.result-modal__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .result-modal__gift {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 20px;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 32px;
 }
 
 .result-modal__gift svg {
@@ -91,31 +57,35 @@
 }
 
 .result-modal__message {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
+  text-align: center;
 }
 
 .result-modal__description {
-  font-size: 14px;
-  color: #9ca3af;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.45;
-  margin: 0 0 24px;
+  margin: 0 0 40px;
+  text-align: center;
+  max-width: 280px;
 }
 
 .result-modal__actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
+  max-width: 320px;
 }
 
 .result-modal__btn {
   width: 100%;
-  padding: 14px 20px;
-  border-radius: 12px;
-  font-size: 15px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  font-size: 16px;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -127,11 +97,11 @@
 }
 
 .result-modal__btn--primary {
-  background: #2b3543;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
 .result-modal__btn--secondary {
-  background: #2b3543;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }

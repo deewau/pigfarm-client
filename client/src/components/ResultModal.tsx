@@ -28,19 +28,11 @@ export function ResultModal({ animationData, onClose, onDisableDemo }: ResultMod
   return (
     <div className="result-modal-overlay" onClick={onClose}>
       <div className="result-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="result-modal__header">
-          <span className="result-modal__title">Случайный подарок</span>
-          <button className="result-modal__close" onClick={onClose}>✕</button>
-        </div>
-
-        <div className="result-modal__content">
-          <div className="result-modal__gift" ref={containerRef} />
-          <h2 className="result-modal__message">Вы выиграли подарок!</h2>
-          <p className="result-modal__description">
-            Демо-режим нужен для тестирования<br />шансов выпадения подарков.
-          </p>
-        </div>
-
+        <div className="result-modal__gift" ref={containerRef} />
+        <h2 className="result-modal__message">Вы выиграли подарок!</h2>
+        <p className="result-modal__description">
+          Демо-режим нужен для тестирования<br />шансов выпадения подарков.
+        </p>
         <div className="result-modal__actions">
           <button className="result-modal__btn result-modal__btn--secondary" onClick={onDisableDemo}>
             Отключить демо-режим
