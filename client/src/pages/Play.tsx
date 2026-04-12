@@ -129,13 +129,13 @@ export function Play() {
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={48} />
+                  <GiftImage svgContent={item.animationSvg} size={80} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
               </div>
               <div className="play__roulette-cost-badge">
-                {item.stars}
+                {item.stars} ⭐
               </div>
             </div>
           ))}
