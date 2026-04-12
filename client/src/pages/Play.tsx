@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
 import { giftApi } from '../services/api';
+import { GiftAnimation } from '../components/GiftAnimation';
 
 interface TelegramGift {
   id: string;
   name: string;
   description?: string;
   stars: number;
-  photoUrl?: string;
+  animationUrl?: string;
   sticker?: any;
 }
 
@@ -126,7 +127,13 @@ export function Play() {
         >
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
-              <div className="play__roulette-emoji">{item.sticker?.emoji || '🎁'}</div>
+              <div className="play__roulette-emoji">
+                {item.animationUrl ? (
+                  <GiftAnimation url={item.animationUrl} size={48} />
+                ) : (
+                  item.sticker?.emoji || '🎁'
+                )}
+              </div>
               <div className="play__roulette-cost-badge">
                 {item.stars}
               </div>
@@ -163,8 +170,8 @@ export function Play() {
         {possibleGifts.map((gift, i) => (
           <div key={i} className="play__gift-card">
             <div className="play__gift-emoji">
-              {gift.photoUrl ? (
-                <img src={gift.photoUrl} alt={gift.name} style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
+              {gift.animationUrl ? (
+                <GiftAnimation url={gift.animationUrl} size={80} />
               ) : (
                 gift.sticker?.emoji || '🎁'
               )}

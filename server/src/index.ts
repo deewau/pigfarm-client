@@ -51,6 +51,8 @@ app.get('/api/health', (_req, res) => {
 if (process.env.NODE_ENV === 'production') {
   const clientPath = path.join(__dirname, '../public');
   app.use(express.static(clientPath));
+  // Отдаём анимации подарков
+  app.use('/gifts', express.static(path.join(clientPath, 'gifts')));
   app.get('*', (_req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));
   });

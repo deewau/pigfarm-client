@@ -143,59 +143,41 @@ export interface TelegramGift {
   name: string;
   description?: string;
   stars: number;
-  photoUrl?: string;
+  animationUrl?: string;
   sticker?: any;
 }
 
-// Список фиксированных подарков Telegram
-const GIFT_IDS = [
-  '5170145012310081615', // Сердце с бантом - 15⭐
-  '5170250947678437525', // Подарок - 25⭐
-  '5168103777563050263', // Роза - 25⭐
+// Список фиксированных подарков Telegram с реальными ID
+const GIFTS_DATA: TelegramGift[] = [
+  {
+    id: '5170145012310081615',
+    name: 'Сердце с бантом',
+    stars: 15,
+    animationUrl: '/gifts/5170145012310081615.tgs',
+  },
+  {
+    id: '5170250947678437525',
+    name: 'Подарок',
+    stars: 25,
+    animationUrl: '/gifts/5170250947678437525.tgs',
+  },
+  {
+    id: '5168103777563050263',
+    name: 'Роза',
+    stars: 25,
+    animationUrl: '/gifts/5168103777563050263.tgs',
+  },
 ];
 
 export async function getGiftById(giftId: string): Promise<TelegramGift | null> {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-
-  if (!botToken) {
-    throw new AppError(500, 'TELEGRAM_BOT_TOKEN not configured');
-  }
-
-  try {
-    const response = await axios.get(
-      `https://api.telegram.org/bot${botToken}/getGift`,
-      {
-        params: { gift_id: giftId },
-      }
-    );
-
-    if (!response.data.ok) {
-      console.error(`Failed to get gift ${giftId}:`, response.data);
-      return null;
-    }
-
-    const gift = response.data.result;
-    return {
-      id: gift.id,
-      name: gift.name || 'Подарок',
-      description: gift.description,
-      stars: gift.stars || 0,
-      photoUrl: gift.photo?.sizes?.[gift.photo.sizes.length - 1]?.url,
-      sticker: gift.sticker,
-    };
-  } catch (error: any) {
-    console.error(`Error fetching gift ${giftId}:`, error.message);
+  const gift = GIFTS_DATA.find(g => g.id === giftId);
+  if (!gift) {
+    console.error(`Gift ${giftId} not found in static data`);
     return null;
   }
+  return gift;
 }
 
 export async function getAvailableGifts(): Promise<TelegramGift[]> {
-  const gifts = await Promise.all(
-    GIFT_IDS.map(async (giftId) => {
-      const gift = await getGiftById(giftId);
-      return gift;
-    })
-  );
-
-  return gifts.filter((gift): gift is TelegramGift => gift !== null);
+  return GIFTS_DATA;
 }
