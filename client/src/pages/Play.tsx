@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
 import { giftApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
+import { ResultModal } from '../components/ResultModal';
 
 interface TelegramGift {
   id: string;
@@ -38,7 +39,10 @@ export function Play() {
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const rouletteRef = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState(0);
+  const [spinningOffset, setSpinningOffset] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Загрузка подарков из API
   useEffect(() => {
@@ -75,13 +79,52 @@ export function Play() {
   }, [generateRoulette, loading]);
 
   const handleSpin = () => {
-    if (spinning) return;
+    if (spinning || rouletteItems.length === 0) return;
     setSpinning(true);
-    setOffset(0);
+    setSpinningOffset(0);
 
-    setTimeout(() => {
-      setSpinning(false);
-    }, 3000);
+    // Определяем случайный подарок, который остановится под указателем
+    const winIndex = Math.floor(Math.random() * rouletteItems.length);
+    const wonItem = rouletteItems[winIndex];
+
+    // Рассчитываем конечный offset для рулетки
+    // Ширина элемента: 120px + 12px gap = 132px
+    // Указатель по центру контейнера
+    const itemWidth = 132;
+    const containerWidth = containerRef.current?.offsetWidth || 360;
+    const centerOffset = containerWidth / 2 - 60; // центр минус половина элемента
+    const targetOffset = winIndex * itemWidth - centerOffset;
+
+    // Анимация: от 0 до targetOffset за 3 секунды
+    const startTime = Date.now();
+    const duration = 3000;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing: ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentOffset = targetOffset * eased;
+
+      setSpinningOffset(currentOffset);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Анимация завершена
+        setSpinning(false);
+        setSpinningOffset(targetOffset);
+
+        // В демо-режиме показываем результат
+        if (demoMode) {
+          setWonGift(wonItem);
+          setTimeout(() => setShowResult(true), 500);
+        }
+      }
+    };
+
+    requestAnimationFrame(animate);
   };
 
   if (loading) {
@@ -109,12 +152,12 @@ export function Play() {
       </div>
 
       {/* Рулетка */}
-      <div className="play__roulette-container">
+      <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div
           className={`play__roulette ${!spinning ? 'play__roulette--scrolling' : ''}`}
           ref={rouletteRef}
-          style={!spinning ? undefined : { transform: `translateX(-${offset}px)` }}
+          style={spinning ? { transform: `translateX(-${spinningOffset}px)` } : undefined}
         >
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
@@ -172,6 +215,18 @@ export function Play() {
           </div>
         ))}
       </div>
+
+      {/* Модальное окно результата */}
+      {showResult && wonGift && (
+        <ResultModal
+          giftSvg={wonGift.animationSvg || ''}
+          onClose={() => setShowResult(false)}
+          onDisableDemo={() => {
+            setDemoMode(false);
+            setShowResult(false);
+          }}
+        />
+      )}
     </div>
   );
 }
