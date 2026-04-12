@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { authenticateTelegram } from '../middleware/auth.js';
 import { getAvailableGifts } from '../services/telegram.js';
 
 const router = Router();
 
-// GET /api/gifts - получить список доступных подарков
-router.get('/', authenticateTelegram, async (req, res) => {
+// GET /api/gifts - получить список доступных подарков (без авторизации)
+router.get('/', async (req, res) => {
   try {
     const gifts = await getAvailableGifts();
     res.json({ success: true, data: gifts });
