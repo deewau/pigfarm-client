@@ -173,19 +173,19 @@ const GIFTS_DATA: TelegramGift[] = [
     id: '5170145012310081615',
     name: 'Сердце с бантом',
     stars: 15,
-    animationData: loadGiftAnimation('5170145012310081615'),
+    animationSvg: loadGiftAnimation('5170145012310081615'),
   },
   {
     id: '5170250947678437525',
     name: 'Подарок',
     stars: 25,
-    animationData: loadGiftAnimation('5170250947678437525'),
+    animationSvg: loadGiftAnimation('5170250947678437525'),
   },
   {
     id: '5168103777563050263',
     name: 'Роза',
     stars: 25,
-    animationData: loadGiftAnimation('5168103777563050263'),
+    animationSvg: loadGiftAnimation('5168103777563050263'),
   },
 ];
 
