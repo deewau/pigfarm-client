@@ -91,18 +91,19 @@ export function Play() {
     const centerOffset = containerWidth / 2 - 60;
     const targetOffset = winIndex * itemWidth - centerOffset;
 
-    // Сначала убираем CSS-скроллинг, затем запускаем спин
-    setSpinning(true);
-
-    // Сбрасываем позицию (убираем CSS animation)
+    // Останавливаем CSS-скроллинг — получаем текущую позицию
     const rouletteEl = rouletteRef.current;
     if (rouletteEl) {
-      rouletteEl.style.transition = 'none';
-      rouletteEl.style.transform = 'translateX(0)';
+      // Убираем CSS-анимацию, но сохраняем текущую позицию
+      const computedTransform = getComputedStyle(rouletteEl).transform;
+      // Применяем inline стиль чтобы "заморозить" позицию
+      rouletteEl.style.transform = computedTransform;
     }
 
-    // Небольшая задержка чтобы браузер применил сброс
+    // Небольшая задержка чтобы браузер применил изменения
     requestAnimationFrame(() => {
+      setSpinning(true);
+
       requestAnimationFrame(() => {
         if (rouletteEl) {
           rouletteEl.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
