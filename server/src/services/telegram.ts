@@ -137,3 +137,65 @@ export async function handleRefundedPayment(
     console.warn(`Insufficient balance for refund: user ${transaction.user_id}`);
   }
 }
+
+export interface TelegramGift {
+  id: string;
+  name: string;
+  description?: string;
+  stars: number;
+  photoUrl?: string;
+  sticker?: any;
+}
+
+// Список фиксированных подарков Telegram
+const GIFT_IDS = [
+  'heart_with_bow', // Сердце с бантом - 15⭐
+  'gift_box',       // Подарок - 25⭐
+  'rose',           // Роза - 25⭐
+];
+
+export async function getGiftById(giftId: string): Promise<TelegramGift | null> {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!botToken) {
+    throw new AppError(500, 'TELEGRAM_BOT_TOKEN not configured');
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.telegram.org/bot${botToken}/getGift`,
+      {
+        params: { gift_id: giftId },
+      }
+    );
+
+    if (!response.data.ok) {
+      console.error(`Failed to get gift ${giftId}:`, response.data);
+      return null;
+    }
+
+    const gift = response.data.result;
+    return {
+      id: gift.id,
+      name: gift.name || 'Подарок',
+      description: gift.description,
+      stars: gift.stars || 0,
+      photoUrl: gift.photo?.sizes?.[gift.photo.sizes.length - 1]?.url,
+      sticker: gift.sticker,
+    };
+  } catch (error: any) {
+    console.error(`Error fetching gift ${giftId}:`, error.message);
+    return null;
+  }
+}
+
+export async function getAvailableGifts(): Promise<TelegramGift[]> {
+  const gifts = await Promise.all(
+    GIFT_IDS.map(async (giftId) => {
+      const gift = await getGiftById(giftId);
+      return gift;
+    })
+  );
+
+  return gifts.filter((gift): gift is TelegramGift => gift !== null);
+}

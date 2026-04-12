@@ -12,6 +12,7 @@ import depositRoutes from './routes/deposit.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import referralRoutes from './routes/referral.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
+import giftRoutes from './routes/gift.routes.js';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/deposit', depositRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/referral', referralRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/gifts', giftRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

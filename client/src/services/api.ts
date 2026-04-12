@@ -67,3 +67,11 @@ export const referralApi = {
     return response.data;
   },
 };
+
+// Gifts
+export const giftApi = {
+  getAll: async () => {
+    const response = await api.get('/api/gifts');
+    return response.data;
+  },
+};

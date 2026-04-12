@@ -1,57 +1,77 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
+import { giftApi } from '../services/api';
+
+interface TelegramGift {
+  id: string;
+  name: string;
+  description?: string;
+  stars: number;
+  photoUrl?: string;
+  sticker?: any;
+}
 
 const BETS = [15, 25, 50];
 
-// 3 типа подарков из Telegram
-const ALL_GIFTS = [
-  { emoji: '💝', name: 'Сердце с бантом', cost: 15 },
-  { emoji: '🎁', name: 'Подарок', cost: 25 },
-  { emoji: '🌹', name: 'Роза', cost: 25 },
+// Дефолтные подарки (если API недоступен)
+const DEFAULT_GIFTS: TelegramGift[] = [
+  { id: 'heart_with_bow', name: 'Сердце с бантом', stars: 15 },
+  { id: 'gift_box', name: 'Подарок', stars: 25 },
+  { id: 'rose', name: 'Роза', stars: 25 },
 ];
 
-function getRandomItems(count: number): any[] {
-  const shuffled = [...ALL_GIFTS].sort(() => Math.random() - 0.5);
+function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
+  const shuffled = [...gifts].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).map((gift) => ({
     ...gift,
     chance: (Math.random() * 2 + 0.3).toFixed(2),
   }));
 }
 
-const INITIAL_ITEMS = Array.from({ length: 30 }, (_, i) => {
-  const idx = i % 3;
-  const gift = ALL_GIFTS[idx];
-  return { ...gift, id: i };
-});
-
 export function Play() {
   const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
-  const [rouletteItems, setRouletteItems] = useState<any[]>(INITIAL_ITEMS);
-  const [possibleGifts, setPossibleGifts] = useState<any[]>(() => {
-    const shuffled = [...ALL_GIFTS].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3).map((gift) => ({
-      ...gift,
-      chance: (Math.random() * 2 + 0.3).toFixed(2),
-    }));
-  });
+  const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
+  const [rouletteItems, setRouletteItems] = useState<(TelegramGift & { rouletteIndex: number })[]>([]);
+  const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
+  const [loading, setLoading] = useState(true);
   const rouletteRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
 
-  const generateRoulette = useCallback(() => {
-    const items = Array.from({ length: 30 }, (_, i) => {
-      const idx = i % 3;
-      const gift = ALL_GIFTS[idx];
-      return { ...gift, id: i };
-    });
-    setRouletteItems(items);
-    setPossibleGifts(getRandomItems(3));
+  // Загрузка подарков из API
+  useEffect(() => {
+    const loadGifts = async () => {
+      try {
+        setLoading(true);
+        const response = await giftApi.getAll();
+        if (response.success && response.data && response.data.length > 0) {
+          setAvailableGifts(response.data);
+        }
+      } catch (error) {
+        console.warn('Failed to load gifts from API, using defaults:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadGifts();
   }, []);
 
+  const generateRoulette = useCallback(() => {
+    const items = Array.from({ length: 30 }, (_, i) => {
+      const idx = i % availableGifts.length;
+      const gift = availableGifts[idx];
+      return { ...gift, rouletteIndex: i };
+    });
+    setRouletteItems(items);
+    setPossibleGifts(getRandomItems(availableGifts, availableGifts.length));
+  }, [availableGifts]);
+
   useEffect(() => {
-    generateRoulette();
-  }, [generateRoulette]);
+    if (!loading) {
+      generateRoulette();
+    }
+  }, [generateRoulette, loading]);
 
   // Плавная анимация движения рулетки
   useEffect(() => {
@@ -71,6 +91,14 @@ export function Play() {
       setSpinning(false);
     }, 3000);
   };
+
+  if (loading) {
+    return (
+      <div className="play">
+        <div className="play__loading">Загрузка подарков...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="play">
@@ -96,11 +124,11 @@ export function Play() {
           ref={rouletteRef}
           style={{ transform: `translateX(-${offset}px)` }}
         >
-          {rouletteItems.map((item, i) => (
-            <div key={i} className="play__roulette-item">
-              <div className="play__roulette-emoji">{item.emoji}</div>
+          {rouletteItems.map((item) => (
+            <div key={item.rouletteIndex} className="play__roulette-item">
+              <div className="play__roulette-emoji">{item.sticker?.emoji || '🎁'}</div>
               <div className="play__roulette-cost-badge">
-                {item.cost}
+                {item.stars}
               </div>
             </div>
           ))}
@@ -134,9 +162,15 @@ export function Play() {
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
           <div key={i} className="play__gift-card">
-            <div className="play__gift-emoji">{gift.emoji}</div>
+            <div className="play__gift-emoji">
+              {gift.photoUrl ? (
+                <img src={gift.photoUrl} alt={gift.name} style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
+              ) : (
+                gift.sticker?.emoji || '🎁'
+              )}
+            </div>
             <span className="play__gift-chance">{gift.chance}%</span>
-            <span className="play__gift-cost">{gift.cost} ⭐</span>
+            <span className="play__gift-cost">{gift.stars} ⭐</span>
           </div>
         ))}
       </div>
