@@ -1,14 +1,11 @@
 .result-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  animation: fade-in 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade-in 0.25s ease;
 }
 
 @keyframes fade-in {
@@ -16,28 +13,34 @@
   to { opacity: 1; }
 }
 
+/* Тёмный оверлей с блюром */
+.result-modal-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .result-modal {
-  background: #1a1f2e;
-  border-radius: 24px;
-  width: calc(100% - 32px);
-  max-width: 380px;
-  padding: 32px 24px;
+  position: relative;
+  z-index: 1;
+  background: #1e2530;
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px 20px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: scale-in 0.3s ease;
+  animation: slide-up 0.3s ease;
 }
 
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 .result-modal__header {
@@ -45,11 +48,11 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .result-modal__title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   color: #fff;
 }
@@ -58,15 +61,16 @@
   background: none;
   border: none;
   color: #8e8e93;
-  font-size: 20px;
+  font-size: 22px;
   cursor: pointer;
   padding: 4px 8px;
+  line-height: 1;
 }
 
 .result-modal__gift {
-  width: 140px;
-  height: 140px;
-  margin-bottom: 32px;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
 }
 
 .result-modal__gift svg {
@@ -75,35 +79,35 @@
 }
 
 .result-modal__message {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
   margin: 0 0 8px;
 }
 
 .result-modal__description {
-  font-size: 15px;
-  color: #8e8e93;
-  line-height: 1.4;
-  margin: 0 0 32px;
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.45;
+  margin: 0 0 28px;
 }
 
 .result-modal__actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
 .result-modal__btn {
   width: 100%;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 15px 20px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.15s;
 }
 
 .result-modal__btn:active {

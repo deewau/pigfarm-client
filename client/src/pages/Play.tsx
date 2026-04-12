@@ -39,7 +39,6 @@ export function Play() {
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const rouletteRef = useRef<HTMLDivElement>(null);
-  const [spinningOffset, setSpinningOffset] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,12 +90,24 @@ export function Play() {
     const centerOffset = containerWidth / 2 - 60;
     const targetOffset = winIndex * itemWidth - centerOffset;
 
+    // Сначала убираем CSS-скроллинг, затем запускаем спин
     setSpinning(true);
-    setSpinningOffset(0);
 
-    // CSS transition с ease-out
+    // Сбрасываем позицию (убираем CSS animation)
+    const rouletteEl = rouletteRef.current;
+    if (rouletteEl) {
+      rouletteEl.style.transition = 'none';
+      rouletteEl.style.transform = 'translateX(0)';
+    }
+
+    // Небольшая задержка чтобы браузер применил сброс
     requestAnimationFrame(() => {
-      setSpinningOffset(targetOffset);
+      requestAnimationFrame(() => {
+        if (rouletteEl) {
+          rouletteEl.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+          rouletteEl.style.transform = `translateX(-${targetOffset}px)`;
+        }
+      });
     });
 
     // После завершения анимации
@@ -106,7 +117,7 @@ export function Play() {
         setWonGift(wonItem);
         setTimeout(() => setShowResult(true), 300);
       }
-    }, 3200); // 3s animation + 200ms buffer
+    }, 3300);
   };
 
   if (loading) {
@@ -139,7 +150,6 @@ export function Play() {
         <div
           className={`play__roulette ${!spinning ? 'play__roulette--scrolling' : ''}`}
           ref={rouletteRef}
-          style={spinning ? { transform: `translateX(-${spinningOffset}px)` } : undefined}
         >
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">

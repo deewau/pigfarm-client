@@ -100,7 +100,6 @@
   padding: 16px;
   will-change: transform;
   min-width: max-content;
-  transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Бесшовная CSS-анимация рулетки */
