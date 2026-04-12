@@ -80,51 +80,33 @@ export function Play() {
 
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
-    setSpinning(true);
-    setSpinningOffset(0);
 
-    // Определяем случайный подарок, который остановится под указателем
+    // Определяем случайный подарок
     const winIndex = Math.floor(Math.random() * rouletteItems.length);
     const wonItem = rouletteItems[winIndex];
 
-    // Рассчитываем конечный offset для рулетки
-    // Ширина элемента: 120px + 12px gap = 132px
-    // Указатель по центру контейнера
+    // Рассчитываем конечный offset
     const itemWidth = 132;
     const containerWidth = containerRef.current?.offsetWidth || 360;
-    const centerOffset = containerWidth / 2 - 60; // центр минус половина элемента
+    const centerOffset = containerWidth / 2 - 60;
     const targetOffset = winIndex * itemWidth - centerOffset;
 
-    // Анимация: от 0 до targetOffset за 3 секунды
-    const startTime = Date.now();
-    const duration = 3000;
+    setSpinning(true);
+    setSpinningOffset(0);
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+    // CSS transition с ease-out
+    requestAnimationFrame(() => {
+      setSpinningOffset(targetOffset);
+    });
 
-      // Easing: ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const currentOffset = targetOffset * eased;
-
-      setSpinningOffset(currentOffset);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // Анимация завершена
-        setSpinning(false);
-        setSpinningOffset(targetOffset);
-
-        // В демо-режиме показываем результат
-        if (demoMode) {
-          setWonGift(wonItem);
-          setTimeout(() => setShowResult(true), 500);
-        }
+    // После завершения анимации
+    setTimeout(() => {
+      setSpinning(false);
+      if (demoMode) {
+        setWonGift(wonItem);
+        setTimeout(() => setShowResult(true), 300);
       }
-    };
-
-    requestAnimationFrame(animate);
+    }, 3200); // 3s animation + 200ms buffer
   };
 
   if (loading) {
