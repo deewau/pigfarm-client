@@ -74,12 +74,17 @@ export function Play() {
     }
   }, [generateRoulette, loading]);
 
-  // Плавная анимация движения рулетки
+  // Бесшовная анимация движения рулетки
   useEffect(() => {
     if (spinning) return;
+    const itemWidth = 152; // 120px width + 32px gap
+    const patternWidth = itemWidth * 3; // 3 подарка = один повторяющийся паттерн
     const interval = setInterval(() => {
-      setOffset((prev) => (prev + 0.5) % 160);
-    }, 50);
+      setOffset((prev) => {
+        const next = prev + 1;
+        return next >= patternWidth ? next - patternWidth : next;
+      });
+    }, 16); // ~60fps
     return () => clearInterval(interval);
   }, [spinning]);
 
