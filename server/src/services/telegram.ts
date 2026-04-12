@@ -156,8 +156,9 @@ export interface TelegramGift {
 
 function loadGiftAnimation(giftId: string): any {
   try {
-    // assets/gifts лежит рядом с src/ и не удаляется при билде
-    const assetsPath = path.join(__dirname, process.env.NODE_ENV === 'production' ? '../assets/gifts' : '../../assets/gifts');
+    // __dirname = .../dist/services/ (production) или .../src/services/ (dev)
+    // assets/gifts лежит на уровне server/ (два уровня вверх от services/)
+    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'gifts');
     const filePath = path.join(assetsPath, `${giftId}.json`);
     console.log(`Loading animation from: ${filePath}`);
     const data = fs.readFileSync(filePath, 'utf-8');
