@@ -48,8 +48,9 @@ const giftsPath = process.env.NODE_ENV === 'production'
   : path.join(__dirname, '../../public/gifts');
 app.use('/gifts', express.static(giftsPath, {
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.tgs')) {
+    if (filePath.endsWith('.json')) {
       res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Access-Control-Allow-Origin', '*');
     }
   }
 }));
