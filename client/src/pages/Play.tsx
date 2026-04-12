@@ -1,21 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
 
-const BETS = [25, 50, 100, 250, 500];
+const BETS = [15, 25, 50];
 
+// 3 типа подарков из Telegram
 const ALL_GIFTS = [
-  { emoji: '💎', name: 'Бриллиант', cost: 100 },
-  { emoji: '🏆', name: 'Кубок', cost: 100 },
-  { emoji: '🥂', name: 'Шампанское', cost: 50 },
-  { emoji: '💍', name: 'Кольцо', cost: 100 },
-  { emoji: '🎂', name: 'Торт', cost: 50 },
-  { emoji: '💐', name: 'Букет', cost: 50 },
-  { emoji: '🚀', name: 'Ракета', cost: 50 },
-  { emoji: '🌹', name: 'Роза', cost: 25 },
+  { emoji: '💝', name: 'Сердце с бантом', cost: 15 },
   { emoji: '🎁', name: 'Подарок', cost: 25 },
-  { emoji: '💝', name: 'Сердце', cost: 50 },
-  { emoji: '🧸', name: 'Мишка', cost: 25 },
-  { emoji: '🔮', name: 'Кристалл', cost: 250 },
+  { emoji: '🌹', name: 'Роза', cost: 25 },
 ];
 
 function getRandomItems(count: number): any[] {
@@ -27,7 +19,7 @@ function getRandomItems(count: number): any[] {
 }
 
 const INITIAL_ITEMS = Array.from({ length: 30 }, (_, i) => {
-  const idx = i % 10;
+  const idx = i % 3;
   const gift = ALL_GIFTS[idx];
   return { ...gift, id: i };
 });
@@ -37,18 +29,24 @@ export function Play() {
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
   const [rouletteItems, setRouletteItems] = useState<any[]>(INITIAL_ITEMS);
-  const [possibleGifts, setPossibleGifts] = useState<any[]>(getRandomItems(10));
+  const [possibleGifts, setPossibleGifts] = useState<any[]>(() => {
+    const shuffled = [...ALL_GIFTS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3).map((gift) => ({
+      ...gift,
+      chance: (Math.random() * 2 + 0.3).toFixed(2),
+    }));
+  });
   const rouletteRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
 
   const generateRoulette = useCallback(() => {
     const items = Array.from({ length: 30 }, (_, i) => {
-      const idx = i % 10;
+      const idx = i % 3;
       const gift = ALL_GIFTS[idx];
       return { ...gift, id: i };
     });
     setRouletteItems(items);
-    setPossibleGifts(getRandomItems(10));
+    setPossibleGifts(getRandomItems(3));
   }, []);
 
   useEffect(() => {
@@ -85,7 +83,7 @@ export function Play() {
             onClick={() => setBet(b)}
           >
             {b}
-            <span className="play__bet-icon">💠</span>
+            <span className="play__bet-icon">⭐</span>
           </button>
         ))}
       </div>
@@ -116,7 +114,7 @@ export function Play() {
           onClick={handleSpin}
           disabled={spinning}
         >
-          {spinning ? '🎰 Крутится...' : `Мне повезёт, Go! ${bet} 💠`}
+          {spinning ? '🎰 Крутится...' : `Мне повезёт, Go! ${bet} ⭐`}
         </button>
         <div className="play__demo">
           <span className="play__demo-label">DEMO</span>
@@ -138,7 +136,7 @@ export function Play() {
           <div key={i} className="play__gift-card">
             <div className="play__gift-emoji">{gift.emoji}</div>
             <span className="play__gift-chance">{gift.chance}%</span>
-            <span className="play__gift-cost">{gift.cost} 💠</span>
+            <span className="play__gift-cost">{gift.cost} ⭐</span>
           </div>
         ))}
       </div>
