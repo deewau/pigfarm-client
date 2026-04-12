@@ -1,10 +1,10 @@
 .profile {
   padding: 16px;
+  padding-bottom: 100px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .profile__card {
@@ -20,24 +20,17 @@
 }
 
 .profile__tab-content {
-  flex: 1;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .profile__tab-content--scrollable {
-  position: relative;
-  flex: 1;
-  min-height: 0;
+  overflow: visible;
 }
 
 .profile__history-scroll {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 100px;
-  overflow-y: auto;
-  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Карточка профиля */
