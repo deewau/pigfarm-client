@@ -43,6 +43,7 @@ export function Play() {
   const [showResult, setShowResult] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollingPaused, setScrollingPaused] = useState(false);
 
   // Загрузка подарков из API
   useEffect(() => {
@@ -117,6 +118,8 @@ export function Play() {
       setSpinning(false);
       if (demoMode) {
         setWonGift(wonItem);
+        // Замораживаем рулетку
+        setScrollingPaused(true);
         setTimeout(() => setShowResult(true), 300);
       }
     }, 3300);
@@ -150,7 +153,7 @@ export function Play() {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div
-          className={`play__roulette ${!spinning ? 'play__roulette--scrolling' : ''}`}
+          className={`play__roulette ${!spinning && !scrollingPaused ? 'play__roulette--scrolling' : ''}`}
           ref={rouletteRef}
         >
           {rouletteItems.map((item) => (
@@ -214,10 +217,14 @@ export function Play() {
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.animationData}
-          onClose={() => setShowResult(false)}
+          onClose={() => {
+            setShowResult(false);
+            setScrollingPaused(false);
+          }}
           onDisableDemo={() => {
             setDemoMode(false);
             setShowResult(false);
+            setScrollingPaused(false);
           }}
         />
       )}
