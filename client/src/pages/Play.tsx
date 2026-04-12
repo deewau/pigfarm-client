@@ -101,8 +101,8 @@ export function Play() {
           {rouletteItems.map((item, i) => (
             <div key={i} className="play__roulette-item">
               <div className="play__roulette-emoji">{item.emoji}</div>
-              <div className="play__roulette-cost">
-                {item.cost} 💠
+              <div className="play__roulette-cost-badge">
+                {item.cost}
               </div>
             </div>
           ))}
