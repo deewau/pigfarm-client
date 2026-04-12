@@ -12,14 +12,14 @@
   to { opacity: 1; }
 }
 
-/* Затемнение + блюр через box-shadow hack для Telegram WebView */
+/* Затемнение + сильный блюр для Telegram WebView */
 .result-modal-overlay::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
 }
 
 .result-modal {
