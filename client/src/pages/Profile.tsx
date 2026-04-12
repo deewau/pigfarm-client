@@ -143,6 +143,7 @@ export function Profile() {
 
       {tab === 'history' && (
         <div className="profile__tab-content profile__tab-content--scrollable">
+          <div className="profile__history-scroll">
           {historyLoading ? (
             <div className="profile__loading">Загрузка...</div>
           ) : transactions.length === 0 ? (
@@ -170,6 +171,7 @@ export function Profile() {
               ))}
             </div>
           )}
+          </div>
         </div>
       )}
 
