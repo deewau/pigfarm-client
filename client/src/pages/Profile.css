@@ -24,7 +24,8 @@
 }
 
 .profile__tab-content--scrollable {
-  overflow: visible;
+  height: 350px;
+  overflow-y: auto;
 }
 
 .profile__history-scroll {
