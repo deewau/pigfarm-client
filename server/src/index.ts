@@ -42,6 +42,18 @@ app.use('/api/referral', referralRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/gifts', giftRoutes);
 
+// Отдаём анимации подарков (для обоих режимов)
+const giftsPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../public/gifts')
+  : path.join(__dirname, '../../public/gifts');
+app.use('/gifts', express.static(giftsPath, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.tgs')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+  }
+}));
+
 // Health check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -10,7 +10,9 @@ export function GiftAnimation({ url, size = 80 }: GiftAnimationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !url) return;
+
+    console.log('Loading Lottie animation:', url);
 
     const animation = lottie.loadAnimation({
       container: containerRef.current,
@@ -18,6 +20,14 @@ export function GiftAnimation({ url, size = 80 }: GiftAnimationProps) {
       loop: true,
       autoplay: true,
       path: url,
+    });
+
+    animation.addEventListener('data_ready', () => {
+      console.log('Lottie animation loaded successfully:', url);
+    });
+
+    animation.addEventListener('error', (e) => {
+      console.error('Lottie animation error:', url, e);
     });
 
     return () => {
