@@ -153,7 +153,7 @@ export function Play() {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div
-          className={`play__roulette ${!spinning && !scrollingPaused ? 'play__roulette--scrolling' : ''}`}
+          className={`play__roulette ${!spinning ? (scrollingPaused ? 'play__roulette--paused' : 'play__roulette--scrolling') : ''}`}
           ref={rouletteRef}
         >
           {rouletteItems.map((item) => (
@@ -218,10 +218,21 @@ export function Play() {
         <ResultModal
           animationData={wonGift.animationData}
           onClose={() => {
+            // Снимаем inline стили — CSS анимация подхватит текущую позицию
+            const rouletteEl = rouletteRef.current;
+            if (rouletteEl) {
+              rouletteEl.style.transform = '';
+              rouletteEl.style.transition = '';
+            }
             setShowResult(false);
             setScrollingPaused(false);
           }}
           onDisableDemo={() => {
+            const rouletteEl = rouletteRef.current;
+            if (rouletteEl) {
+              rouletteEl.style.transform = '';
+              rouletteEl.style.transition = '';
+            }
             setDemoMode(false);
             setShowResult(false);
             setScrollingPaused(false);

@@ -107,6 +107,11 @@
   animation: roulette-scroll 12s linear infinite;
 }
 
+.play__roulette--paused {
+  animation: roulette-scroll 12s linear infinite;
+  animation-play-state: paused;
+}
+
 @keyframes roulette-scroll {
   0% {
     transform: translateX(0);
