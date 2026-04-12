@@ -156,14 +156,14 @@ export interface TelegramGift {
 
 function loadGiftAnimation(giftId: string): any {
   try {
-    const giftsPath = process.env.NODE_ENV === 'production'
-      ? path.join(__dirname, '../public/gifts')
-      : path.join(__dirname, '../../public/gifts');
-    const filePath = path.join(giftsPath, `${giftId}.json`);
+    // assets/gifts лежит рядом с src/ и не удаляется при билде
+    const assetsPath = path.join(__dirname, process.env.NODE_ENV === 'production' ? '../assets/gifts' : '../../assets/gifts');
+    const filePath = path.join(assetsPath, `${giftId}.json`);
+    console.log(`Loading animation from: ${filePath}`);
     const data = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(data);
-  } catch (e) {
-    console.error(`Failed to load animation for gift ${giftId}:`, e);
+  } catch (e: any) {
+    console.error(`Failed to load animation for gift ${giftId}:`, e.message);
     return null;
   }
 }
