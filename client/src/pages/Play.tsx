@@ -4,6 +4,24 @@ import { giftApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        showPopup: (params: {
+          title?: string;
+          message?: string;
+          buttons?: { id: string; type: string; text: string }[];
+        }) => void;
+        onEvent: (eventType: string, callback: (data: any) => void) => void;
+        offEvent: (eventType: string, callback: (data: any) => void) => void;
+        showConfirm: (message: string, callback?: (result: boolean) => void) => void;
+        showAlert: (message: string, callback?: () => void) => void;
+      };
+    };
+  }
+}
+
 interface TelegramGift {
   id: string;
   name: string;
@@ -116,9 +134,25 @@ export function Play() {
       setSpinning(false);
       if (demoMode) {
         setWonGift(wonItem);
-        setTimeout(() => setShowResult(true), 300);
+        // Показываем нативный Telegram popup
+        setTimeout(() => showTelegramPopup(wonItem), 300);
       }
     }, 3300);
+  };
+
+  const showTelegramPopup = (gift: TelegramGift) => {
+    const tg = window.Telegram?.WebApp;
+    if (tg?.showPopup) {
+      tg.showPopup({
+        title: 'Случайный подарок',
+        message: `Вы выиграли: ${gift.name}!\n\nДемо-режим нужен для тестирования шансов выпадения подарков.`,
+        buttons: [
+          { id: 'close', type: 'cancel', text: 'Закрыть' },
+        ],
+      });
+    } else {
+      setShowResult(true);
+    }
   };
 
   if (loading) {
