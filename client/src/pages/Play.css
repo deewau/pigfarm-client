@@ -102,6 +102,21 @@
   min-width: max-content;
 }
 
+/* Бесшовная CSS-анимация рулетки */
+.play__roulette--scrolling {
+  animation: roulette-scroll 12s linear infinite;
+}
+
+@keyframes roulette-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* 3 элемента × (120px + 12px gap) = 396px — один полный паттерн */
+    transform: translateX(-396px);
+  }
+}
+
 .play__roulette-item {
   flex-shrink: 0;
   width: 120px;

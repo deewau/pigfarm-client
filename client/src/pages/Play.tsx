@@ -74,20 +74,6 @@ export function Play() {
     }
   }, [generateRoulette, loading]);
 
-  // Бесшовная анимация движения рулетки
-  useEffect(() => {
-    if (spinning) return;
-    const itemWidth = 152; // 120px width + 32px gap
-    const patternWidth = itemWidth * 3; // 3 подарка = один повторяющийся паттерн
-    const interval = setInterval(() => {
-      setOffset((prev) => {
-        const next = prev + 1;
-        return next >= patternWidth ? next - patternWidth : next;
-      });
-    }, 16); // ~60fps
-    return () => clearInterval(interval);
-  }, [spinning]);
-
   const handleSpin = () => {
     if (spinning) return;
     setSpinning(true);
@@ -126,9 +112,9 @@ export function Play() {
       <div className="play__roulette-container">
         <div className="play__roulette-pointer" />
         <div
-          className="play__roulette"
+          className={`play__roulette ${!spinning ? 'play__roulette--scrolling' : ''}`}
           ref={rouletteRef}
-          style={{ transform: `translateX(-${offset}px)` }}
+          style={!spinning ? undefined : { transform: `translateX(-${offset}px)` }}
         >
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
