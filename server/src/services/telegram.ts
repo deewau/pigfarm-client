@@ -149,22 +149,20 @@ export interface TelegramGift {
   name: string;
   description?: string;
   stars: number;
-  animationUrl?: string;
-  animationData?: any;
+  animationSvg?: string;
   sticker?: any;
 }
 
 function loadGiftAnimation(giftId: string): any {
   try {
-    // __dirname = .../dist/services/ (production) или .../src/services/ (dev)
-    // assets/gifts лежит на уровне server/ (два уровня вверх от services/)
-    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'gifts');
-    const filePath = path.join(assetsPath, `${giftId}.json`);
-    console.log(`Loading animation from: ${filePath}`);
+    // Загружаем SVG файл и возвращаем как строку для inline отображения
+    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'svg');
+    const filePath = path.join(assetsPath, `${giftId}.svg`);
+    console.log(`Loading SVG from: ${filePath}`);
     const data = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(data);
+    return data; // Возвращаем SVG как строку
   } catch (e: any) {
-    console.error(`Failed to load animation for gift ${giftId}:`, e.message);
+    console.error(`Failed to load SVG for gift ${giftId}:`, e.message);
     return null;
   }
 }

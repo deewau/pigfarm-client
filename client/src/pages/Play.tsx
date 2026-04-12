@@ -1,15 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
 import { giftApi } from '../services/api';
-import { GiftAnimation } from '../components/GiftAnimation';
+import { GiftImage } from '../components/GiftAnimation';
 
 interface TelegramGift {
   id: string;
   name: string;
   description?: string;
   stars: number;
-  animationUrl?: string;
-  animationData?: any;
+  animationSvg?: string;
   sticker?: any;
 }
 
@@ -17,9 +16,9 @@ const BETS = [15, 25, 50];
 
 // Дефолтные подарки (если API недоступен)
 const DEFAULT_GIFTS: TelegramGift[] = [
-  { id: '5170145012310081615', name: 'Подарок 1', stars: 15, animationData: null },
-  { id: '5170250947678437525', name: 'Подарок 2', stars: 25, animationData: null },
-  { id: '5168103777563050263', name: 'Подарок 3', stars: 25, animationData: null },
+  { id: '5170145012310081615', name: 'Подарок 1', stars: 15, animationSvg: '' },
+  { id: '5170250947678437525', name: 'Подарок 2', stars: 25, animationSvg: '' },
+  { id: '5168103777563050263', name: 'Подарок 3', stars: 25, animationSvg: '' },
 ];
 
 function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
@@ -129,8 +128,8 @@ export function Play() {
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
-                {item.animationData ? (
-                  <GiftAnimation animationData={item.animationData} size={48} />
+                {item.animationSvg ? (
+                  <GiftImage svgContent={item.animationSvg} size={48} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
@@ -171,8 +170,8 @@ export function Play() {
         {possibleGifts.map((gift, i) => (
           <div key={i} className="play__gift-card">
             <div className="play__gift-emoji">
-              {gift.animationData ? (
-                <GiftAnimation animationData={gift.animationData} size={80} />
+              {gift.animationSvg ? (
+                <GiftImage svgContent={gift.animationSvg} size={80} />
               ) : (
                 gift.sticker?.emoji || '🎁'
               )}
