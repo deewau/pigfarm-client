@@ -49,7 +49,7 @@
 /* Рулетка */
 .play__roulette-container {
   position: relative;
-  height: 180px;
+  height: 200px;
   border-radius: 20px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.03);
@@ -78,15 +78,15 @@
 .play__roulette-item {
   flex-shrink: 0;
   width: 100px;
-  height: 148px;
+  height: 168px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 16px;
-  padding: 8px;
+  padding: 10px;
   box-sizing: border-box;
 }
 
