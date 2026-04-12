@@ -2,6 +2,12 @@ import axios from 'axios';
 import type { Transaction } from '../types/index.js';
 import { transactionRepository, userRepository } from '../db/repository.js';
 import { AppError } from '../middleware/errorHandler.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface CreateInvoiceResult {
   invoiceUrl: string;
@@ -144,7 +150,22 @@ export interface TelegramGift {
   description?: string;
   stars: number;
   animationUrl?: string;
+  animationData?: any;
   sticker?: any;
+}
+
+function loadGiftAnimation(giftId: string): any {
+  try {
+    const giftsPath = process.env.NODE_ENV === 'production'
+      ? path.join(__dirname, '../public/gifts')
+      : path.join(__dirname, '../../public/gifts');
+    const filePath = path.join(giftsPath, `${giftId}.json`);
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (e) {
+    console.error(`Failed to load animation for gift ${giftId}:`, e);
+    return null;
+  }
 }
 
 // Список фиксированных подарков Telegram с реальными ID
@@ -153,19 +174,19 @@ const GIFTS_DATA: TelegramGift[] = [
     id: '5170145012310081615',
     name: 'Сердце с бантом',
     stars: 15,
-    animationUrl: '/gifts/5170145012310081615.json',
+    animationData: loadGiftAnimation('5170145012310081615'),
   },
   {
     id: '5170250947678437525',
     name: 'Подарок',
     stars: 25,
-    animationUrl: '/gifts/5170250947678437525.json',
+    animationData: loadGiftAnimation('5170250947678437525'),
   },
   {
     id: '5168103777563050263',
     name: 'Роза',
     stars: 25,
-    animationUrl: '/gifts/5168103777563050263.json',
+    animationData: loadGiftAnimation('5168103777563050263'),
   },
 ];
 

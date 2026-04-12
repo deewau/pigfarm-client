@@ -2,38 +2,28 @@ import { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
 
 interface GiftAnimationProps {
-  url: string;
+  animationData: any;
   size?: number;
 }
 
-export function GiftAnimation({ url, size = 80 }: GiftAnimationProps) {
+export function GiftAnimation({ animationData, size = 80 }: GiftAnimationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !url) return;
-
-    console.log('Loading Lottie animation:', url);
+    if (!containerRef.current || !animationData) return;
 
     const animation = lottie.loadAnimation({
       container: containerRef.current,
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: url,
-    });
-
-    animation.addEventListener('data_ready', () => {
-      console.log('Lottie animation loaded successfully:', url);
-    });
-
-    animation.addEventListener('error', (e) => {
-      console.error('Lottie animation error:', url, e);
+      animationData: animationData,
     });
 
     return () => {
       animation.destroy();
     };
-  }, [url]);
+  }, [animationData]);
 
   return (
     <div
