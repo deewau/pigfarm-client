@@ -150,19 +150,30 @@ export interface TelegramGift {
   description?: string;
   stars: number;
   animationSvg?: string;
+  animationData?: any;
   sticker?: any;
+}
+
+function loadGiftSvg(giftId: string): any {
+  try {
+    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'svg');
+    const filePath = path.join(assetsPath, `${giftId}.svg`);
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return data;
+  } catch (e: any) {
+    console.error(`Failed to load SVG for gift ${giftId}:`, e.message);
+    return null;
+  }
 }
 
 function loadGiftAnimation(giftId: string): any {
   try {
-    // Загружаем SVG файл и возвращаем как строку для inline отображения
-    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'svg');
-    const filePath = path.join(assetsPath, `${giftId}.svg`);
-    console.log(`Loading SVG from: ${filePath}`);
+    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'gifts');
+    const filePath = path.join(assetsPath, `${giftId}.json`);
     const data = fs.readFileSync(filePath, 'utf-8');
-    return data; // Возвращаем SVG как строку
+    return JSON.parse(data);
   } catch (e: any) {
-    console.error(`Failed to load SVG for gift ${giftId}:`, e.message);
+    console.error(`Failed to load animation for gift ${giftId}:`, e.message);
     return null;
   }
 }
@@ -173,19 +184,22 @@ const GIFTS_DATA: TelegramGift[] = [
     id: '5170145012310081615',
     name: 'Сердце с бантом',
     stars: 15,
-    animationSvg: loadGiftAnimation('5170145012310081615'),
+    animationSvg: loadGiftSvg('5170145012310081615'),
+    animationData: loadGiftAnimation('5170145012310081615'),
   },
   {
     id: '5170250947678437525',
     name: 'Подарок',
     stars: 25,
-    animationSvg: loadGiftAnimation('5170250947678437525'),
+    animationSvg: loadGiftSvg('5170250947678437525'),
+    animationData: loadGiftAnimation('5170250947678437525'),
   },
   {
     id: '5168103777563050263',
     name: 'Роза',
     stars: 25,
-    animationSvg: loadGiftAnimation('5168103777563050263'),
+    animationSvg: loadGiftSvg('5168103777563050263'),
+    animationData: loadGiftAnimation('5168103777563050263'),
   },
 ];
 

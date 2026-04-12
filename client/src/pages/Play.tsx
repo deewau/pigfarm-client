@@ -10,6 +10,7 @@ interface TelegramGift {
   description?: string;
   stars: number;
   animationSvg?: string;
+  animationData?: any;
   sticker?: any;
 }
 
@@ -211,7 +212,7 @@ export function Play() {
       {/* Модальное окно результата */}
       {showResult && wonGift && (
         <ResultModal
-          giftSvg={wonGift.animationSvg || ''}
+          animationData={wonGift.animationData}
           onClose={() => setShowResult(false)}
           onDisableDemo={() => {
             setDemoMode(false);
