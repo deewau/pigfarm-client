@@ -44,6 +44,7 @@ export function Play() {
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollingPaused, setScrollingPaused] = useState(false);
+  const animationDelayRef = useRef<string>('0s');
 
   // Загрузка подарков из API
   useEffect(() => {
@@ -116,11 +117,24 @@ export function Play() {
     // После завершения анимации
     setTimeout(() => {
       setSpinning(false);
+
+      // Вычисляем позицию в паттерне для CSS animation
+      const patternWidth = 396; // 3 items × 132px
+      const normalizedOffset = ((targetOffset % patternWidth) + patternWidth) % patternWidth;
+      const delaySeconds = -(normalizedOffset / patternWidth) * 12;
+      animationDelayRef.current = `${delaySeconds}s`;
+
       if (demoMode) {
         setWonGift(wonItem);
-        // Замораживаем рулетку
         setScrollingPaused(true);
         setTimeout(() => setShowResult(true), 300);
+      } else {
+        // Без демо — просто снимаем inline стили и возобновляем
+        const rouletteEl = rouletteRef.current;
+        if (rouletteEl) {
+          rouletteEl.style.transform = '';
+          rouletteEl.style.transition = '';
+        }
       }
     }, 3300);
   };
@@ -155,6 +169,7 @@ export function Play() {
         <div
           className={`play__roulette ${!spinning ? (scrollingPaused ? 'play__roulette--paused' : 'play__roulette--scrolling') : ''}`}
           ref={rouletteRef}
+          style={!spinning && animationDelayRef.current !== '0s' ? { animationDelay: animationDelayRef.current } : undefined}
         >
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
@@ -218,7 +233,7 @@ export function Play() {
         <ResultModal
           animationData={wonGift.animationData}
           onClose={() => {
-            // Снимаем inline стили — CSS анимация подхватит текущую позицию
+            // Применяем рассчитанную задержку и снимаем inline стили
             const rouletteEl = rouletteRef.current;
             if (rouletteEl) {
               rouletteEl.style.transform = '';
@@ -233,9 +248,9 @@ export function Play() {
               rouletteEl.style.transform = '';
               rouletteEl.style.transition = '';
             }
-            setDemoMode(false);
             setShowResult(false);
             setScrollingPaused(false);
+            setDemoMode(false);
           }}
         />
       )}
