@@ -149,9 +149,9 @@ export interface TelegramGift {
 
 // Список фиксированных подарков Telegram
 const GIFT_IDS = [
-  'heart_with_bow', // Сердце с бантом - 15⭐
-  'gift_box',       // Подарок - 25⭐
-  'rose',           // Роза - 25⭐
+  '5170145012310081615', // Сердце с бантом - 15⭐
+  '5170250947678437525', // Подарок - 25⭐
+  '5168103777563050263', // Роза - 25⭐
 ];
 
 export async function getGiftById(giftId: string): Promise<TelegramGift | null> {

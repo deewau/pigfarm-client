@@ -15,9 +15,9 @@ const BETS = [15, 25, 50];
 
 // Дефолтные подарки (если API недоступен)
 const DEFAULT_GIFTS: TelegramGift[] = [
-  { id: 'heart_with_bow', name: 'Сердце с бантом', stars: 15 },
-  { id: 'gift_box', name: 'Подарок', stars: 25 },
-  { id: 'rose', name: 'Роза', stars: 25 },
+  { id: '5170145012310081615', name: 'Подарок 1', stars: 15 },
+  { id: '5170250947678437525', name: 'Подарок 2', stars: 25 },
+  { id: '5168103777563050263', name: 'Подарок 3', stars: 25 },
 ];
 
 function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
