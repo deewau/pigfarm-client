@@ -182,10 +182,17 @@ function loadGiftAnimation(giftId: string): any {
 const GIFTS_DATA: TelegramGift[] = [
   {
     id: '5170145012310081615',
-    name: 'Сердце с бантом',
+    name: 'Сердце',
     stars: 15,
     animationSvg: loadGiftSvg('5170145012310081615'),
     animationData: loadGiftAnimation('5170145012310081615'),
+  },
+  {
+    id: '5170233102089322756',
+    name: 'Мишка',
+    stars: 15,
+    animationSvg: loadGiftSvg('5170233102089322756'),
+    animationData: loadGiftAnimation('5170233102089322756'),
   },
   {
     id: '5170250947678437525',
@@ -200,6 +207,55 @@ const GIFTS_DATA: TelegramGift[] = [
     stars: 25,
     animationSvg: loadGiftSvg('5168103777563050263'),
     animationData: loadGiftAnimation('5168103777563050263'),
+  },
+  {
+    id: '5170144170496491616',
+    name: 'Торт',
+    stars: 50,
+    animationSvg: loadGiftSvg('5170144170496491616'),
+    animationData: loadGiftAnimation('5170144170496491616'),
+  },
+  {
+    id: '5170314324215857265',
+    name: 'Букет',
+    stars: 50,
+    animationSvg: loadGiftSvg('5170314324215857265'),
+    animationData: loadGiftAnimation('5170314324215857265'),
+  },
+  {
+    id: '5170564780938756245',
+    name: 'Ракета',
+    stars: 50,
+    animationSvg: loadGiftSvg('5170564780938756245'),
+    animationData: loadGiftAnimation('5170564780938756245'),
+  },
+  {
+    id: '6028601630662853006',
+    name: 'Шампанское',
+    stars: 50,
+    animationSvg: loadGiftSvg('6028601630662853006'),
+    animationData: loadGiftAnimation('6028601630662853006'),
+  },
+  {
+    id: '5168043875654172773',
+    name: 'Кубок',
+    stars: 100,
+    animationSvg: loadGiftSvg('5168043875654172773'),
+    animationData: loadGiftAnimation('5168043875654172773'),
+  },
+  {
+    id: '5170690322832818290',
+    name: 'Кольцо',
+    stars: 100,
+    animationSvg: loadGiftSvg('5170690322832818290'),
+    animationData: loadGiftAnimation('5170690322832818290'),
+  },
+  {
+    id: '5170521118301225164',
+    name: 'Алмаз',
+    stars: 100,
+    animationSvg: loadGiftSvg('5170521118301225164'),
+    animationData: loadGiftAnimation('5170521118301225164'),
   },
 ];
 

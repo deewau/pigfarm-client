@@ -15,9 +15,17 @@ interface TelegramGift {
 }
 
 const DEFAULT_GIFTS: TelegramGift[] = [
-  { id: '5170145012310081615', name: 'Подарок 1', stars: 15, animationSvg: '' },
-  { id: '5170250947678437525', name: 'Подарок 2', stars: 25, animationSvg: '' },
-  { id: '5168103777563050263', name: 'Подарок 3', stars: 25, animationSvg: '' },
+  { id: '5170145012310081615', name: 'Сердце', stars: 15, animationSvg: '' },
+  { id: '5170233102089322756', name: 'Мишка', stars: 15, animationSvg: '' },
+  { id: '5170250947678437525', name: 'Подарок', stars: 25, animationSvg: '' },
+  { id: '5168103777563050263', name: 'Роза', stars: 25, animationSvg: '' },
+  { id: '5170144170496491616', name: 'Торт', stars: 50, animationSvg: '' },
+  { id: '5170314324215857265', name: 'Букет', stars: 50, animationSvg: '' },
+  { id: '5170564780938756245', name: 'Ракета', stars: 50, animationSvg: '' },
+  { id: '6028601630662853006', name: 'Шампанское', stars: 50, animationSvg: '' },
+  { id: '5168043875654172773', name: 'Кубок', stars: 100, animationSvg: '' },
+  { id: '5170690322832818290', name: 'Кольцо', stars: 100, animationSvg: '' },
+  { id: '5170521118301225164', name: 'Алмаз', stars: 100, animationSvg: '' },
 ];
 
 function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
@@ -29,7 +37,8 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
 }
 
 const ITEM_WIDTH = 132;
-const PATTERN_WIDTH = 396;
+const GIFTS_COUNT = 11;
+const PATTERN_WIDTH = ITEM_WIDTH * GIFTS_COUNT;
 const SCROLL_SPEED = 1;
 const SPIN_DISTANCE = PATTERN_WIDTH * 4;
 
