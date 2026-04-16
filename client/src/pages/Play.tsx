@@ -36,7 +36,7 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
   }));
 }
 
-const ITEM_WIDTH = 152;
+const ITEM_WIDTH = 132;
 const GIFTS_COUNT = 11;
 const PATTERN_WIDTH = ITEM_WIDTH * GIFTS_COUNT;
 const SCROLL_SPEED = 1;
@@ -214,7 +214,7 @@ export function Play() {
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={100} uniqueId={`roulette-${item.rouletteIndex}`} />
+                  <GiftImage svgContent={item.animationSvg} size={80} uniqueId={`roulette-${item.rouletteIndex}`} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
