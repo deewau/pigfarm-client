@@ -2,23 +2,25 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.06);
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(170, 59, 255, 0.15) 0%, rgba(90, 200, 250, 0.1) 100%);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(170, 59, 255, 0.2);
 }
 
 .profile-bar__avatar {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
 }
 
 .profile-bar__avatar img {
@@ -30,23 +32,27 @@
 .profile-bar__info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   text-align: left;
 }
 
 .profile-bar__name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
+  letter-spacing: 0.3px;
 }
 
 .profile-bar__balance {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
   color: #5ac8fa;
-  font-weight: 600;
 }
 
 .profile-bar__balance-star {
