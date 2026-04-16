@@ -49,7 +49,7 @@ export function Play() {
 
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
-  const speedRef = useRef(8);
+  const speedRef = useRef(2);
   const isPausedRef = useRef(false);
 
   useEffect(() => {
@@ -96,6 +96,11 @@ export function Play() {
       }
 
       currentOffsetRef.current += speedRef.current;
+
+      if (currentOffsetRef.current >= PATTERN_WIDTH) {
+        currentOffsetRef.current -= PATTERN_WIDTH;
+      }
+
       rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
 
       animationRef.current = requestAnimationFrame(animate);
@@ -123,15 +128,16 @@ export function Play() {
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
 
-    const baseOffset = Math.floor(currentOffsetRef.current / PATTERN_WIDTH) * PATTERN_WIDTH;
-    const targetOffset = baseOffset + winIndex * ITEM_WIDTH - centerOffset;
+    const normalizedOffset = currentOffsetRef.current % PATTERN_WIDTH;
+    const targetOffset = normalizedOffset + winIndex * ITEM_WIDTH - centerOffset;
+    const extraLoops = Math.floor(currentOffsetRef.current / PATTERN_WIDTH) * PATTERN_WIDTH;
 
-    const distanceToTarget = targetOffset - currentOffsetRef.current;
-    const minDistance = PATTERN_WIDTH * 3 + 100;
-    const finalOffset = currentOffsetRef.current + Math.max(distanceToTarget, minDistance);
+    const distanceToTarget = targetOffset - normalizedOffset;
+    const minDistance = PATTERN_WIDTH * 3;
+    const totalDistance = extraLoops + Math.max(distanceToTarget, minDistance);
 
     setSpinning(true);
-    speedRef.current = 8;
+    speedRef.current = 0;
     isPausedRef.current = false;
 
     const startOffset = currentOffsetRef.current;
@@ -143,11 +149,14 @@ export function Play() {
       const progress = Math.min(elapsed / duration, 1);
 
       const eased = 1 - Math.pow(1 - progress, 3);
-      currentOffsetRef.current = startOffset + (finalOffset - startOffset) * eased;
+      const newOffset = startOffset + (totalDistance - startOffset) * eased;
+
+      const loopedOffset = newOffset % PATTERN_WIDTH;
+      currentOffsetRef.current = loopedOffset;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
+        rouletteEl.style.transform = `translateX(-${loopedOffset}px)`;
       }
 
       if (progress < 1) {
