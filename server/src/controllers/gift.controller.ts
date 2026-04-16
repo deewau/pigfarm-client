@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
+import { GIFTS_DATA } from '../services/telegram.js';
 
 export async function claimGift(req: Request, res: Response) {
   try {
@@ -59,9 +60,19 @@ export async function getUserGifts(req: Request, res: Response) {
 
     const gifts = await userGiftRepository.findByUserId(userId);
 
+    // Добавляем SVG данные к подаркам
+    const giftsWithSvg = gifts.map(gift => {
+      const giftData = GIFTS_DATA.find(g => g.id === gift.gift_id);
+      return {
+        ...gift,
+        animationSvg: giftData?.animationSvg || null,
+        animationData: giftData?.animationData || null,
+      };
+    });
+
     res.json({
       success: true,
-      data: { gifts },
+      data: { gifts: giftsWithSvg },
     });
   } catch (error) {
     console.error('getUserGifts error:', error);

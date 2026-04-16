@@ -378,7 +378,7 @@
 .profile__gifts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
   padding: 4px;
 }
 
@@ -386,23 +386,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 16px 12px;
-  background: linear-gradient(135deg, rgba(170, 59, 255, 0.1) 0%, rgba(90, 200, 250, 0.05) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(170, 59, 255, 0.15);
+  gap: 8px;
+  padding: 14px 10px;
+  background: rgba(170, 59, 255, 0.06);
+  border-radius: 18px;
+  border: 1px solid rgba(170, 59, 255, 0.1);
   transition: all 0.2s ease;
 }
 
 .profile__gift-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(170, 59, 255, 0.3);
-  box-shadow: 0 8px 24px rgba(170, 59, 255, 0.15);
+  background: rgba(170, 59, 255, 0.1);
+  border-color: rgba(170, 59, 255, 0.2);
 }
 
 .profile__gift-icon {
-  font-size: 24px;
-  font-weight: 800;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(170, 59, 255, 0.08);
+  border-radius: 50%;
+  border: 1px solid rgba(170, 59, 255, 0.15);
+}
+
+.profile__gift-icon span {
+  font-size: 18px;
+  font-weight: 700;
   background: linear-gradient(135deg, #aa3bff, #5ac8fa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -410,7 +421,7 @@
 }
 
 .profile__gift-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #ffffff;
   text-align: center;

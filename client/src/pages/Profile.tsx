@@ -5,6 +5,7 @@ import { GameIcon } from '../components/icons';
 import { CircularAvatar } from '../components/CircularAvatar';
 import { SettingsModal } from '../components/SettingsModal';
 import { DepositModal } from '../components/DepositModal';
+import { GiftImage } from '../components/GiftAnimation';
 import { timeAgo } from '../utils/timeAgo';
 import { winApi } from '../services/api';
 import './Profile.css';
@@ -158,9 +159,15 @@ export function Profile() {
             </div>
           ) : (
             <div className="profile__gifts-grid">
-              {userGifts.map((gift) => (
+              {userGifts.map((gift, index) => (
                 <div key={gift.id} className="profile__gift-card">
-                  <div className="profile__gift-icon">{gift.gift_stars} ⭐</div>
+                  <div className="profile__gift-icon">
+                    {gift.animationSvg ? (
+                      <GiftImage svgContent={gift.animationSvg} size={60} uniqueId={`profile-gift-${gift.id}`} />
+                    ) : (
+                      <span>{gift.gift_stars} ⭐</span>
+                    )}
+                  </div>
                   <span className="profile__gift-name">{gift.gift_name}</span>
                   <span className="profile__gift-date">{timeAgo(gift.won_at)}</span>
                 </div>
