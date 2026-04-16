@@ -1,31 +1,13 @@
-import { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
-import { userApi } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 import './ProfileBar.css';
 
 export function ProfileBar() {
-  const { user } = useTelegram();
-  const [balance, setBalance] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { user: tgUser } = useTelegram();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const response = await userApi.getBalance();
-        if (response.success) {
-          setBalance(response.data.balance);
-        }
-      } catch (error) {
-        console.error('Failed to fetch balance:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBalance();
-  }, []);
-
-  const avatarContent = user?.photo_url ? (
-    <img src={user.photo_url} alt={user.first_name} />
+  const avatarContent = tgUser?.photo_url ? (
+    <img src={tgUser.photo_url} alt={tgUser.first_name} />
   ) : (
     <span>👤</span>
   );
@@ -37,11 +19,11 @@ export function ProfileBar() {
       </div>
       <div className="profile-bar__info">
         <span className="profile-bar__name">
-          {user?.first_name || 'Пользователь'}
+          {user?.first_name || tgUser?.first_name || 'Пользователь'}
         </span>
         <span className="profile-bar__balance">
           <span className="profile-bar__balance-star">⭐</span>
-          {loading ? '...' : balance.toLocaleString()}
+          {user?.balance !== undefined ? user.balance.toLocaleString() : '...'}
         </span>
       </div>
     </div>
