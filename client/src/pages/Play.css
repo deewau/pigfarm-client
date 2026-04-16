@@ -85,6 +85,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
 }
 
 .play__roulette-cost-badge {
