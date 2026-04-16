@@ -36,7 +36,7 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
   }));
 }
 
-const ITEM_WIDTH = 132;
+const ITEM_WIDTH = 112;
 const GIFTS_COUNT = 11;
 const PATTERN_WIDTH = ITEM_WIDTH * GIFTS_COUNT;
 const SCROLL_SPEED = 1;
