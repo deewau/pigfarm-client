@@ -241,11 +241,12 @@
 }
 
 .profile__tab-content--scrollable {
-  overflow: hidden;
+  overflow-y: auto;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  max-height: 400px;
 }
 
 .profile__empty {
@@ -371,4 +372,51 @@
 
 .profile__history-amount--negative {
   color: #ff6b6b;
+}
+
+/* Подарки */
+.profile__gifts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 4px;
+}
+
+.profile__gift-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: linear-gradient(135deg, rgba(170, 59, 255, 0.1) 0%, rgba(90, 200, 250, 0.05) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(170, 59, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.profile__gift-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(170, 59, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(170, 59, 255, 0.15);
+}
+
+.profile__gift-icon {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.profile__gift-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.profile__gift-date {
+  font-size: 10px;
+  color: #6b6375;
 }

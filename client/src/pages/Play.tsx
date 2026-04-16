@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
-import { giftApi } from '../services/api';
+import { giftApi, winApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 import { ProfileBar } from '../components/ProfileBar';
+import { DepositModal } from '../components/DepositModal';
+import { useAuth } from '../hooks/useAuth';
 
 interface TelegramGift {
   id: string;
@@ -29,6 +31,8 @@ const DEFAULT_GIFTS: TelegramGift[] = [
   { id: '5170521118301225164', name: 'Алмаз', stars: 100, animationSvg: '' },
 ];
 
+const SPIN_COST = 25;
+
 function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
   const shuffled = [...gifts].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).map((gift) => ({
@@ -44,6 +48,7 @@ const SCROLL_SPEED = 1;
 const SPIN_DISTANCE = PATTERN_WIDTH * 4;
 
 export function Play() {
+  const { user, addBalance, refreshBalance } = useAuth();
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
@@ -51,13 +56,13 @@ export function Play() {
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResult, setShowResult] = useState(false);
+  const [showDeposit, setShowDeposit] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
-  const isScrollingRef = useRef(true);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -132,6 +137,14 @@ export function Play() {
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
 
+    // Проверяем баланс если не демо-режим
+    if (!demoMode && user) {
+      if (user.balance < SPIN_COST) {
+        setShowDeposit(true);
+        return;
+      }
+    }
+
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -185,7 +198,18 @@ export function Play() {
           setWonGift(wonItem);
           setShowResult(true);
         } else {
-          startScrolling();
+          // Сохраняем выигрыш в БД
+          winApi.claim({
+            id: wonItem.id,
+            name: wonItem.name,
+            stars: wonItem.stars,
+          }).then(() => {
+            setWonGift(wonItem);
+            setShowResult(true);
+          }).catch((err) => {
+            console.error('Failed to claim gift:', err);
+            startScrolling();
+          });
         }
       }
     };
@@ -196,6 +220,14 @@ export function Play() {
   const closeModal = () => {
     setShowResult(false);
     startScrolling();
+  };
+
+  const handleGoToProfile = () => {
+    setShowResult(false);
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.BackButton) {
+      tg.BackButton.show();
+    }
   };
 
   if (loading) {
@@ -235,7 +267,7 @@ export function Play() {
           onClick={handleSpin}
           disabled={spinning}
         >
-          {spinning ? '🎰 Крутится...' : '🎲 Крутить!'}
+          {spinning ? '🎰 Крутится...' : demoMode ? '🎲 Крутить!' : `🎲 Крутить! ${SPIN_COST} ⭐`}
         </button>
         <div className="play__demo">
           <span className="play__demo-label">DEMO</span>
@@ -275,6 +307,19 @@ export function Play() {
             setShowResult(false);
             setDemoMode(false);
             startScrolling();
+          }}
+          isDemo={demoMode}
+          onGoToProfile={handleGoToProfile}
+        />
+      )}
+
+      {showDeposit && (
+        <DepositModal
+          isOpen={showDeposit}
+          onClose={() => setShowDeposit(false)}
+          onDepositSuccess={(amount) => {
+            addBalance(amount);
+            refreshBalance();
           }}
         />
       )}

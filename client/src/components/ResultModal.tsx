@@ -5,10 +5,18 @@ import './ResultModal.css';
 interface ResultModalProps {
   animationData: any;
   onClose: () => void;
-  onDisableDemo: () => void;
+  onDisableDemo?: () => void;
+  isDemo?: boolean;
+  onGoToProfile?: () => void;
 }
 
-export function ResultModal({ animationData, onClose, onDisableDemo }: ResultModalProps) {
+export function ResultModal({ 
+  animationData, 
+  onClose, 
+  onDisableDemo, 
+  isDemo = true,
+  onGoToProfile 
+}: ResultModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,14 +37,26 @@ export function ResultModal({ animationData, onClose, onDisableDemo }: ResultMod
     <div className="result-modal-overlay" onClick={onClose}>
       <div className="result-modal" onClick={(e) => e.stopPropagation()}>
         <div className="result-modal__gift" ref={containerRef} />
-        <h2 className="result-modal__message">Вы выиграли подарок!</h2>
+        <h2 className="result-modal__message">
+          {isDemo ? 'Вы выиграли подарок!' : '🎉 Поздравляем!'}
+        </h2>
         <p className="result-modal__description">
-          Демо-режим нужен для тестирования<br />шансов выпадения подарков.
+          {isDemo 
+            ? 'Демо-режим нужен для тестирования\nшансов выпадения подарков.'
+            : 'Вы можете ознакомиться со своим\nподарком в профиле!'
+          }
         </p>
         <div className="result-modal__actions">
-          <button className="result-modal__btn result-modal__btn--secondary" onClick={onDisableDemo}>
-            Отключить демо-режим
-          </button>
+          {isDemo && onDisableDemo && (
+            <button className="result-modal__btn result-modal__btn--secondary" onClick={onDisableDemo}>
+              Отключить демо-режим
+            </button>
+          )}
+          {!isDemo && onGoToProfile && (
+            <button className="result-modal__btn result-modal__btn--secondary" onClick={onGoToProfile}>
+              Перейти в профиль
+            </button>
+          )}
           <button className="result-modal__btn result-modal__btn--primary" onClick={onClose}>
             Закрыть
           </button>

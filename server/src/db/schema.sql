@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_gifts (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  gift_id TEXT NOT NULL,
+  gift_name TEXT NOT NULL,
+  gift_stars INTEGER NOT NULL,
+  won_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS migrations (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
@@ -35,3 +44,4 @@ CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_status ON transactions(status);
 CREATE INDEX IF NOT EXISTS idx_transactions_telegram_charge_id ON transactions(telegram_payment_charge_id);
+CREATE INDEX IF NOT EXISTS idx_user_gifts_user_id ON user_gifts(user_id);

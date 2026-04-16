@@ -6,6 +6,7 @@ import { CircularAvatar } from '../components/CircularAvatar';
 import { SettingsModal } from '../components/SettingsModal';
 import { DepositModal } from '../components/DepositModal';
 import { timeAgo } from '../utils/timeAgo';
+import { winApi } from '../services/api';
 import './Profile.css';
 
 export function Profile() {
@@ -47,6 +48,23 @@ export function Profile() {
       console.error('Failed to load history:', err);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+
+  // Gifts data
+  const [userGifts, setUserGifts] = useState<any[]>([]);
+  const [giftsLoading, setGiftsLoading] = useState(false);
+
+  const loadGifts = async () => {
+    if (userGifts.length > 0) return;
+    setGiftsLoading(true);
+    try {
+      const response = await winApi.getMy();
+      if (response.success) setUserGifts(response.data?.gifts || []);
+    } catch (err) {
+      console.error('Failed to load gifts:', err);
+    } finally {
+      setGiftsLoading(false);
     }
   };
 
@@ -124,11 +142,25 @@ export function Profile() {
 
       {/* Содержимое вкладок */}
       {tab === 'gifts' && (
-        <div className="profile__tab-content">
-          <div className="profile__empty">
-            <div className="profile__empty-icon">🔍</div>
-            <p>У вас ещё нет подарков</p>
-          </div>
+        <div className="profile__tab-content profile__tab-content--scrollable" onClick={loadGifts}>
+          {giftsLoading ? (
+            <div className="profile__loading">Загрузка...</div>
+          ) : userGifts.length === 0 ? (
+            <div className="profile__empty">
+              <div className="profile__empty-icon">🎁</div>
+              <p>У вас ещё нет подарков</p>
+            </div>
+          ) : (
+            <div className="profile__gifts-grid">
+              {userGifts.map((gift) => (
+                <div key={gift.id} className="profile__gift-card">
+                  <div className="profile__gift-icon">{gift.gift_stars} ⭐</div>
+                  <span className="profile__gift-name">{gift.gift_name}</span>
+                  <span className="profile__gift-date">{timeAgo(gift.won_at)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -13,6 +13,7 @@ import webhookRoutes from './routes/webhook.routes.js';
 import referralRoutes from './routes/referral.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import giftRoutes from './routes/gift.routes.js';
+import winRoutes from './routes/win.routes.js';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api/referral', referralRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/gifts', giftRoutes);
+app.use('/api/win', winRoutes);
 
 // Отдаём анимации подарков (для обоих режимов)
 const giftsPath = process.env.NODE_ENV === 'production' 

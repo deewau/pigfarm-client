@@ -128,3 +128,45 @@ export const transactionRepository = {
     return result.rows[0] as Transaction;
   },
 };
+
+export interface UserGift {
+  id: number;
+  user_id: number;
+  gift_id: string;
+  gift_name: string;
+  gift_stars: number;
+  won_at: Date;
+}
+
+export const userGiftRepository = {
+  async create(data: {
+    user_id: number;
+    gift_id: string;
+    gift_name: string;
+    gift_stars: number;
+  }): Promise<UserGift> {
+    const pool = getPool();
+    const result = await pool.query(
+      `INSERT INTO user_gifts (user_id, gift_id, gift_name, gift_stars)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [data.user_id, data.gift_id, data.gift_name, data.gift_stars]
+    );
+    return result.rows[0] as UserGift;
+  },
+
+  async findByUserId(userId: number): Promise<UserGift[]> {
+    const pool = getPool();
+    const result = await pool.query(
+      'SELECT * FROM user_gifts WHERE user_id = $1 ORDER BY won_at DESC',
+      [userId]
+    );
+    return result.rows as UserGift[];
+  },
+
+  async findById(id: number): Promise<UserGift | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM user_gifts WHERE id = $1', [id]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as UserGift;
+  },
+};

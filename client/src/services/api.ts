@@ -75,3 +75,19 @@ export const giftApi = {
     return response.data;
   },
 };
+
+// Win
+export const winApi = {
+  claim: async (gift: { id: string; name: string; stars: number }) => {
+    const response = await api.post('/api/win/claim', {
+      gift_id: gift.id,
+      gift_name: gift.name,
+      gift_stars: gift.stars,
+    });
+    return response.data;
+  },
+  getMy: async () => {
+    const response = await api.get('/api/win/my');
+    return response.data;
+  },
+};
