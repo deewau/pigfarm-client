@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
-import { giftApi, winApi } from '../services/api';
+import { giftApi, winApi, userApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 import { ProfileBar } from '../components/ProfileBar';
@@ -134,13 +134,28 @@ export function Play() {
     };
   }, [loading, rouletteItems.length]);
 
-  const handleSpin = () => {
+  const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
 
     // Проверяем баланс если не демо-режим
     if (!demoMode && user) {
       if (user.balance < SPIN_COST) {
         setShowDeposit(true);
+        return;
+      }
+
+      // Списываем звёзды
+      try {
+        const response = await userApi.spend(SPIN_COST, 'Крутка рулетки');
+        if (response.success) {
+          // Обновляем баланс из БД
+          refreshBalance();
+        } else {
+          console.error('Failed to spend:', response.error);
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to spend balance:', err);
         return;
       }
     }

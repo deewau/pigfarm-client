@@ -112,3 +112,72 @@ export async function getUserTransactions(req: Request, res: Response) {
     });
   }
 }
+
+export async function spendBalance(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+      return;
+    }
+
+    const { amount, description } = req.body;
+
+    if (!amount || amount <= 0) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid amount',
+      });
+      return;
+    }
+
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    if (user.balance < amount) {
+      res.status(400).json({
+        success: false,
+        error: 'Insufficient balance',
+      });
+      return;
+    }
+
+    await userRepository.addBalance(userId, -amount);
+
+    await transactionRepository.create({
+      user_id: userId,
+      amount,
+      type: 'spend',
+      status: 'completed',
+      description: description || `Списание ${amount} звёзд`,
+    });
+
+    const updatedUser = await userRepository.findById(userId);
+
+    console.log(`💸 User ${userId} spent ${amount} stars. Balance: ${updatedUser?.balance}`);
+
+    res.json({
+      success: true,
+      data: {
+        balance: updatedUser?.balance,
+      },
+    });
+  } catch (error) {
+    console.error('spendBalance error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to spend balance',
+    });
+  }
+}

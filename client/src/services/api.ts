@@ -35,6 +35,13 @@ export const userApi = {
     const response = await api.get<ApiResponse<{ balance: number }>>('/api/user/balance');
     return response.data;
   },
+  spend: async (amount: number, description?: string): Promise<ApiResponse<{ balance: number }>> => {
+    const response = await api.post<ApiResponse<{ balance: number }>>('/api/user/spend', {
+      amount,
+      description,
+    });
+    return response.data;
+  },
 };
 
 // Deposit
