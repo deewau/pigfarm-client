@@ -32,25 +32,25 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
 
 const ITEM_WIDTH = 132;
 const PATTERN_WIDTH = 396;
+const SCROLL_SPEED = 1;
 
 export function Play() {
   const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
   const [rouletteItems, setRouletteItems] = useState<(TelegramGift & { rouletteIndex: number })[]>([]);
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
   const [loading, setLoading] = useState(true);
-  const rouletteRef = useRef<HTMLDivElement>(null);
   const [showResult, setShowResult] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [resetKey, setResetKey] = useState(0);
 
+  const rouletteRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
-  const speedRef = useRef(2);
-  const isPausedRef = useRef(false);
+  const totalScrolledRef = useRef(0);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -85,8 +85,10 @@ export function Play() {
     }
   }, [generateRoulette, loading]);
 
-  useEffect(() => {
-    if (loading || paused) return;
+  const startScrolling = useCallback(() => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
 
     const animate = () => {
       const rouletteEl = rouletteRef.current;
@@ -95,25 +97,31 @@ export function Play() {
         return;
       }
 
-      currentOffsetRef.current += speedRef.current;
+      currentOffsetRef.current += SCROLL_SPEED;
+      totalScrolledRef.current += SCROLL_SPEED;
 
       if (currentOffsetRef.current >= PATTERN_WIDTH) {
         currentOffsetRef.current -= PATTERN_WIDTH;
       }
 
       rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
-
       animationRef.current = requestAnimationFrame(animate);
     };
 
     animationRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && rouletteItems.length > 0) {
+      startScrolling();
+    }
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [loading, paused]);
+  }, [loading, rouletteItems.length, resetKey]);
 
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
@@ -128,31 +136,30 @@ export function Play() {
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
 
-    const normalizedOffset = currentOffsetRef.current % PATTERN_WIDTH;
-    const targetOffset = normalizedOffset + winIndex * ITEM_WIDTH - centerOffset;
-    const extraLoops = Math.floor(currentOffsetRef.current / PATTERN_WIDTH) * PATTERN_WIDTH;
-
-    const distanceToTarget = targetOffset - normalizedOffset;
-    const minDistance = PATTERN_WIDTH * 3;
-    const totalDistance = extraLoops + Math.max(distanceToTarget, minDistance);
-
-    setSpinning(true);
-    speedRef.current = 0;
-    isPausedRef.current = false;
+    const targetInPattern = winIndex * ITEM_WIDTH - centerOffset;
+    const loopsCompleted = Math.floor(totalScrolledRef.current / PATTERN_WIDTH);
+    const minLoops = 3;
+    const finalOffset = loopsCompleted * PATTERN_WIDTH + targetInPattern;
+    const distance = Math.max(finalOffset - totalScrolledRef.current, minLoops * PATTERN_WIDTH);
 
     const startOffset = currentOffsetRef.current;
+    const startTotal = totalScrolledRef.current;
     const startTime = performance.now();
     const duration = 3000;
+
+    setSpinning(true);
 
     const animate = (timestamp: number) => {
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
-
       const eased = 1 - Math.pow(1 - progress, 3);
-      const newOffset = startOffset + (totalDistance - startOffset) * eased;
 
+      const easedDistance = distance * eased;
+      const newOffset = startOffset + easedDistance;
       const loopedOffset = newOffset % PATTERN_WIDTH;
+
       currentOffsetRef.current = loopedOffset;
+      totalScrolledRef.current = startTotal + easedDistance;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
@@ -167,10 +174,7 @@ export function Play() {
 
         if (demoMode) {
           setWonGift(wonItem);
-          setPaused(true);
-          setTimeout(() => setShowResult(true), 300);
-        } else {
-          setPaused(false);
+          setShowResult(true);
         }
       }
     };
@@ -179,13 +183,16 @@ export function Play() {
   };
 
   const resetRoulette = () => {
+    currentOffsetRef.current = 0;
+    totalScrolledRef.current = 0;
+
     const rouletteEl = rouletteRef.current;
     if (rouletteEl) {
-      currentOffsetRef.current = 0;
       rouletteEl.style.transform = 'translateX(0)';
     }
+
     setShowResult(false);
-    setPaused(false);
+    setResetKey(prev => prev + 1);
   };
 
   if (loading) {
@@ -213,7 +220,7 @@ export function Play() {
 
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
-        <div className="play__roulette" ref={rouletteRef}>
+        <div className="play__roulette" ref={rouletteRef} key={resetKey}>
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
