@@ -33,6 +33,7 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
 const ITEM_WIDTH = 132;
 const PATTERN_WIDTH = 396;
 const SCROLL_SPEED = 1;
+const SPIN_DISTANCE = PATTERN_WIDTH * 4;
 
 export function Play() {
   const [bet, setBet] = useState(25);
@@ -44,13 +45,12 @@ export function Play() {
   const [loading, setLoading] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
-  const [resetKey, setResetKey] = useState(0);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
-  const totalScrolledRef = useRef(0);
+  const isScrollingRef = useRef(true);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -98,7 +98,6 @@ export function Play() {
       }
 
       currentOffsetRef.current += SCROLL_SPEED;
-      totalScrolledRef.current += SCROLL_SPEED;
 
       if (currentOffsetRef.current >= PATTERN_WIDTH) {
         currentOffsetRef.current -= PATTERN_WIDTH;
@@ -121,7 +120,7 @@ export function Play() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [loading, rouletteItems.length, resetKey]);
+  }, [loading, rouletteItems.length]);
 
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
@@ -136,14 +135,18 @@ export function Play() {
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
 
+    const currentInPattern = currentOffsetRef.current;
     const targetInPattern = winIndex * ITEM_WIDTH - centerOffset;
-    const loopsCompleted = Math.floor(totalScrolledRef.current / PATTERN_WIDTH);
-    const minLoops = 3;
-    const finalOffset = loopsCompleted * PATTERN_WIDTH + targetInPattern;
-    const distance = Math.max(finalOffset - totalScrolledRef.current, minLoops * PATTERN_WIDTH);
+
+    let distance = targetInPattern - currentInPattern;
+
+    if (distance <= 0) {
+      distance += SPIN_DISTANCE;
+    }
+
+    distance = distance + SPIN_DISTANCE;
 
     const startOffset = currentOffsetRef.current;
-    const startTotal = totalScrolledRef.current;
     const startTime = performance.now();
     const duration = 3000;
 
@@ -152,14 +155,13 @@ export function Play() {
     const animate = (timestamp: number) => {
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
+
       const eased = 1 - Math.pow(1 - progress, 3);
 
-      const easedDistance = distance * eased;
-      const newOffset = startOffset + easedDistance;
+      const newOffset = startOffset + distance * eased;
       const loopedOffset = newOffset % PATTERN_WIDTH;
 
       currentOffsetRef.current = loopedOffset;
-      totalScrolledRef.current = startTotal + easedDistance;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
@@ -175,6 +177,8 @@ export function Play() {
         if (demoMode) {
           setWonGift(wonItem);
           setShowResult(true);
+        } else {
+          startScrolling();
         }
       }
     };
@@ -182,17 +186,9 @@ export function Play() {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  const resetRoulette = () => {
-    currentOffsetRef.current = 0;
-    totalScrolledRef.current = 0;
-
-    const rouletteEl = rouletteRef.current;
-    if (rouletteEl) {
-      rouletteEl.style.transform = 'translateX(0)';
-    }
-
+  const closeModal = () => {
     setShowResult(false);
-    setResetKey(prev => prev + 1);
+    startScrolling();
   };
 
   if (loading) {
@@ -220,7 +216,7 @@ export function Play() {
 
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
-        <div className="play__roulette" ref={rouletteRef} key={resetKey}>
+        <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
@@ -279,10 +275,11 @@ export function Play() {
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.animationData}
-          onClose={resetRoulette}
+          onClose={closeModal}
           onDisableDemo={() => {
-            resetRoulette();
+            setShowResult(false);
             setDemoMode(false);
+            startScrolling();
           }}
         />
       )}
