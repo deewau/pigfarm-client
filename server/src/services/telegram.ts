@@ -179,7 +179,7 @@ function loadGiftAnimation(giftId: string): any {
 }
 
 // Список фиксированных подарков Telegram с реальными ID
-const GIFTS_DATA: TelegramGift[] = [
+export const GIFTS_DATA: TelegramGift[] = [
   {
     id: '5170145012310081615',
     name: 'Сердце',
