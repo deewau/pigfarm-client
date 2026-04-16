@@ -20,7 +20,6 @@ export function GiftImage({ svgContent, size = 80, uniqueId }: GiftImageProps) {
       style={{
         width: size,
         height: size,
-        color: 'inherit',
       }}
       dangerouslySetInnerHTML={{ __html: processedSvg }}
     />

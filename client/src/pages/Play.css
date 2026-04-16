@@ -87,20 +87,6 @@
   justify-content: center;
 }
 
-.play__roulette-emoji svg,
-.play__roulette-emoji svg * {
-  color: inherit;
-  fill: currentColor;
-  stroke: currentColor;
-}
-
-.play__gift-emoji svg,
-.play__gift-emoji svg * {
-  color: inherit;
-  fill: currentColor;
-  stroke: currentColor;
-}
-
 .play__roulette-cost-badge {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 12px;
