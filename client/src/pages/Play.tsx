@@ -83,44 +83,46 @@ export function Play() {
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
 
+    const rouletteEl = rouletteRef.current;
+    if (!rouletteEl) return;
+
     // Определяем случайный подарок
     const winIndex = Math.floor(Math.random() * rouletteItems.length);
     const wonItem = rouletteItems[winIndex];
 
-    // Рассчитываем конечный offset
     const itemWidth = 132;
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
     const targetOffset = winIndex * itemWidth - centerOffset;
 
-    // Останавливаем CSS-скроллинг — получаем текущую позицию
-    const rouletteEl = rouletteRef.current;
-    if (rouletteEl) {
-      // Убираем CSS-анимацию, но сохраняем текущую позицию
-      const computedTransform = getComputedStyle(rouletteEl).transform;
-      // Применяем inline стиль чтобы "заморозить" позицию
-      rouletteEl.style.transform = computedTransform;
+    // Получаем текущую позицию из CSS-анимации
+    const computedStyle = getComputedStyle(rouletteEl);
+    const matrix = computedStyle.transform;
+    let currentX = 0;
+    if (matrix && matrix !== 'none') {
+      const values = matrix.split('(')[1].split(')')[0].split(',');
+      currentX = parseFloat(values[4]) || 0;
     }
 
-    // Небольшая задержка чтобы браузер применил изменения
-    requestAnimationFrame(() => {
-      setSpinning(true);
+    // Вычисляем дополнительное расстояние для анимации
+    const additionalDistance = targetOffset - currentX;
 
-      requestAnimationFrame(() => {
-        if (rouletteEl) {
-          rouletteEl.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
-          rouletteEl.style.transform = `translateX(-${targetOffset}px)`;
-        }
-      });
+    setSpinning(true);
+
+    requestAnimationFrame(() => {
+      if (rouletteEl) {
+        rouletteEl.style.transition = 'transform 3s cubic-bezier(0.2, 0, 0.4, 1)';
+        rouletteEl.style.transform = `translateX(${currentX - additionalDistance}px)`;
+      }
     });
 
-    // После завершения анимации
+    // После завершения анимации (ровно 3 секунды)
     setTimeout(() => {
       setSpinning(false);
 
-      // Вычисляем позицию в паттерне для CSS animation
-      const patternWidth = 396; // 3 items × 132px
-      const normalizedOffset = ((targetOffset % patternWidth) + patternWidth) % patternWidth;
+      const patternWidth = 396;
+      const finalX = currentX - additionalDistance;
+      const normalizedOffset = ((finalX % patternWidth) + patternWidth) % patternWidth;
       const delaySeconds = -(normalizedOffset / patternWidth) * 12;
       animationDelayRef.current = `${delaySeconds}s`;
 
@@ -129,14 +131,13 @@ export function Play() {
         setScrollingPaused(true);
         setTimeout(() => setShowResult(true), 300);
       } else {
-        // Без демо — просто снимаем inline стили и возобновляем
         const rouletteEl = rouletteRef.current;
         if (rouletteEl) {
           rouletteEl.style.transform = '';
           rouletteEl.style.transition = '';
         }
       }
-    }, 3300);
+    }, 3000);
   };
 
   if (loading) {
