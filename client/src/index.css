@@ -26,10 +26,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  opacity: 1 !important;
-}
-
 #root {
   width: 100%;
   max-width: 440px;

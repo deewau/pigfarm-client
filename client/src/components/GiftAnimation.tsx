@@ -12,12 +12,7 @@ export function GiftImage({ svgContent, size = 80, uniqueId }: GiftImageProps) {
 
     const id = uniqueId || Math.random().toString(36).substring(2, 9);
 
-    let svg = svgContent.replace(/id="__lottie_element_/g, `id="${id}_lottie_`);
-    
-    svg = svg.replace(/style="[^"]*"/g, '');
-    
-    svg = svg.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
-    svg = svg.replace('<svg ', '<svg width="100%" height="100%" ');
+    const svg = svgContent.replace(/__lottie_element_/g, `${id}_lottie_`);
     
     return svg;
   }, [svgContent, uniqueId]);
