@@ -214,7 +214,7 @@ export function Play() {
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={80} uniqueId={`roulette-${item.rouletteIndex}`} />
+                  <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${item.rouletteIndex}`} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
