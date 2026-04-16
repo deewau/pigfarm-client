@@ -31,12 +31,13 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
 }
 
 const ITEM_WIDTH = 132;
-const ANIMATION_DURATION = 3000;
+const PATTERN_WIDTH = 396;
 
 export function Play() {
   const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
   const [rouletteItems, setRouletteItems] = useState<(TelegramGift & { rouletteIndex: number })[]>([]);
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
@@ -48,7 +49,8 @@ export function Play() {
 
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
-  const startTimeRef = useRef<number | null>(null);
+  const speedRef = useRef(8);
+  const isPausedRef = useRef(false);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -83,15 +85,33 @@ export function Play() {
     }
   }, [generateRoulette, loading]);
 
-  const easeOutCubic = (t: number): number => {
-    return 1 - Math.pow(1 - t, 3);
-  };
+  useEffect(() => {
+    if (loading || paused) return;
+
+    const animate = () => {
+      const rouletteEl = rouletteRef.current;
+      if (!rouletteEl) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      currentOffsetRef.current += speedRef.current;
+      rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [loading, paused]);
 
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
-
-    const rouletteEl = rouletteRef.current;
-    if (!rouletteEl) return;
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
@@ -103,25 +123,32 @@ export function Play() {
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
 
-    const targetOffset = winIndex * ITEM_WIDTH - centerOffset;
+    const baseOffset = Math.floor(currentOffsetRef.current / PATTERN_WIDTH) * PATTERN_WIDTH;
+    const targetOffset = baseOffset + winIndex * ITEM_WIDTH - centerOffset;
 
-    const totalDistance = targetOffset + 2000;
+    const distanceToTarget = targetOffset - currentOffsetRef.current;
+    const minDistance = PATTERN_WIDTH * 3 + 100;
+    const finalOffset = currentOffsetRef.current + Math.max(distanceToTarget, minDistance);
 
-    startTimeRef.current = null;
-    currentOffsetRef.current = 0;
     setSpinning(true);
+    speedRef.current = 8;
+    isPausedRef.current = false;
+
+    const startOffset = currentOffsetRef.current;
+    const startTime = performance.now();
+    const duration = 3000;
 
     const animate = (timestamp: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const eased = 1 - Math.pow(1 - progress, 3);
+      currentOffsetRef.current = startOffset + (finalOffset - startOffset) * eased;
+
+      const rouletteEl = rouletteRef.current;
+      if (rouletteEl) {
+        rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
       }
-
-      const elapsed = timestamp - startTimeRef.current;
-      const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-      const easedProgress = easeOutCubic(progress);
-
-      currentOffsetRef.current = totalDistance * easedProgress;
-      rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
@@ -131,7 +158,10 @@ export function Play() {
 
         if (demoMode) {
           setWonGift(wonItem);
+          setPaused(true);
           setTimeout(() => setShowResult(true), 300);
+        } else {
+          setPaused(false);
         }
       }
     };
@@ -139,14 +169,15 @@ export function Play() {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  const resetRoulette = useCallback(() => {
+  const resetRoulette = () => {
     const rouletteEl = rouletteRef.current;
     if (rouletteEl) {
-      rouletteEl.style.transform = 'translateX(0)';
       currentOffsetRef.current = 0;
+      rouletteEl.style.transform = 'translateX(0)';
     }
     setShowResult(false);
-  }, []);
+    setPaused(false);
+  };
 
   if (loading) {
     return (
