@@ -14,8 +14,6 @@ interface TelegramGift {
   sticker?: any;
 }
 
-const BETS = [15, 25, 50];
-
 const DEFAULT_GIFTS: TelegramGift[] = [
   { id: '5170145012310081615', name: 'Подарок 1', stars: 15, animationSvg: '' },
   { id: '5170250947678437525', name: 'Подарок 2', stars: 25, animationSvg: '' },
@@ -36,7 +34,6 @@ const SCROLL_SPEED = 1;
 const SPIN_DISTANCE = PATTERN_WIDTH * 4;
 
 export function Play() {
-  const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
@@ -201,19 +198,6 @@ export function Play() {
 
   return (
     <div className="play">
-      <div className="play__bets">
-        {BETS.map((b) => (
-          <button
-            key={b}
-            className={`play__bet-btn ${bet === b ? 'play__bet-btn--active' : ''}`}
-            onClick={() => setBet(b)}
-          >
-            {b}
-            <span className="play__bet-icon">⭐</span>
-          </button>
-        ))}
-      </div>
-
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
@@ -240,7 +224,7 @@ export function Play() {
           onClick={handleSpin}
           disabled={spinning}
         >
-          {spinning ? '🎰 Крутится...' : `Мне повезёт, Go! ${bet} ⭐`}
+          {spinning ? '🎰 Крутится...' : '🎲 Крутить!'}
         </button>
         <div className="play__demo">
           <span className="play__demo-label">DEMO</span>

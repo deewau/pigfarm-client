@@ -7,45 +7,6 @@
   height: 100%;
 }
 
-/* Выбор ставки */
-.play__bets {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.play__bets::-webkit-scrollbar {
-  display: none;
-}
-
-.play__bet-btn {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 2px solid transparent;
-  border-radius: 14px;
-  color: #8e8e93;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.play__bet-btn--active {
-  background: rgba(0, 122, 255, 0.15);
-  border-color: #007aff;
-  color: #ffffff;
-}
-
-.play__bet-icon {
-  font-size: 18px;
-}
-
 /* Рулетка */
 .play__roulette-container {
   position: relative;
