@@ -3,6 +3,7 @@ import './Play.css';
 import { giftApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
+import { ProfileBar } from '../components/ProfileBar';
 
 interface TelegramGift {
   id: string;
@@ -207,6 +208,7 @@ export function Play() {
 
   return (
     <div className="play">
+      <ProfileBar />
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
