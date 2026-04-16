@@ -13,8 +13,9 @@
   height: 220px;
   border-radius: 20px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(30, 27, 45, 0.8) 0%, rgba(20, 18, 32, 0.9) 100%);
+  border: 1px solid rgba(170, 59, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(170, 59, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .play__roulette-pointer {
@@ -22,11 +23,11 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 2px;
+  width: 3px;
   height: 100%;
-  background: #007aff;
+  background: linear-gradient(180deg, #aa3bff 0%, #5ac8fa 100%);
   z-index: 10;
-  opacity: 0.8;
+  box-shadow: 0 0 12px rgba(170, 59, 255, 0.5);
 }
 
 .play__roulette-pointer::before {
@@ -37,9 +38,10 @@
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 8px solid #007aff;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #aa3bff;
+  filter: drop-shadow(0 0 8px rgba(170, 59, 255, 0.8));
 }
 
 .play__roulette-pointer::after {
@@ -50,9 +52,10 @@
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 8px solid #007aff;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 10px solid #5ac8fa;
+  filter: drop-shadow(0 0 8px rgba(90, 200, 250, 0.8));
 }
 
 .play__roulette {
@@ -79,19 +82,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(170, 59, 255, 0.08);
   border-radius: 16px;
   padding: 8px 4px;
   box-sizing: border-box;
+  border: 1px solid rgba(170, 59, 255, 0.1);
+  transition: all 0.2s ease;
 }
 
-.play__roulette-emoji {
-  font-size: 56px;
-  line-height: 1;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.play__roulette-item:hover {
+  background: rgba(170, 59, 255, 0.12);
+  border-color: rgba(170, 59, 255, 0.2);
 }
 
 .play__roulette-cost-badge {
@@ -99,10 +100,11 @@
   font-size: 12px;
   font-weight: 700;
   color: #ffffff;
-  background: rgba(0, 122, 255, 0.2);
-  padding: 4px 14px;
+  background: linear-gradient(135deg, rgba(170, 59, 255, 0.3) 0%, rgba(90, 200, 250, 0.25) 100%);
+  padding: 5px 14px;
   border-radius: 20px;
   white-space: nowrap;
+  border: 1px solid rgba(170, 59, 255, 0.3);
 }
 
 /* Контролы */
@@ -115,48 +117,56 @@
 .play__play-btn {
   flex: 1;
   padding: 16px;
-  background: #007aff;
+  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
   color: #ffffff;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(170, 59, 255, 0.4);
+  letter-spacing: 0.3px;
 }
 
 .play__play-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(170, 59, 255, 0.5);
+}
+
+.play__play-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .play__play-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .play__play-btn--spinning {
-  background: #5856d6;
+  background: linear-gradient(135deg, #5ac8fa 0%, #34d399 100%);
 }
 
 .play__demo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .play__demo-label {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 11px;
   font-weight: 600;
-  color: #8e8e93;
+  color: #6b6375;
+  letter-spacing: 0.5px;
 }
 
 .play__demo-toggle {
   position: relative;
-  width: 44px;
-  height: 26px;
+  width: 48px;
+  height: 28px;
   cursor: pointer;
 }
 
@@ -167,9 +177,10 @@
 .play__demo-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 13px;
-  transition: background 0.2s ease;
+  background: rgba(170, 59, 255, 0.2);
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(170, 59, 255, 0.2);
 }
 
 .play__demo-slider::before {
@@ -179,33 +190,37 @@
   left: 3px;
   width: 20px;
   height: 20px;
-  background: #ffffff;
+  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
   border-radius: 50%;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(170, 59, 255, 0.4);
 }
 
 .play__demo-toggle input:checked + .play__demo-slider {
-  background: #34c759;
+  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .play__demo-toggle input:checked + .play__demo-slider::before {
-  transform: translateX(18px);
+  transform: translateX(20px);
 }
 
 /* Возможные призы */
 .play__subtitle {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 14px;
-  color: #8e8e93;
+  font-weight: 600;
+  color: #9ca3af;
   text-align: center;
   margin: 0;
   flex-shrink: 0;
+  letter-spacing: 0.3px;
 }
 
 .play__gifts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
   overflow-y: auto;
   max-height: 320px;
   padding-right: 4px;
@@ -216,12 +231,12 @@
 }
 
 .play__gifts-grid::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(170, 59, 255, 0.05);
   border-radius: 2px;
 }
 
 .play__gifts-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(170, 59, 255, 0.3);
   border-radius: 2px;
 }
 
@@ -229,10 +244,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 16px;
-  padding: 14px 10px;
+  gap: 8px;
+  background: rgba(170, 59, 255, 0.06);
+  border-radius: 18px;
+  padding: 16px 10px;
+  border: 1px solid rgba(170, 59, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.play__gift-card:hover {
+  background: rgba(170, 59, 255, 0.1);
+  border-color: rgba(170, 59, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .play__gift-emoji {
@@ -245,15 +268,26 @@
 .play__gift-chance {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 11px;
-  color: #8e8e93;
+  color: #6b6375;
 }
 
 .play__gift-cost {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #5ac8fa;
-  background: rgba(0, 122, 255, 0.15);
-  padding: 3px 10px;
-  border-radius: 8px;
+  background: rgba(90, 200, 250, 0.15);
+  padding: 4px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(90, 200, 250, 0.2);
+}
+
+/* Лоадер */
+.play__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: #6b6375;
+  font-size: 14px;
 }

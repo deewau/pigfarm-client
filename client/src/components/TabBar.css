@@ -4,15 +4,17 @@
   align-items: center;
   padding: 8px 16px;
   padding-bottom: max(8px, env(safe-area-inset-bottom));
-  background-color: #1c1c1e;
-  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(26, 24, 34, 0.95) 0%, rgba(15, 14, 22, 0.98) 100%);
+  border-radius: 20px 20px 0 0;
   margin: 0 8px 8px;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -4px 20px rgba(170, 59, 255, 0.15);
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(170, 59, 255, 0.15);
 }
 
 .tab-bar__item {
@@ -23,59 +25,81 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 12px;
+  padding: 6px 16px;
   position: relative;
-  min-width: 56px;
+  min-width: 60px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
-.tab-bar__item:hover:not(.tab-bar__item--active) .tab-bar__icon,
-.tab-bar__item:hover:not(.tab-bar__item--active) .tab-bar__label {
-  color: #007aff;
+.tab-bar__item:hover:not(.tab-bar__item--active) {
+  background: rgba(170, 59, 255, 0.1);
 }
 
 .tab-bar__icon-wrapper {
   position: relative;
   display: inline-flex;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .tab-bar__icon {
-  transition: color 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .tab-bar__label {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
-  transition: color 0.15s ease;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
 }
 
 .tab-bar__item--active .tab-bar__icon,
 .tab-bar__item--active .tab-bar__label {
-  color: #007aff;
+  color: #aa3bff;
+  filter: drop-shadow(0 0 6px rgba(170, 59, 255, 0.5));
+}
+
+.tab-bar__item--active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(90deg, #aa3bff, #5ac8fa);
+  border-radius: 0 0 4px 4px;
 }
 
 .tab-bar__item:not(.tab-bar__item--active) .tab-bar__icon,
 .tab-bar__item:not(.tab-bar__item--active) .tab-bar__label {
-  color: #8e8e93;
+  color: #6b6375;
+}
+
+.tab-bar__item:hover:not(.tab-bar__item--active) .tab-bar__icon,
+.tab-bar__item:hover:not(.tab-bar__item--active) .tab-bar__label {
+  color: #9ca3af;
 }
 
 .tab-bar__badge {
   position: absolute;
-  top: 4px;
-  right: -4px;
-  min-width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  background-color: #ff3b30;
+  top: 2px;
+  right: 8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
 }
 
 .tab-bar__badge-text {
   font-size: 9px;
   line-height: 1;
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
