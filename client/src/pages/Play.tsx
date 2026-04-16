@@ -214,7 +214,7 @@ export function Play() {
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={80} />
+                  <GiftImage svgContent={item.animationSvg} size={80} uniqueId={`roulette-${item.rouletteIndex}`} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
@@ -254,7 +254,7 @@ export function Play() {
           <div key={i} className="play__gift-card">
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
-                <GiftImage svgContent={gift.animationSvg} size={80} />
+                <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
               ) : (
                 gift.sticker?.emoji || '🎁'
               )}
