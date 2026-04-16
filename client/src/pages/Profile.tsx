@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
 import { GameIcon } from '../components/icons';
@@ -67,6 +67,12 @@ export function Profile() {
       setGiftsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (tab === 'gifts') {
+      loadGifts();
+    }
+  }, [tab]);
 
   return (
     <div className="profile">
@@ -142,7 +148,7 @@ export function Profile() {
 
       {/* Содержимое вкладок */}
       {tab === 'gifts' && (
-        <div className="profile__tab-content profile__tab-content--scrollable" onClick={loadGifts}>
+        <div className="profile__tab-content profile__tab-content--scrollable">
           {giftsLoading ? (
             <div className="profile__loading">Загрузка...</div>
           ) : userGifts.length === 0 ? (
