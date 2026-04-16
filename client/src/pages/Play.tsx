@@ -16,7 +16,6 @@ interface TelegramGift {
 
 const BETS = [15, 25, 50];
 
-// Дефолтные подарки (если API недоступен)
 const DEFAULT_GIFTS: TelegramGift[] = [
   { id: '5170145012310081615', name: 'Подарок 1', stars: 15, animationSvg: '' },
   { id: '5170250947678437525', name: 'Подарок 2', stars: 25, animationSvg: '' },
@@ -31,6 +30,9 @@ function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & {
   }));
 }
 
+const ITEM_WIDTH = 132;
+const ANIMATION_DURATION = 3000;
+
 export function Play() {
   const [bet, setBet] = useState(25);
   const [demoMode, setDemoMode] = useState(true);
@@ -43,10 +45,11 @@ export function Play() {
   const [showResult, setShowResult] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollingPaused, setScrollingPaused] = useState(false);
-  const animationDelayRef = useRef<string>('0s');
 
-  // Загрузка подарков из API
+  const animationRef = useRef<number | null>(null);
+  const currentOffsetRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+
   useEffect(() => {
     const loadGifts = async () => {
       try {
@@ -80,65 +83,70 @@ export function Play() {
     }
   }, [generateRoulette, loading]);
 
+  const easeOutCubic = (t: number): number => {
+    return 1 - Math.pow(1 - t, 3);
+  };
+
   const handleSpin = () => {
     if (spinning || rouletteItems.length === 0) return;
 
     const rouletteEl = rouletteRef.current;
     if (!rouletteEl) return;
 
-    // Определяем случайный подарок
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
     const winIndex = Math.floor(Math.random() * rouletteItems.length);
     const wonItem = rouletteItems[winIndex];
 
-    const itemWidth = 132;
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
-    const targetOffset = winIndex * itemWidth - centerOffset;
 
-    // Получаем текущую позицию из CSS-анимации
-    const computedStyle = getComputedStyle(rouletteEl);
-    const matrix = computedStyle.transform;
-    let currentX = 0;
-    if (matrix && matrix !== 'none') {
-      const values = matrix.split('(')[1].split(')')[0].split(',');
-      currentX = parseFloat(values[4]) || 0;
-    }
+    const targetOffset = winIndex * ITEM_WIDTH - centerOffset;
 
-    // Вычисляем дополнительное расстояние для анимации
-    const additionalDistance = targetOffset - currentX;
+    const totalDistance = targetOffset + 2000;
 
+    startTimeRef.current = null;
+    currentOffsetRef.current = 0;
     setSpinning(true);
 
-    requestAnimationFrame(() => {
-      if (rouletteEl) {
-        rouletteEl.style.transition = 'transform 3s cubic-bezier(0.2, 0, 0.4, 1)';
-        rouletteEl.style.transform = `translateX(${currentX - additionalDistance}px)`;
+    const animate = (timestamp: number) => {
+      if (!startTimeRef.current) {
+        startTimeRef.current = timestamp;
       }
-    });
 
-    // После завершения анимации (ровно 3 секунды)
-    setTimeout(() => {
-      setSpinning(false);
+      const elapsed = timestamp - startTimeRef.current;
+      const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+      const easedProgress = easeOutCubic(progress);
 
-      const patternWidth = 396;
-      const finalX = currentX - additionalDistance;
-      const normalizedOffset = ((finalX % patternWidth) + patternWidth) % patternWidth;
-      const delaySeconds = -(normalizedOffset / patternWidth) * 12;
-      animationDelayRef.current = `${delaySeconds}s`;
+      currentOffsetRef.current = totalDistance * easedProgress;
+      rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
 
-      if (demoMode) {
-        setWonGift(wonItem);
-        setScrollingPaused(true);
-        setTimeout(() => setShowResult(true), 300);
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
       } else {
-        const rouletteEl = rouletteRef.current;
-        if (rouletteEl) {
-          rouletteEl.style.transform = '';
-          rouletteEl.style.transition = '';
+        animationRef.current = null;
+        setSpinning(false);
+
+        if (demoMode) {
+          setWonGift(wonItem);
+          setTimeout(() => setShowResult(true), 300);
         }
       }
-    }, 3000);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
   };
+
+  const resetRoulette = useCallback(() => {
+    const rouletteEl = rouletteRef.current;
+    if (rouletteEl) {
+      rouletteEl.style.transform = 'translateX(0)';
+      currentOffsetRef.current = 0;
+    }
+    setShowResult(false);
+  }, []);
 
   if (loading) {
     return (
@@ -150,7 +158,6 @@ export function Play() {
 
   return (
     <div className="play">
-      {/* Выбор ставки */}
       <div className="play__bets">
         {BETS.map((b) => (
           <button
@@ -164,14 +171,9 @@ export function Play() {
         ))}
       </div>
 
-      {/* Рулетка */}
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
-        <div
-          className={`play__roulette ${!spinning ? (scrollingPaused ? 'play__roulette--paused' : 'play__roulette--scrolling') : ''}`}
-          ref={rouletteRef}
-          style={!spinning && animationDelayRef.current !== '0s' ? { animationDelay: animationDelayRef.current } : undefined}
-        >
+        <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item) => (
             <div key={item.rouletteIndex} className="play__roulette-item">
               <div className="play__roulette-emoji">
@@ -189,7 +191,6 @@ export function Play() {
         </div>
       </div>
 
-      {/* Кнопка игры и демо */}
       <div className="play__controls">
         <button
           className={`play__play-btn ${spinning ? 'play__play-btn--spinning' : ''}`}
@@ -211,7 +212,6 @@ export function Play() {
         </div>
       </div>
 
-      {/* Возможные призы */}
       <p className="play__subtitle">Вы можете выиграть...</p>
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
@@ -229,28 +229,12 @@ export function Play() {
         ))}
       </div>
 
-      {/* Модальное окно результата */}
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.animationData}
-          onClose={() => {
-            // Применяем рассчитанную задержку и снимаем inline стили
-            const rouletteEl = rouletteRef.current;
-            if (rouletteEl) {
-              rouletteEl.style.transform = '';
-              rouletteEl.style.transition = '';
-            }
-            setShowResult(false);
-            setScrollingPaused(false);
-          }}
+          onClose={resetRoulette}
           onDisableDemo={() => {
-            const rouletteEl = rouletteRef.current;
-            if (rouletteEl) {
-              rouletteEl.style.transform = '';
-              rouletteEl.style.transition = '';
-            }
-            setShowResult(false);
-            setScrollingPaused(false);
+            resetRoulette();
             setDemoMode(false);
           }}
         />
