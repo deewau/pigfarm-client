@@ -211,12 +211,15 @@ export function Play() {
     }
 
 const wonItem = weightedRandomSelect(availableGifts);
-    const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
-    const targetIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
+    
+    // Ищем в первой половине массива
+    let wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
+    if (wonIndex < 0) wonIndex = Math.floor(Math.random() * rouletteItems.length);
 
     const spins = 4;
     const fullRotations = PATTERN_SIZE * ITEM_WIDTH * spins;
-    const targetPos = targetIndex * ITEM_WIDTH;
+    // Добавляем PATTERN_SIZE чтобы попасть во вторую копию массива
+    const targetPos = (wonIndex + PATTERN_SIZE) * ITEM_WIDTH;
     const finalOffset = fullRotations + targetPos;
 
     const startOffset = offsetRef.current;
