@@ -48,7 +48,8 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
-const TOTAL_WIDTH = ITEM_WIDTH * PATTERN_SIZE * 3; // 3 копии для бесшовности
+const TOTAL_ITEMS = PATTERN_SIZE * 3; // 90 элементов (3 копии)
+const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
 const SCROLL_SPEED = 0.3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
@@ -174,7 +175,7 @@ export function Play() {
       }
 
       offsetRef.current += speed;
-      // Сбрасываем только когда прошли полный паттерн (30 элементов)
+      // Сбрасываем на один паттерн назад
       if (offsetRef.current >= PATTERN_SIZE * ITEM_WIDTH) {
         offsetRef.current -= PATTERN_SIZE * ITEM_WIDTH;
       }
@@ -223,9 +224,9 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    // Просто крутим рулетку - без всякой логики с позициями
+    // Просто крутим рулетку
     const currentPos = offsetRef.current;
-    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + Math.floor(Math.random() * PATTERN_SIZE) * ITEM_WIDTH;
+    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + Math.floor(Math.random() * PATTERN_SIZE * 3) * ITEM_WIDTH;
     const finalOffset = currentPos + extra;
 
     const startOffset = offsetRef.current;
@@ -317,7 +318,7 @@ const animate = (timestamp: number) => {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
-          {[...rouletteItems, ...rouletteItems].map((item, index) => (
+          {[...rouletteItems, ...rouletteItems, ...rouletteItems].map((item, index) => (
             <div key={index} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
