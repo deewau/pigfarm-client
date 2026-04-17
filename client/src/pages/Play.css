@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
 }
 
@@ -222,11 +223,12 @@
 
 .play__gifts-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
   overflow-y: auto;
-  max-height: 320px;
+  max-height: 280px;
   padding-right: 4px;
+  overflow-x: hidden;
 }
 
 .play__gifts-grid::-webkit-scrollbar {
@@ -247,10 +249,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(170, 59, 255, 0.06);
-  border-radius: 18px;
-  padding: 16px 10px;
+  border-radius: 14px;
+  padding: 12px 8px;
   border: 1px solid rgba(170, 59, 255, 0.1);
   transition: all 0.2s ease;
 }
@@ -262,7 +264,7 @@
 }
 
 .play__gift-emoji {
-  font-size: 36px;
+  font-size: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
