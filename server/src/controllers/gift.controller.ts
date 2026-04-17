@@ -31,6 +31,15 @@ export async function claimGift(req: Request, res: Response) {
       gift_stars,
     });
 
+    // Записываем в историю
+    await transactionRepository.create({
+      user_id: userId,
+      amount: gift_stars,
+      type: 'deposit',
+      status: 'completed',
+      description: `Выигран подарок: ${gift_name}`,
+    });
+
     console.log(`🎁 Gift claimed: ${gift_name} for user ${userId}`);
 
     res.json({
@@ -144,6 +153,15 @@ export async function sendUserGift(req: Request, res: Response) {
 
     // Удаляем подарок из БД после отправки
     await userGiftRepository.delete(user_gift_id);
+
+    // Создаем запись в истории о отправке подарка
+    await transactionRepository.create({
+      user_id: userId,
+      amount: giftData.stars,
+      type: 'withdrawal',
+      status: 'completed',
+      description: `Отправлен подарок: ${giftData.name}`,
+    });
 
     console.log(`🎁 Gift sent: ${giftData.name} to user ${userId}`);
 

@@ -214,11 +214,11 @@ export function Profile() {
               {transactions.map((tx) => (
                 <div key={tx.id} className="profile__history-item">
                   <div className="profile__history-icon">
-                    {tx.type === 'deposit' ? '💳' : tx.type === 'withdrawal' ? '📤' : '🎮'}
+                    {tx.type === 'deposit' ? '💳' : tx.type === 'withdrawal' ? (tx.description?.includes('Отправлен подарок') ? '🎁' : '📤') : '🎮'}
                   </div>
                   <div className="profile__history-info">
                     <span className="profile__history-title">
-                      {tx.type === 'deposit' ? 'Пополнение баланса' : tx.type === 'withdrawal' ? 'Вывод средств' : 'Трата'}
+                      {tx.type === 'deposit' ? 'Пополнение баланса' : tx.type === 'withdrawal' ? (tx.description?.includes('Отправлен подарок') ? 'Отправка подарка' : 'Вывод средств') : 'Трата'}
                     </span>
                     <span className="profile__history-time">{timeAgo(tx.created_at)}</span>
                   </div>
