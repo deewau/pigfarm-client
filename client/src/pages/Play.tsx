@@ -31,13 +31,52 @@ const DEFAULT_GIFTS: TelegramGift[] = [
   { id: '5170521118301225164', name: 'Алмаз', stars: 100, animationSvg: '' },
 ];
 
+const GIFT_PROBABILITIES: Record<string, number> = {
+  '5170145012310081615': 18.72,
+  '5170233102089322756': 18.72,
+  '5170250947678437525': 30.63,
+  '5168103777563050263': 30.05,
+  '5170144170496491616': 0.406,
+  '5170314324215857265': 0.506,
+  '5170564780938756245': 0.506,
+  '6028601630662853006': 0.506,
+  '5168043875654172773': 0.715,
+  '5170690322832818290': 0.812,
+  '5170521118301225164': 0.812,
+};
+
 const SPIN_COST = 25;
 
-function getRandomItems(gifts: TelegramGift[], count: number): (TelegramGift & { chance: string })[] {
-  const shuffled = [...gifts].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).map((gift) => ({
+function weightedRandomSelect<T extends { id: string }>(items: T[]): T {
+  const totalWeight = items.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
+  let random = Math.random() * totalWeight;
+  
+  for (const item of items) {
+    const weight = GIFT_PROBABILITIES[item.id] || 0;
+    random -= weight;
+    if (random <= 0) {
+      return item;
+    }
+  }
+  
+  return items[items.length - 1];
+}
+
+function generateWeightedRoulette(gifts: TelegramGift[], totalItems: number): (TelegramGift & { rouletteIndex: number })[] {
+  const result: (TelegramGift & { rouletteIndex: number })[] = [];
+  
+  for (let i = 0; i < totalItems; i++) {
+    const gift = weightedRandomSelect(gifts);
+    result.push({ ...gift, rouletteIndex: i });
+  }
+  
+  return result;
+}
+
+function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: number })[] {
+  return gifts.map((gift) => ({
     ...gift,
-    chance: (Math.random() * 2 + 0.3).toFixed(2),
+    chance: GIFT_PROBABILITIES[gift.id] || 0,
   }));
 }
 
@@ -53,7 +92,7 @@ export function Play() {
   const [spinning, setSpinning] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
   const [rouletteItems, setRouletteItems] = useState<(TelegramGift & { rouletteIndex: number })[]>([]);
-  const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: string })[]>([]);
+  const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: number })[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
@@ -82,13 +121,9 @@ export function Play() {
   }, []);
 
   const generateRoulette = useCallback(() => {
-    const items = Array.from({ length: 30 }, (_, i) => {
-      const idx = i % availableGifts.length;
-      const gift = availableGifts[idx];
-      return { ...gift, rouletteIndex: i };
-    });
+    const items = generateWeightedRoulette(availableGifts, 30);
     setRouletteItems(items);
-    setPossibleGifts(getRandomItems(availableGifts, availableGifts.length));
+    setPossibleGifts(getPossibleGifts(availableGifts));
   }, [availableGifts]);
 
   useEffect(() => {
@@ -164,14 +199,15 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const winIndex = Math.floor(Math.random() * rouletteItems.length);
-    const wonItem = rouletteItems[winIndex];
+    const wonItem = weightedRandomSelect(availableGifts);
+    const winIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
+    const actualIndex = winIndex >= 0 ? winIndex : Math.floor(Math.random() * rouletteItems.length);
 
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - 60;
 
     const currentInPattern = currentOffsetRef.current;
-    const targetInPattern = winIndex * ITEM_WIDTH - centerOffset;
+    const targetInPattern = actualIndex * ITEM_WIDTH - centerOffset;
 
     let distance = targetInPattern - currentInPattern;
 
@@ -308,7 +344,7 @@ export function Play() {
                 gift.sticker?.emoji || '🎁'
               )}
             </div>
-            <span className="play__gift-chance">{gift.chance}%</span>
+            <span className="play__gift-chance">{gift.chance.toFixed(3)}%</span>
             <span className="play__gift-cost">{gift.stars} ⭐</span>
           </div>
         ))}
