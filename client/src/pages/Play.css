@@ -61,12 +61,17 @@
 
 .play__roulette {
   display: flex;
-  gap: 12px;
-  padding: 16px;
+  gap: 0;
+  padding: 0;
   align-items: center;
   height: 100%;
   box-sizing: border-box;
   width: max-content;
+}
+
+.play__roulette-item {
+  flex-shrink: 0;
+  width: 97px;
 }
 
 .play__roulette-emoji {
