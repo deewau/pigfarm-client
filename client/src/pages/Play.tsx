@@ -98,10 +98,9 @@ function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: numb
 }
 
 const ITEM_WIDTH = 97;
-const GIFTS_COUNT = 11;
-const PATTERN_WIDTH = ITEM_WIDTH * GIFTS_COUNT;
+const ROULETTE_SIZE = 30;
+const PATTERN_WIDTH = ITEM_WIDTH * ROULETTE_SIZE;
 const SCROLL_SPEED = 1;
-const SPIN_DISTANCE = PATTERN_WIDTH * 4;
 
 export function Play() {
   const { user, addBalance, refreshBalance } = useAuth();
@@ -139,17 +138,13 @@ export function Play() {
     loadGifts();
   }, []);
 
-  const generateRoulette = useCallback(() => {
-    const items = generateWeightedRoulette(availableGifts, 30);
-    setRouletteItems(items);
-    setPossibleGifts(getPossibleGifts(availableGifts));
-  }, [availableGifts]);
-
   useEffect(() => {
-    if (!loading) {
-      generateRoulette();
+    if (!loading && availableGifts.length > 0 && rouletteItems.length === 0) {
+      const items = generateWeightedRoulette(availableGifts, 30);
+      setRouletteItems(items);
+      setPossibleGifts(getPossibleGifts(availableGifts));
     }
-  }, [generateRoulette, loading]);
+  }, [loading, availableGifts.length, rouletteItems.length]);
 
   useEffect(() => {
     if (autoSpinAfterDeposit && user && user.balance >= SPIN_COST && !spinning) {
@@ -232,26 +227,36 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    // Выбираем подарок для остановки с правильными вероятностями
     const wonItem = weightedRandomSelect(availableGifts);
     
-    // Находим позицию этого подарка в рулетке
-    const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
-    const targetRouletteIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
-
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
-
-    const currentInPattern = currentOffsetRef.current;
-    const targetInPattern = targetRouletteIndex * ITEM_WIDTH - centerOffset;
-
-    let distance = targetInPattern - currentInPattern;
-
+    
+    const currentPos = currentOffsetRef.current;
+    
+    const wonIndices: number[] = [];
+    for (let i = 0; i < rouletteItems.length; i++) {
+      if (rouletteItems[i].id === wonItem.id) {
+        wonIndices.push(i);
+      }
+    }
+    
+    let targetIndex = wonIndices[Math.floor(Math.random() * wonIndices.length)];
+    
+    const currentIndexInPattern = Math.floor((currentPos + centerOffset) / ITEM_WIDTH) % ROULETTE_SIZE;
+    const offsetToTarget = (targetIndex - currentIndexInPattern + ROULETTE_SIZE) % ROULETTE_SIZE;
+    
+    if (offsetToTarget === 0) {
+      targetIndex = (targetIndex + 1) % ROULETTE_SIZE;
+    }
+    
+    const targetPos = targetIndex * ITEM_WIDTH;
+    
+    let distance = targetPos - currentPos;
     if (distance <= 0) {
       distance += PATTERN_WIDTH;
     }
-
-    distance = distance + PATTERN_WIDTH * 3;
+    distance += PATTERN_WIDTH * 2;
 
     const startOffset = currentOffsetRef.current;
     const startTime = performance.now();
@@ -272,7 +277,7 @@ export function Play() {
       const eased = 1 - Math.pow(1 - progress, 3);
 
       const newOffset = startOffset + distance * eased;
-      const loopedOffset = newOffset % PATTERN_WIDTH;
+      const loopedOffset = ((newOffset % PATTERN_WIDTH) + PATTERN_WIDTH) % PATTERN_WIDTH;
 
       currentOffsetRef.current = loopedOffset;
 
@@ -287,7 +292,6 @@ export function Play() {
         animationRef.current = null;
         setSpinning(false);
 
-        // Вычисляем какой подарок реально в центре
         const centerIndex = Math.floor((loopedOffset + centerOffset) / ITEM_WIDTH) % rouletteItems.length;
         const actualWonGift = rouletteItems[centerIndex];
 
