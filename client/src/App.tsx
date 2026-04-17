@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
+          <Route index element={<Play />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
           <Route path="play" element={<Play />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
@@ -27,7 +27,7 @@ function Layout() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Routes>
-          <Route index element={<Home />} />
+          <Route index element={<Play />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
           <Route path="play" element={<Play />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
@@ -41,8 +41,8 @@ function Layout() {
 
 function BottomBar() {
   return (
-    <TabBar
-      activeTab="home"
+      <TabBar
+      activeTab="play"
       onTabChange={(tabId) => {
         console.log('Active tab:', tabId);
       }}
