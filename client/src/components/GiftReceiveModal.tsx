@@ -15,9 +15,10 @@ interface GiftReceiveModalProps {
   } | null;
   onClose: () => void;
   onSend: () => void;
+  onSuccess?: () => void;
 }
 
-export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onClose, onSend }) => {
+export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onClose, onSend, onSuccess }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -41,6 +42,7 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
     try {
       await onSend();
       setSent(true);
+      if (onSuccess) onSuccess();
     } catch (err) {
       console.error('Failed to send gift:', err);
     } finally {

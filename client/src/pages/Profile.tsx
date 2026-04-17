@@ -243,6 +243,7 @@ export function Profile() {
           if (!selectedGift) return;
           await winApi.send(selectedGift.id);
         }}
+        onSuccess={loadGifts}
       />
     </div>
   );
