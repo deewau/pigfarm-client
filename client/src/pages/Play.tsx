@@ -65,10 +65,27 @@ function weightedRandomSelect<T extends { id: string }>(items: T[]): T {
 function generateWeightedRoulette(gifts: TelegramGift[], totalItems: number): (TelegramGift & { rouletteIndex: number })[] {
   const result: (TelegramGift & { rouletteIndex: number })[] = [];
   
-  for (let i = 0; i < totalItems; i++) {
+  // Гарантируем, что все подарки есть в рулетке хотя бы раз
+  gifts.forEach((gift, index) => {
+    result.push({ ...gift, rouletteIndex: index });
+  });
+  
+  // Добавляем оставшиеся слоты со случайным выбором
+  for (let i = gifts.length; i < totalItems; i++) {
     const gift = weightedRandomSelect(gifts);
     result.push({ ...gift, rouletteIndex: i });
   }
+  
+  // Перемешиваем для красоты
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  
+  // Пересчитываем индексы
+  result.forEach((item, index) => {
+    item.rouletteIndex = index;
+  });
   
   return result;
 }
