@@ -115,7 +115,7 @@ export const transactionRepository = {
 
   async findByUserId(userId: number): Promise<Transaction[]> {
     const pool = getPool();
-    const result = await pool.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+    const result = await pool.query('SELECT * FROM transactions WHERE user_id = $1 AND status != $2 ORDER BY created_at DESC', [userId, 'pending']);
     return result.rows as Transaction[];
   },
 
