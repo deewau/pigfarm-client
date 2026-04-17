@@ -232,15 +232,18 @@ export function Play() {
 const animate = (timestamp: number) => {
       if (spinCancelledRef.current) {
         setSpinning(false);
-        startScrolling();
         return;
       }
 
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Ease-out кубик - плавное замедление в конце
-      const eased = 1 - Math.pow(1 - progress, 3);
+      // Сигмоидная кривая: плавный старт + плавный финиш
+      // 4 * x * (1-x) ^ 2 дает плавный старт
+      // комбинируем с ease-out
+      const eased = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
       offsetRef.current = startOffset + finalOffset * eased;
 
