@@ -139,12 +139,12 @@ export function Play() {
   }, []);
 
   useEffect(() => {
-    if (!loading && availableGifts.length > 0 && rouletteItems.length === 0) {
+    if (!loading && availableGifts.length > 0) {
       const items = generateWeightedRoulette(availableGifts, 30);
       setRouletteItems(items);
       setPossibleGifts(getPossibleGifts(availableGifts));
     }
-  }, [loading, availableGifts.length, rouletteItems.length]);
+  }, [loading, availableGifts.length]);
 
   useEffect(() => {
     if (autoSpinAfterDeposit && user && user.balance >= SPIN_COST && !spinning) {
@@ -321,6 +321,9 @@ export function Play() {
 
   const closeModal = () => {
     setShowResult(false);
+    const items = generateWeightedRoulette(availableGifts, 30);
+    setRouletteItems(items);
+    currentOffsetRef.current = 0;
     startScrolling();
   };
 
