@@ -97,4 +97,8 @@ export const winApi = {
     const response = await api.get('/api/win/my');
     return response.data;
   },
+  send: async (userGiftId: number) => {
+    const response = await api.post('/api/win/send', { user_gift_id: userGiftId });
+    return response.data;
+  },
 };

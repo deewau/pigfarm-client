@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
-import { GIFTS_DATA, TelegramGift } from '../services/telegram.js';
+import { GIFTS_DATA, TelegramGift, sendGiftToUser } from '../services/telegram.js';
+import axios from 'axios';
 
 export async function claimGift(req: Request, res: Response) {
   try {
@@ -79,6 +80,80 @@ export async function getUserGifts(req: Request, res: Response) {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch gifts',
+    });
+  }
+}
+
+export async function sendGiftToUser(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const { user_gift_id } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+      return;
+    }
+
+    if (!user_gift_id) {
+      res.status(400).json({
+        success: false,
+        error: 'Missing gift ID',
+      });
+      return;
+    }
+
+    const userGift = await userGiftRepository.findById(user_gift_id);
+    if (!userGift) {
+      res.status(404).json({
+        success: false,
+        error: 'Gift not found',
+      });
+      return;
+    }
+
+    if (userGift.user_id !== userId) {
+      res.status(403).json({
+        success: false,
+        error: 'Not your gift',
+      });
+      return;
+    }
+
+    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    if (!giftData) {
+      res.status(400).json({
+        success: false,
+        error: 'Gift not found in database',
+      });
+      return;
+    }
+
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    // Отправляем подарок через Telegram бот
+    await sendGiftToUser(user.telegram_id, giftData);
+
+    console.log(`🎁 Gift sent: ${giftData.name} to user ${userId}`);
+
+    res.json({
+      success: true,
+      data: { message: 'Gift sent!' },
+    });
+  } catch (error) {
+    console.error('sendGiftToUser error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send gift',
     });
   }
 }

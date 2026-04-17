@@ -392,6 +392,7 @@
   border-radius: 18px;
   border: 1px solid rgba(170, 59, 255, 0.1);
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .profile__gift-card:hover {

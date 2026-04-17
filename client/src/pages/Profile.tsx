@@ -6,6 +6,7 @@ import { CircularAvatar } from '../components/CircularAvatar';
 import { SettingsModal } from '../components/SettingsModal';
 import { DepositModal } from '../components/DepositModal';
 import { GiftImage } from '../components/GiftAnimation';
+import { GiftReceiveModal } from '../components/GiftReceiveModal';
 import { timeAgo } from '../utils/timeAgo';
 import { winApi } from '../services/api';
 import './Profile.css';
@@ -16,7 +17,15 @@ export function Profile() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [tab, setTab] = useState<'gifts' | 'friends' | 'history'>('gifts');
-  const level = 1;
+  const [selectedGift, setSelectedGift] = useState<{
+    id: number;
+    gift_id: string;
+    gift_name: string;
+    gift_stars: number;
+    animationSvg?: string;
+    animationData?: any;
+  } | null>(null);
+  const [level, setLevel] = useState(1);
 
   const handleInvite = () => {
     const tg = (window as any).Telegram?.WebApp;
@@ -160,7 +169,11 @@ export function Profile() {
           ) : (
             <div className="profile__gifts-grid">
               {userGifts.map((gift, index) => (
-                <div key={gift.id} className="profile__gift-card">
+                <div 
+                  key={gift.id} 
+                  className="profile__gift-card"
+                  onClick={() => setSelectedGift(gift)}
+                >
                   <div className="profile__gift-icon">
                     {gift.animationSvg ? (
                       <GiftImage svgContent={gift.animationSvg} size={60} uniqueId={`profile-gift-${gift.id}`} />
@@ -222,6 +235,15 @@ export function Profile() {
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={(amount) => { addBalance(amount); }} />
+      <GiftReceiveModal
+        isOpen={!!selectedGift}
+        gift={selectedGift}
+        onClose={() => setSelectedGift(null)}
+        onSend={async () => {
+          if (!selectedGift) return;
+          await winApi.send(selectedGift.id);
+        }}
+      />
     </div>
   );
 }
