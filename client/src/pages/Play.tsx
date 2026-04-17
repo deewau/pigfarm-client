@@ -270,11 +270,13 @@ const animate = (timestamp: number) => {
           setWonGift(actualWonItem);
           setShowResult(true);
         } else {
+          console.log('🎁 Claiming gift:', actualWonItem);
           winApi.claim({
             id: actualWonItem.id,
             name: actualWonItem.name,
             stars: actualWonItem.stars,
-          }).then(() => {
+          }).then((response) => {
+            console.log('🎁 Claim response:', response);
             setWonGift(actualWonItem);
             setShowResult(true);
           }).catch((err) => {

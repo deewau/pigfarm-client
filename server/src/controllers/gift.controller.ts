@@ -3,8 +3,11 @@ import { userGiftRepository, userRepository, transactionRepository } from '../db
 import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
 
 export async function claimGift(req: Request, res: Response) {
+  let userId: number | undefined;
+  
   try {
-    const userId = req.user?.id;
+    userId = req.user?.id;
+    console.log('🎁 claimGift called:', { userId, body: req.body });
 
     if (!userId) {
       res.status(401).json({
@@ -24,6 +27,7 @@ export async function claimGift(req: Request, res: Response) {
       return;
     }
 
+    console.log('🎁 Creating gift in DB...');
     const gift = await userGiftRepository.create({
       user_id: userId,
       gift_id,
@@ -31,16 +35,23 @@ export async function claimGift(req: Request, res: Response) {
       gift_stars,
     });
 
-    // Записываем в историю
-    await transactionRepository.create({
-      user_id: userId,
-      amount: gift_stars,
-      type: 'deposit',
-      status: 'completed',
-      description: `Выигран подарок: ${gift_name}`,
-    });
+    console.log('🎁 Gift saved to DB:', gift);
 
-    console.log(`🎁 Gift claimed: ${gift_name} for user ${userId}`);
+    // Записываем в историю
+    try {
+      const tx = await transactionRepository.create({
+        user_id: userId,
+        amount: gift_stars,
+        type: 'deposit',
+        status: 'completed',
+        description: `Выигран подарок: ${gift_name}`,
+      });
+      console.log('💾 Transaction created:', tx);
+    } catch (txErr) {
+      console.error('💾 Failed to create transaction:', txErr);
+    }
+
+    console.log(`🎁 Gift claimed: ${gift_name} (${gift_stars}⭐) for user ${userId}`);
 
     res.json({
       success: true,
@@ -97,6 +108,8 @@ export async function sendUserGift(req: Request, res: Response) {
     const userId = req.user?.id;
     const { user_gift_id } = req.body;
 
+    console.log('📤 sendUserGift called:', { userId, user_gift_id });
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -114,6 +127,8 @@ export async function sendUserGift(req: Request, res: Response) {
     }
 
     const userGift = await userGiftRepository.findById(user_gift_id);
+    console.log('📤 userGift found:', userGift);
+    
     if (!userGift) {
       res.status(404).json({
         success: false,
@@ -131,6 +146,8 @@ export async function sendUserGift(req: Request, res: Response) {
     }
 
     const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    console.log('📤 giftData found:', giftData);
+    
     if (!giftData) {
       res.status(400).json({
         success: false,
@@ -140,6 +157,8 @@ export async function sendUserGift(req: Request, res: Response) {
     }
 
     const user = await userRepository.findById(userId);
+    console.log('📤 user found:', user?.telegram_id);
+    
     if (!user) {
       res.status(404).json({
         success: false,
@@ -149,10 +168,13 @@ export async function sendUserGift(req: Request, res: Response) {
     }
 
     // Отправляем подарок через Telegram бот
+    console.log('📤 Sending gift to Telegram:', user.telegram_id, giftData.id);
     await sendGiftViaApi(user.telegram_id, giftData);
+    console.log('📤 Gift sent successfully!');
 
     // Удаляем подарок из БД после отправки
     await userGiftRepository.delete(user_gift_id);
+    console.log('📤 Gift deleted from DB');
 
     // Создаем запись в истории о отправке подарка
     await transactionRepository.create({
@@ -162,8 +184,7 @@ export async function sendUserGift(req: Request, res: Response) {
       status: 'completed',
       description: `Отправлен подарок: ${giftData.name}`,
     });
-
-    console.log(`🎁 Gift sent: ${giftData.name} to user ${userId}`);
+    console.log('📤 Transaction created');
 
     res.json({
       success: true,
