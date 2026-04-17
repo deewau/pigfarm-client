@@ -198,19 +198,15 @@ export function Play() {
 
     const wonItem = weightedRandomSelect(availableGifts);
     const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
-    let targetIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
+    const targetIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
 
     const containerWidth = containerRef.current?.offsetWidth || 360;
     const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
-    
-    const currentIndex = Math.floor((offsetRef.current + centerOffset) / ITEM_WIDTH) % PATTERN_SIZE;
-    let offsetToTarget = (targetIndex - currentIndex + PATTERN_SIZE) % PATTERN_SIZE;
-    if (offsetToTarget <= 3) {
-      offsetToTarget += PATTERN_SIZE;
-    }
-    
-    targetIndex = (currentIndex + offsetToTarget) % PATTERN_SIZE;
-    const finalOffset = targetIndex * ITEM_WIDTH;
+
+    const spins = 4;
+    const fullRotations = PATTERN_SIZE * ITEM_WIDTH * spins;
+    const targetOffset = targetIndex * ITEM_WIDTH;
+    const finalOffset = fullRotations + targetOffset;
 
     const startOffset = offsetRef.current;
     const startTime = performance.now();
@@ -229,13 +225,12 @@ export function Play() {
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
 
-      let newOffset = startOffset + (finalOffset - startOffset) * eased;
-      newOffset = ((newOffset % PATTERN_WIDTH) + PATTERN_WIDTH) % PATTERN_WIDTH;
-      offsetRef.current = newOffset;
+      offsetRef.current = startOffset + (finalOffset - startOffset) * eased;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${newOffset}px)`;
+        const displayOffset = offsetRef.current % PATTERN_WIDTH;
+        rouletteEl.style.transform = `translateX(-${displayOffset}px)`;
       }
 
       if (progress < 1) {
@@ -244,7 +239,8 @@ export function Play() {
         animationRef.current = null;
         setSpinning(false);
 
-        const centerIndex = Math.floor((offsetRef.current + centerOffset) / ITEM_WIDTH) % PATTERN_SIZE;
+        const displayOffset = offsetRef.current % PATTERN_WIDTH;
+        const centerIndex = Math.floor((displayOffset + centerOffset) / ITEM_WIDTH) % PATTERN_SIZE;
         const actualWonItem = rouletteItems[centerIndex];
 
         if (demoMode) {
