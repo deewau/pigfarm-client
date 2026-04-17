@@ -164,6 +164,8 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
+    const SINGLE_PATTERN_WIDTH = ITEM_WIDTH * ROULETTE_SIZE;
+
     const animate = () => {
       const rouletteEl = rouletteRef.current;
       if (!rouletteEl) {
@@ -173,8 +175,8 @@ export function Play() {
 
       currentOffsetRef.current += SCROLL_SPEED;
 
-      if (currentOffsetRef.current >= PATTERN_WIDTH) {
-        currentOffsetRef.current -= PATTERN_WIDTH;
+      if (currentOffsetRef.current >= SINGLE_PATTERN_WIDTH) {
+        currentOffsetRef.current -= SINGLE_PATTERN_WIDTH;
       }
 
       rouletteEl.style.transform = `translateX(-${currentOffsetRef.current}px)`;
@@ -344,11 +346,11 @@ export function Play() {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
-          {rouletteItems.map((item) => (
-            <div key={item.rouletteIndex} className="play__roulette-item">
+          {[...rouletteItems, ...rouletteItems].map((item, index) => (
+            <div key={`${item.rouletteIndex}-${index}`} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${item.rouletteIndex}`} />
+                  <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${item.rouletteIndex}-${index}`} />
                 ) : (
                   item.sticker?.emoji || '🎁'
                 )}
