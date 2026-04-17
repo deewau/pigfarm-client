@@ -210,23 +210,23 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    // Сначала определяем победителя (как в CS:GO - результат известен заранее)
     const wonItem = weightedRandomSelect(availableGifts);
     
-    // Находим индекс во второй копии массива (PATTERN_SIZE-30 + 30 = 30-59)
-    let wonIndex = -1;
-    for (let i = 0; i < rouletteItems.length; i++) {
-      if (rouletteItems[i].id === wonItem.id) {
-        wonIndex = i + PATTERN_SIZE;
-        break;
-      }
-    }
-    if (wonIndex < 0) wonIndex = PATTERN_SIZE + Math.floor(Math.random() * rouletteItems.length);
-
-    // Вычисляем финальное смещение чтобы этот элемент был по центру
-    const targetOffset = wonIndex * ITEM_WIDTH;
-    const spins = 4;
-    const finalOffset = targetOffset + spins * PATTERN_WIDTH;
+    // Находим индекс подарка в массиве rouletteItems
+    let targetIndex = rouletteItems.findIndex(i => i.id === wonItem.id);
+    if (targetIndex < 0) targetIndex = Math.floor(Math.random() * rouletteItems.length);
+    
+    // Переходим во вторую копию массива
+    targetIndex += PATTERN_SIZE;
+    
+    // Вычисляем смещение чтобы элемент был по центру указателя
+    const containerWidth = containerRef.current?.offsetWidth || 360;
+    const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
+    const baseOffset = targetIndex * ITEM_WIDTH - centerOffset;
+    
+    // Добавляем минимум 3 полных оборота
+    const spins = 3;
+    const finalOffset = baseOffset + spins * PATTERN_WIDTH;
 
     const startOffset = (offsetRef.current % PATTERN_WIDTH);
     const startTime = performance.now();
@@ -254,12 +254,14 @@ export function Play() {
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
-      } else {
+} else {
         animationRef.current = null;
         setSpinning(false);
 
-        // Показываем тот же предмет который выбр��ли
-        const actualWonItem = wonItem;
+        // Вычисляем точно какой элемент в центре
+        const finalPos = Math.round(offsetRef.current);
+        const itemIndex = Math.floor(finalPos / ITEM_WIDTH) % (PATTERN_SIZE * 2);
+        const actualWonItem = rouletteItems[itemIndex % PATTERN_SIZE] || wonItem;
 
         if (demoMode) {
           setWonGift(actualWonItem);
