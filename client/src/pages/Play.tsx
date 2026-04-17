@@ -210,19 +210,25 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-const wonItem = weightedRandomSelect(availableGifts);
+    // Сначала определяем победителя (как в CS:GO - результат известен заранее)
+    const wonItem = weightedRandomSelect(availableGifts);
     
-    // Ищем в первой половине массива
-    let wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
-    if (wonIndex < 0) wonIndex = Math.floor(Math.random() * rouletteItems.length);
+    // Находим индекс во второй копии массива (PATTERN_SIZE-30 + 30 = 30-59)
+    let wonIndex = -1;
+    for (let i = 0; i < rouletteItems.length; i++) {
+      if (rouletteItems[i].id === wonItem.id) {
+        wonIndex = i + PATTERN_SIZE;
+        break;
+      }
+    }
+    if (wonIndex < 0) wonIndex = PATTERN_SIZE + Math.floor(Math.random() * rouletteItems.length);
 
+    // Вычисляем финальное смещение чтобы этот элемент был по центру
+    const targetOffset = wonIndex * ITEM_WIDTH;
     const spins = 4;
-    const fullRotations = PATTERN_SIZE * ITEM_WIDTH * spins;
-    // Добавляем PATTERN_SIZE чтобы попасть во вторую копию массива
-    const targetPos = (wonIndex + PATTERN_SIZE) * ITEM_WIDTH;
-    const finalOffset = fullRotations + targetPos;
+    const finalOffset = targetOffset + spins * PATTERN_WIDTH;
 
-    const startOffset = offsetRef.current;
+    const startOffset = (offsetRef.current % PATTERN_WIDTH);
     const startTime = performance.now();
     const duration = 3000;
 
@@ -243,8 +249,7 @@ const wonItem = weightedRandomSelect(availableGifts);
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
-        const displayOffset = offsetRef.current % PATTERN_WIDTH;
-        rouletteEl.style.transform = `translateX(-${displayOffset}px)`;
+        rouletteEl.style.transform = `translateX(-${offsetRef.current % PATTERN_WIDTH}px)`;
       }
 
       if (progress < 1) {
@@ -253,6 +258,7 @@ const wonItem = weightedRandomSelect(availableGifts);
         animationRef.current = null;
         setSpinning(false);
 
+        // Показываем тот же предмет который выбр��ли
         const actualWonItem = wonItem;
 
         if (demoMode) {
