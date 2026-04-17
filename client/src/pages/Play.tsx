@@ -158,6 +158,12 @@ export function Play() {
     }
   }, [autoSpinAfterDeposit, user, spinning]);
 
+  useEffect(() => {
+    if (!showResult && !spinning && !loading && rouletteItems.length > 0) {
+      startScrolling();
+    }
+  }, [showResult, spinning, loading, rouletteItems.length]);
+
   const startScrolling = useCallback(() => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
