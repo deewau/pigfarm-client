@@ -46,8 +46,8 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 };
 
 const SPIN_COST = 25;
-const ITEM_WIDTH = 97;
-const SCROLL_SPEED = 2;
+const ITEM_WIDTH = 109;
+const SCROLL_SPEED = 0.5;
 const INITIAL_ITEMS = 20;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
@@ -73,7 +73,7 @@ function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: numb
 }
 
 interface RouletteItem {
-  id: string;
+  id: number;
   gift: TelegramGift;
 }
 
@@ -99,7 +99,7 @@ export function Play() {
 
   const generateItem = useCallback((gifts: TelegramGift[]): RouletteItem => {
     return {
-      id: `item-${itemIdCounterRef.current++}`,
+      id: itemIdCounterRef.current++,
       gift: weightedRandomSelect(gifts),
     };
   }, []);
@@ -150,22 +150,30 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const animate = () => {
+    let lastTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const delta = currentTime - lastTime;
+      lastTime = currentTime;
+
       const rouletteEl = rouletteRef.current;
       if (!rouletteEl) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
 
-      currentOffsetRef.current += SCROLL_SPEED;
+      currentOffsetRef.current += SCROLL_SPEED * (delta / 16);
 
       if (currentOffsetRef.current >= ITEM_WIDTH) {
-        currentOffsetRef.current -= ITEM_WIDTH;
+        const steps = Math.floor(currentOffsetRef.current / ITEM_WIDTH);
+        currentOffsetRef.current = currentOffsetRef.current % ITEM_WIDTH;
+        
         setRouletteItems(prev => {
-          if (prev.length < INITIAL_ITEMS) return prev;
           const newItems = [...prev];
-          newItems.shift();
-          newItems.push(generateItem(availableGifts));
+          for (let i = 0; i < steps; i++) {
+            newItems.shift();
+            newItems.push(generateItem(availableGifts));
+          }
           return newItems;
         });
       }
@@ -303,7 +311,7 @@ export function Play() {
             <div key={item.id} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.gift.animationSvg ? (
-                  <GiftImage svgContent={item.gift.animationSvg} size={70} uniqueId={item.id} />
+                  <GiftImage svgContent={item.gift.animationSvg} size={70} uniqueId={`roulette-${item.id}`} />
                 ) : (
                   item.gift.sticker?.emoji || '🎁'
                 )}
