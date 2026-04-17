@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
-import { GIFTS_DATA, TelegramGift, sendGiftToUser } from '../services/telegram.js';
-import axios from 'axios';
+import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
 
 export async function claimGift(req: Request, res: Response) {
   try {
@@ -84,7 +83,7 @@ export async function getUserGifts(req: Request, res: Response) {
   }
 }
 
-export async function sendGiftToUser(req: Request, res: Response) {
+export async function sendUserGift(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     const { user_gift_id } = req.body;
@@ -141,7 +140,7 @@ export async function sendGiftToUser(req: Request, res: Response) {
     }
 
     // Отправляем подарок через Telegram бот
-    await sendGiftToUser(user.telegram_id, giftData);
+    await sendGiftViaApi(user.telegram_id, giftData);
 
     console.log(`🎁 Gift sent: ${giftData.name} to user ${userId}`);
 
@@ -150,7 +149,7 @@ export async function sendGiftToUser(req: Request, res: Response) {
       data: { message: 'Gift sent!' },
     });
   } catch (error) {
-    console.error('sendGiftToUser error:', error);
+    console.error('sendUserGift error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to send gift',
