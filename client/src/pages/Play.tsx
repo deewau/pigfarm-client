@@ -50,7 +50,7 @@ const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
 const TOTAL_ITEMS = PATTERN_SIZE * 3; // 90 элементов (3 копии)
 const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
-const SCROLL_SPEED = 0.3;
+const SCROLL_SPEED = 0.15;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
@@ -189,12 +189,6 @@ export function Play() {
     animationRef.current = requestAnimationFrame(animate);
   }, []);
 
-  useEffect(() => {
-    if (!showResult && !spinning && !loading && rouletteItems.length > 0) {
-      startScrolling();
-    }
-  }, [showResult, spinning, loading, rouletteItems.length]);
-
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
 
@@ -293,7 +287,7 @@ const animate = (timestamp: number) => {
 
   const closeModal = () => {
     setShowResult(false);
-    startScrolling();
+    // Не запускаем прокрутку - оставляем как есть
   };
 
   const handleGoToProfile = () => {
