@@ -222,23 +222,10 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const wonItem = weightedRandomSelect(availableGifts);
-    
-    // Находим где этот подарок в массиве
-    let targetIndex = -1;
-    for (let i = 0; i < rouletteItems.length; i++) {
-      if (rouletteItems[i].id === wonItem.id) {
-        targetIndex = i;
-        break;
-      }
-    }
-    if (targetIndex < 0) targetIndex = Math.floor(Math.random() * rouletteItems.length);
-    
-    // Анимируем на элемент во второй копии массива (PATTERN_SIZE + targetIndex)
-    const targetInSecondCopy = targetIndex + PATTERN_SIZE;
-    const targetPos = targetInSecondCopy * ITEM_WIDTH;
-    const extraSpins = 4 * PATTERN_SIZE * ITEM_WIDTH;
-    const finalOffset = targetPos + extraSpins;
+    // Просто крутим рулетку - без всякой логики с позициями
+    const currentPos = offsetRef.current;
+    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + Math.floor(Math.random() * PATTERN_SIZE) * ITEM_WIDTH;
+    const finalOffset = currentPos + extra;
 
     const startOffset = offsetRef.current;
     const startTime = performance.now();
@@ -272,8 +259,13 @@ const animate = (timestamp: number) => {
         animationRef.current = null;
         setSpinning(false);
 
-        // Берем тот же подарок что выбрали - он точно в центре
-        const actualWonItem = wonItem;
+        // Вычисляем какой подарок реально в центре
+        const finalPx = offsetRef.current % TOTAL_WIDTH;
+        const centerW = (containerRef.current?.offsetWidth || 360) / 2;
+        const itemPx = finalPx + centerW;
+        const idx = Math.floor(itemPx / ITEM_WIDTH) % (PATTERN_SIZE * 2);
+        
+        const actualWonItem = rouletteItems[idx % PATTERN_SIZE];
 
         if (demoMode) {
           setWonGift(actualWonItem);
