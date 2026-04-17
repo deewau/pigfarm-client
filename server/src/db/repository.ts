@@ -169,4 +169,9 @@ export const userGiftRepository = {
     if (result.rows.length === 0) return undefined;
     return result.rows[0] as UserGift;
   },
+
+  async delete(id: number): Promise<void> {
+    const pool = getPool();
+    await pool.query('DELETE FROM user_gifts WHERE id = $1', [id]);
+  },
 };

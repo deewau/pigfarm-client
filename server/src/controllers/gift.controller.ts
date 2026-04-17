@@ -142,6 +142,9 @@ export async function sendUserGift(req: Request, res: Response) {
     // Отправляем подарок через Telegram бот
     await sendGiftViaApi(user.telegram_id, giftData);
 
+    // Удаляем подарок из БД после отправки
+    await userGiftRepository.delete(user_gift_id);
+
     console.log(`🎁 Gift sent: ${giftData.name} to user ${userId}`);
 
     res.json({
