@@ -212,23 +212,24 @@ export function Play() {
 
     const wonItem = weightedRandomSelect(availableGifts);
     
-    // Находим индекс подарка в массиве rouletteItems
-    let targetIndex = rouletteItems.findIndex(i => i.id === wonItem.id);
+    // Находим где этот подарок в массиве
+    let targetIndex = -1;
+    for (let i = 0; i < rouletteItems.length; i++) {
+      if (rouletteItems[i].id === wonItem.id) {
+        targetIndex = i;
+        break;
+      }
+    }
     if (targetIndex < 0) targetIndex = Math.floor(Math.random() * rouletteItems.length);
     
-    // Переходим во вторую копию массива
-    targetIndex += PATTERN_SIZE;
-    
-    // Вычисляем смещение чтобы элемент был по центру указателя
-    const containerWidth = containerRef.current?.offsetWidth || 360;
-    const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
-    const baseOffset = targetIndex * ITEM_WIDTH - centerOffset;
-    
-    // Добавляем минимум 3 полных оборота
-    const spins = 3;
-    const finalOffset = baseOffset + spins * PATTERN_WIDTH;
+    // Анимируем на точную позицию - элемент будет по центру указателя
+    const centerWidth = containerRef.current?.offsetWidth || 360;
+    const elementCenterOffset = targetIndex * ITEM_WIDTH + ITEM_WIDTH / 2;
+    const targetPos = elementCenterOffset - centerWidth / 2;
+    const extraSpins = 4 * PATTERN_SIZE * ITEM_WIDTH;
+    const finalOffset = targetPos + extraSpins;
 
-    const startOffset = (offsetRef.current % PATTERN_WIDTH);
+    const startOffset = 0;
     const startTime = performance.now();
     const duration = 3000;
 
@@ -245,23 +246,21 @@ export function Play() {
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
 
-      offsetRef.current = startOffset + (finalOffset - startOffset) * eased;
+      offsetRef.current = startOffset + finalOffset * eased;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${offsetRef.current % PATTERN_WIDTH}px)`;
+        rouletteEl.style.transform = `translateX(-${offsetRef.current}px)`;
       }
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
-} else {
+      } else {
         animationRef.current = null;
         setSpinning(false);
 
-        // Вычисляем точно какой элемент в центре
-        const finalPos = Math.round(offsetRef.current);
-        const itemIndex = Math.floor(finalPos / ITEM_WIDTH) % (PATTERN_SIZE * 2);
-        const actualWonItem = rouletteItems[itemIndex % PATTERN_SIZE] || wonItem;
+        // Берем тот же подарок что выбрали - он точно в центре
+        const actualWonItem = wonItem;
 
         if (demoMode) {
           setWonGift(actualWonItem);
