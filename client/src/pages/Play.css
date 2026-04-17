@@ -11,7 +11,7 @@
 /* Рулетка */
 .play__roulette-container {
   position: relative;
-  height: 390px;
+  height: 405px;
   border-radius: 20px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(30, 27, 45, 0.8) 0%, rgba(20, 18, 32, 0.9) 100%);
