@@ -48,7 +48,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
-const TOTAL_WIDTH = ITEM_WIDTH * PATTERN_SIZE * 2; // 60 элементов (дубликат)
+const TOTAL_WIDTH = ITEM_WIDTH * PATTERN_SIZE * 3; // 3 копии для бесшовности
 const SCROLL_SPEED = 0.3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
@@ -174,8 +174,9 @@ export function Play() {
       }
 
       offsetRef.current += speed;
-      if (offsetRef.current >= TOTAL_WIDTH) {
-        offsetRef.current -= TOTAL_WIDTH;
+      // Сбрасываем только когда прошли полный паттерн (30 элементов)
+      if (offsetRef.current >= PATTERN_SIZE * ITEM_WIDTH) {
+        offsetRef.current -= PATTERN_SIZE * ITEM_WIDTH;
       }
 
       if (rouletteEl) {
