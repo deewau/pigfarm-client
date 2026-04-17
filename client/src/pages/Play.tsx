@@ -68,9 +68,23 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
 
 function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
   const items: TelegramGift[] = [];
-  for (let i = 0; i < PATTERN_SIZE; i++) {
+  
+  // Гарантируем что все подарки есть хотя бы раз
+  gifts.forEach(gift => {
+    items.push({...gift});
+  });
+  
+  // Дополняем до PATTERN_SIZE случайными
+  while (items.length < PATTERN_SIZE) {
     items.push(weightedRandomSelect(gifts));
   }
+  
+  // Перемешиваем (Fisher-Yates)
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  
   return items;
 }
 
@@ -267,7 +281,6 @@ export function Play() {
 
   const closeModal = () => {
     setShowResult(false);
-    initializeRoulette();
     startScrolling();
   };
 
