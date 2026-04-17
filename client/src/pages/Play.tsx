@@ -49,7 +49,7 @@ const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
 const PATTERN_WIDTH = ITEM_WIDTH * PATTERN_SIZE;
-const SCROLL_SPEED = 1;
+const SCROLL_SPEED = 0.3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
@@ -214,13 +214,10 @@ export function Play() {
     const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
     const targetIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
 
-    const containerWidth = containerRef.current?.offsetWidth || 360;
-    const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
-
     const spins = 4;
     const fullRotations = PATTERN_SIZE * ITEM_WIDTH * spins;
-    const targetOffset = targetIndex * ITEM_WIDTH;
-    const finalOffset = fullRotations + targetOffset;
+    const extraOffset = (targetIndex + 2) * ITEM_WIDTH; // +2 чтобы был по центру
+    const finalOffset = fullRotations + extraOffset;
 
     const startOffset = offsetRef.current;
     const startTime = performance.now();
@@ -253,8 +250,9 @@ export function Play() {
         animationRef.current = null;
         setSpinning(false);
 
-        const displayOffset = offsetRef.current % PATTERN_WIDTH;
-        const centerIndex = Math.floor((displayOffset + centerOffset) / ITEM_WIDTH) % PATTERN_SIZE;
+        // Фиксируем финальную позицию
+        const displayOffset = Math.round(finalOffset % PATTERN_WIDTH);
+        const centerIndex = (targetIndex + 2) % PATTERN_SIZE;
         const actualWonItem = rouletteItems[centerIndex];
 
         if (demoMode) {
