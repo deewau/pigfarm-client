@@ -377,7 +377,7 @@
 /* Подарки */
 .profile__gifts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   padding: 4px;
 }
@@ -386,10 +386,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
+  gap: 8px;
+  padding: 14px 10px;
   background: rgba(170, 59, 255, 0.06);
-  border-radius: 14px;
+  border-radius: 18px;
   border: 1px solid rgba(170, 59, 255, 0.1);
   transition: all 0.2s ease;
 }
@@ -401,8 +401,8 @@
 }
 
 .profile__gift-icon {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,7 +412,7 @@
 }
 
 .profile__gift-icon span {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   background: linear-gradient(135deg, #aa3bff, #5ac8fa);
   -webkit-background-clip: text;
@@ -421,13 +421,13 @@
 }
 
 .profile__gift-name {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #ffffff;
   text-align: center;
 }
 
 .profile__gift-date {
-  font-size: 9px;
+  font-size: 10px;
   color: #6b6375;
 }
