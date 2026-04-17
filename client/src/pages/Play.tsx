@@ -48,7 +48,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
-const PATTERN_WIDTH = ITEM_WIDTH * PATTERN_SIZE;
+const TOTAL_WIDTH = ITEM_WIDTH * PATTERN_SIZE * 2; // 60 элементов (дубликат)
 const SCROLL_SPEED = 0.3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
@@ -156,6 +156,10 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
+    let speed = 0;
+    const targetSpeed = SCROLL_SPEED;
+    const acceleration = 0.02;
+
     const animate = () => {
       const rouletteEl = rouletteRef.current;
       if (!rouletteEl) {
@@ -163,12 +167,20 @@ export function Play() {
         return;
       }
 
-      offsetRef.current += SCROLL_SPEED;
-      if (offsetRef.current >= PATTERN_WIDTH) {
-        offsetRef.current -= PATTERN_WIDTH;
+      // Плавное ускорение
+      if (speed < targetSpeed) {
+        speed += acceleration;
+        if (speed > targetSpeed) speed = targetSpeed;
       }
 
-      rouletteEl.style.transform = `translateX(-${offsetRef.current}px)`;
+      offsetRef.current += speed;
+      if (offsetRef.current >= TOTAL_WIDTH) {
+        offsetRef.current -= TOTAL_WIDTH;
+      }
+
+      if (rouletteEl) {
+        rouletteEl.style.transform = `translateX(-${offsetRef.current}px)`;
+      }
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -222,20 +234,19 @@ export function Play() {
     }
     if (targetIndex < 0) targetIndex = Math.floor(Math.random() * rouletteItems.length);
     
-    // Анимируем на точную позицию - элемент будет по центру указателя
-    const centerWidth = containerRef.current?.offsetWidth || 360;
-    const elementCenterOffset = targetIndex * ITEM_WIDTH + ITEM_WIDTH / 2;
-    const targetPos = elementCenterOffset - centerWidth / 2;
+    // Анимируем на элемент во второй копии массива (PATTERN_SIZE + targetIndex)
+    const targetInSecondCopy = targetIndex + PATTERN_SIZE;
+    const targetPos = targetInSecondCopy * ITEM_WIDTH;
     const extraSpins = 4 * PATTERN_SIZE * ITEM_WIDTH;
     const finalOffset = targetPos + extraSpins;
 
-    const startOffset = 0;
+    const startOffset = offsetRef.current;
     const startTime = performance.now();
     const duration = 3000;
 
     setSpinning(true);
 
-    const animate = (timestamp: number) => {
+const animate = (timestamp: number) => {
       if (spinCancelledRef.current) {
         setSpinning(false);
         startScrolling();
@@ -244,13 +255,15 @@ export function Play() {
 
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease-out кубик - плавное замедление в конце
       const eased = 1 - Math.pow(1 - progress, 3);
 
       offsetRef.current = startOffset + finalOffset * eased;
 
       const rouletteEl = rouletteRef.current;
       if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${offsetRef.current}px)`;
+        rouletteEl.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
       }
 
       if (progress < 1) {
