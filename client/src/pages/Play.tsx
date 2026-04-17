@@ -210,14 +210,14 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const wonItem = weightedRandomSelect(availableGifts);
+const wonItem = weightedRandomSelect(availableGifts);
     const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
     const targetIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
 
     const spins = 4;
     const fullRotations = PATTERN_SIZE * ITEM_WIDTH * spins;
-    const extraOffset = (targetIndex + 2) * ITEM_WIDTH; // +2 чтобы был по центру
-    const finalOffset = fullRotations + extraOffset;
+    const targetPos = targetIndex * ITEM_WIDTH;
+    const finalOffset = fullRotations + targetPos;
 
     const startOffset = offsetRef.current;
     const startTime = performance.now();
@@ -250,10 +250,7 @@ export function Play() {
         animationRef.current = null;
         setSpinning(false);
 
-        // Фиксируем финальную позицию
-        const displayOffset = Math.round(finalOffset % PATTERN_WIDTH);
-        const centerIndex = (targetIndex + 2) % PATTERN_SIZE;
-        const actualWonItem = rouletteItems[centerIndex];
+        const actualWonItem = wonItem;
 
         if (demoMode) {
           setWonGift(actualWonItem);
