@@ -114,11 +114,13 @@ export function Play() {
   const [showResult, setShowResult] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
+  const [autoSpinAfterDeposit, setAutoSpinAfterDeposit] = useState(false);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const currentOffsetRef = useRef(0);
+  const spinCancelledRef = useRef(false);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -148,6 +150,13 @@ export function Play() {
       generateRoulette();
     }
   }, [generateRoulette, loading]);
+
+  useEffect(() => {
+    if (autoSpinAfterDeposit && user && user.balance >= SPIN_COST && !spinning) {
+      setAutoSpinAfterDeposit(false);
+      handleSpin();
+    }
+  }, [autoSpinAfterDeposit, user, spinning]);
 
   const startScrolling = useCallback(() => {
     if (animationRef.current) {
@@ -200,7 +209,6 @@ export function Play() {
       try {
         const response = await userApi.spend(SPIN_COST, 'Крутка рулетки');
         if (response.success) {
-          // Обновляем баланс из БД
           refreshBalance();
         } else {
           console.error('Failed to spend:', response.error);
@@ -212,27 +220,32 @@ export function Play() {
       }
     }
 
+    spinCancelledRef.current = false;
+
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
+    // Выбираем подарок для остановки с правильными вероятностями
     const wonItem = weightedRandomSelect(availableGifts);
-    const winIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
-    const actualIndex = winIndex >= 0 ? winIndex : Math.floor(Math.random() * rouletteItems.length);
+    
+    // Находим позицию этого подарка в рулетке
+    const wonIndex = rouletteItems.findIndex(item => item.id === wonItem.id);
+    const targetRouletteIndex = wonIndex >= 0 ? wonIndex : Math.floor(Math.random() * rouletteItems.length);
 
     const containerWidth = containerRef.current?.offsetWidth || 360;
-    const centerOffset = containerWidth / 2 - 60;
+    const centerOffset = containerWidth / 2 - ITEM_WIDTH / 2;
 
     const currentInPattern = currentOffsetRef.current;
-    const targetInPattern = actualIndex * ITEM_WIDTH - centerOffset;
+    const targetInPattern = targetRouletteIndex * ITEM_WIDTH - centerOffset;
 
     let distance = targetInPattern - currentInPattern;
 
     if (distance <= 0) {
-      distance += SPIN_DISTANCE;
+      distance += PATTERN_WIDTH;
     }
 
-    distance = distance + SPIN_DISTANCE;
+    distance = distance + PATTERN_WIDTH * 3;
 
     const startOffset = currentOffsetRef.current;
     const startTime = performance.now();
@@ -241,6 +254,12 @@ export function Play() {
     setSpinning(true);
 
     const animate = (timestamp: number) => {
+      if (spinCancelledRef.current) {
+        setSpinning(false);
+        startScrolling();
+        return;
+      }
+
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
@@ -262,17 +281,20 @@ export function Play() {
         animationRef.current = null;
         setSpinning(false);
 
+        // Вычисляем какой подарок реально в центре
+        const centerIndex = Math.floor((loopedOffset + centerOffset) / ITEM_WIDTH) % rouletteItems.length;
+        const actualWonGift = rouletteItems[centerIndex];
+
         if (demoMode) {
-          setWonGift(wonItem);
+          setWonGift(actualWonGift);
           setShowResult(true);
         } else {
-          // Сохраняем выигрыш в БД
           winApi.claim({
-            id: wonItem.id,
-            name: wonItem.name,
-            stars: wonItem.stars,
+            id: actualWonGift.id,
+            name: actualWonGift.name,
+            stars: actualWonGift.stars,
           }).then(() => {
-            setWonGift(wonItem);
+            setWonGift(actualWonGift);
             setShowResult(true);
           }).catch((err) => {
             console.error('Failed to claim gift:', err);
@@ -384,10 +406,15 @@ export function Play() {
       {showDeposit && (
         <DepositModal
           isOpen={showDeposit}
-          onClose={() => setShowDeposit(false)}
+          onClose={() => {
+            spinCancelledRef.current = true;
+            setShowDeposit(false);
+          }}
           onDepositSuccess={(amount) => {
             addBalance(amount);
             refreshBalance();
+            setShowDeposit(false);
+            setAutoSpinAfterDeposit(true);
           }}
         />
       )}
