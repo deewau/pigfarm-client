@@ -278,14 +278,12 @@ export async function sendGiftToUser(telegramId: number, gift: TelegramGift): Pr
     throw new Error('TELEGRAM_BOT_TOKEN not configured');
   }
 
-  // Используем Telegram bot API для отправки подарка
-  // transferring a gift - используем transfer_gift
+  // Используем Telegram Bot API sendGift
   await axios.post(
-    `https://api.telegram.org/bot${botToken}/transferGift`,
+    `https://api.telegram.org/bot${botToken}/sendGift`,
     {
       user_id: telegramId,
       gift_id: gift.id,
-      gem_count: 0,
     }
   );
 }
