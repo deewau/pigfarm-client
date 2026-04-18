@@ -93,12 +93,15 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
   
   const items: TelegramGift[] = [];
+  const targetPosition = Math.floor(PATTERN_SIZE / 2);
   
-  items[0] = {...targetGift};
-  
-  for (let i = 1; i < PATTERN_SIZE; i++) {
-    const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
-    items.push({...randomGift});
+  for (let i = 0; i < PATTERN_SIZE; i++) {
+    if (i === targetPosition) {
+      items.push({...targetGift});
+    } else {
+      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
+      items.push({...randomGift});
+    }
   }
   
   return items;
@@ -256,12 +259,11 @@ export function Play() {
     console.log('🎰 patternWithTarget[0]:', patternWithTarget[0].id, patternWithTarget[0].name);
     setRouletteItems(patternWithTarget);
 
-    const targetPosInPattern = 0;
+    const targetPosInPattern = Math.floor(PATTERN_SIZE / 2) - 1;
     const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
     const centerX = 180;
-    const centerOffset = centerX - ITEM_WIDTH / 2;
-    const finalOffset = centerOffset + fullLoopWidth * 3;
-    console.log('🎰 finalOffset:', finalOffset, 'fullLoopWidth:', fullLoopWidth, 'centerX:', centerX);
+    const finalOffset = targetPosInPattern * ITEM_WIDTH + centerX - ITEM_WIDTH / 2 + fullLoopWidth * 2;
+    console.log('🎰 finalOffset:', finalOffset, 'fullLoopWidth:', fullLoopWidth, 'targetPosInPattern:', targetPosInPattern);
 
     offsetRef.current = 0;
     const startOffset = 0;
