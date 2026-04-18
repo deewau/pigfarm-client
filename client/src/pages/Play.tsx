@@ -179,66 +179,61 @@ export function Play() {
           return;
         }
         
-        const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-        const itemEls = document.querySelectorAll('.play__roulette-item');
-        const targetEl = itemEls[targetPosInPattern] as HTMLElement;
+        rouletteRef.current.style.transform = `translateX(0px)`;
         
-        if (!targetEl) {
-          setPendingTargetGift(null);
-          return;
-        }
-        
-        const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const markerX = containerRect.width / 2;
-        const finalOffset = targetX - markerX;
-        
-        console.log('🎰 using DOM: targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
-        
-        console.log('🎰 finalOffset:', finalOffset);
-        
-        offsetRef.current = 0;
-        if (rouletteRef.current) {
-          rouletteRef.current.style.transform = `translateX(0px)`;
-        }
-        
-        const startTime = performance.now();
-        const duration = 3000;
-        setSpinning(true);
-
-        const animate = (timestamp: number) => {
-          if (spinCancelledRef.current) {
-            setSpinning(false);
+        requestAnimationFrame(() => {
+          const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
+          const targetElNew = document.querySelectorAll('.play__roulette-item')[targetPosInPattern] as HTMLElement;
+          if (!targetElNew) {
+            setPendingTargetGift(null);
             return;
           }
+          const targetX = targetElNew.offsetLeft + targetElNew.offsetWidth / 2;
+          const containerRect = containerRef.current!.getBoundingClientRect();
+          const markerX = containerRect.width / 2;
+          const finalOffset = targetX - markerX;
           
-          const elapsed = timestamp - startTime;
-          const progress = Math.min(elapsed / duration, 1);
+          console.log('🎰 after reset: targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
           
-          const easeOut = 1 - Math.pow(1 - progress, 3);
-          offsetRef.current = finalOffset * easeOut;
-          
-          if (rouletteRef.current) {
-            const normalizedOffset = ((offsetRef.current % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
-            rouletteRef.current.style?.setProperty('transform', `translateX(-${normalizedOffset}px)`);
-          }
+          offsetRef.current = 0;
+          const startTime = performance.now();
+          const duration = 3000;
+          setSpinning(true);
 
-          if (progress < 1) {
-            animationRef.current = requestAnimationFrame(animate);
-          } else {
-            const normalizedOffset = ((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
-            const finalPos = Math.round(normalizedOffset / ITEM_FULL_WIDTH);
-            const itemEls = document.querySelectorAll('.play__roulette-item');
-            const landedItem = itemEls[finalPos];
-            console.log('🎰 finalOffset:', finalOffset, 'normalized:', normalizedOffset, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
-            setSpinning(false);
-            setPendingTargetGift(null);
-            setWonGift(pendingTargetGift);
-            setShowResult(true);
-          }
-        };
+          const animate = (timestamp: number) => {
+            if (spinCancelledRef.current) {
+              setSpinning(false);
+              return;
+            }
+            
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            offsetRef.current = finalOffset * easeOut;
+            
+            if (rouletteRef.current) {
+              const normalizedOffset = ((offsetRef.current % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
+              rouletteRef.current.style.transform = `translateX(-${normalizedOffset}px)`;
+            }
 
-        animationRef.current = requestAnimationFrame(animate);
+            if (progress < 1) {
+              animationRef.current = requestAnimationFrame(animate);
+            } else {
+              const normalizedOffset = ((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
+              const finalPos = Math.round(normalizedOffset / ITEM_FULL_WIDTH);
+              const itemEls = document.querySelectorAll('.play__roulette-item');
+              const landedItem = itemEls[finalPos];
+              console.log('🎰 finalOffset:', finalOffset, 'normalized:', normalizedOffset, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
+              setSpinning(false);
+              setPendingTargetGift(null);
+              setWonGift(pendingTargetGift);
+              setShowResult(true);
+            }
+          };
+
+          animationRef.current = requestAnimationFrame(animate);
+        });
       });
     });
   }, [pendingTargetGift, rouletteItems, spinning, availableGifts]);
