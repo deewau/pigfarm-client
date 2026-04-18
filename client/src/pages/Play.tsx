@@ -163,84 +163,59 @@ export function Play() {
       return;
     }
     
-    const targetIndex = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
-    if (targetIndex === -1) {
-      console.log('🎰 target not in pattern, generating new');
+    const targetIdx = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+    if (targetIdx === -1) {
+      console.log('🎰 generate new pattern');
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
-    console.log('🎰 target found at index:', targetIndex, 'name:', pendingTargetGift.name);
+    console.log('🎰 start spin to idx:', targetIdx);
     
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!containerRef.current || !rouletteRef.current) {
-          setPendingTargetGift(null);
+    offsetRef.current = 0;
+    if (rouletteRef.current) {
+      rouletteRef.current.style.transform = `translateX(0px)`;
+    }
+    
+    const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
+    const scrollDistance = targetIdx * ITEM_FULL_WIDTH + fullPattern;
+    
+    setTimeout(() => {
+      const startTime = performance.now();
+      const duration = 3000;
+      setSpinning(true);
+
+      const animate = (timestamp: number) => {
+        if (spinCancelledRef.current) {
+          setSpinning(false);
           return;
         }
         
-        rouletteRef.current.style.transform = `translateX(0px)`;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
         
-        requestAnimationFrame(() => {
-          const targetIndex = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
-          if (targetIndex === -1) {
-            setPendingTargetGift(null);
-            return;
-          }
-          const targetEl = document.querySelectorAll('.play__roulette-item')[targetIndex] as HTMLElement;
-          if (!targetEl) {
-            setPendingTargetGift(null);
-            return;
-          }
-          const targetElIndex = targetIndex;
-          const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
-          const targetStartPosition = targetElIndex * ITEM_FULL_WIDTH;
-          const loops = LOOPS;
-          const distance = targetStartPosition + loops * fullPattern;
-          console.log('idx:', targetElIndex, 'toScroll:', distance);
-          
-          offsetRef.current = 0;
-          const startTime = performance.now();
-          const duration = 3000;
-          setSpinning(true);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = scrollDistance * easeOut;
+        
+        if (rouletteRef.current) {
+          rouletteRef.current.style.transform = `translateX(${-Math.floor(current)}px)`;
+        }
 
-          const animate = (timestamp: number) => {
-            if (spinCancelledRef.current) {
-              setSpinning(false);
-              return;
-            }
-            
-            const elapsed = timestamp - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            const currentOffset = distance * easeOut;
-            offsetRef.current = currentOffset;
-            
-            if (rouletteRef.current) {
-              const scrollBy = Math.floor(currentOffset);
-              rouletteRef.current.style.transform = `translateX(${-scrollBy}px)`;
-            }
-
-            if (progress < 1) {
-              animationRef.current = requestAnimationFrame(animate);
-            } else {
-              const finalPos = Math.floor(distance / ITEM_FULL_WIDTH);
-              const actualIndex = finalPos % rouletteItems.length;
-              const landedGiftName = rouletteItems[actualIndex]?.name || 'unknown';
-              console.log('result: finalPos=', finalPos, 'actualIdx=', actualIndex, 'gift=', landedGiftName, 'expected=', pendingTargetGift?.name);
-              setSpinning(false);
-              setPendingTargetGift(null);
-              setWonGift(pendingTargetGift);
-              setShowResult(true);
-            }
-          };
-
+        if (progress < 1) {
           animationRef.current = requestAnimationFrame(animate);
-        });
-      });
-    });
+        } else {
+          const finalIdx = targetIdx;
+          console.log('result:', rouletteItems[finalIdx]?.name);
+          setSpinning(false);
+          setPendingTargetGift(null);
+          setWonGift(pendingTargetGift);
+          setShowResult(true);
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
+    }, 100);
   }, [pendingTargetGift, rouletteItems, spinning, availableGifts]);
 
   const handleSpin = async () => {
