@@ -219,6 +219,10 @@ export function Play() {
           if (progress < 1) {
             animationRef.current = requestAnimationFrame(animate);
           } else {
+            const finalPos = Math.round(finalOffset) % TOTAL_ITEMS;
+            const itemEls = document.querySelectorAll('.play__roulette-item');
+            const landedItem = itemEls[finalPos]?.querySelector('.play__roulette-emoji')?.textContent || 'unknown';
+            console.log('🎰 animation ended at pos:', finalPos, 'item:', landedItem, 'target was:', pendingTargetGift?.name);
             setSpinning(false);
             setPendingTargetGift(null);
             setWonGift(pendingTargetGift);
