@@ -85,3 +85,25 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.gift-receive-modal__btn--secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gift-receive-modal__btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.gift-receive-modal__btn--secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.gift-receive-modal__error {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin: 0 0 16px;
+}

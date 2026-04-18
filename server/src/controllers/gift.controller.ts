@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
 import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
 
@@ -306,5 +307,140 @@ export async function sendUserGift(req: Request, res: Response) {
       success: false,
       error: 'Failed to send gift',
     });
+  }
+}
+
+export async function transferGiftToFriend(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const { user_gift_id, friend_id } = req.body;
+
+    console.log('📤 transferGiftToFriend called:', { userId, user_gift_id, friend_id });
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+      return;
+    }
+
+    if (!user_gift_id) {
+      res.status(400).json({
+        success: false,
+        error: 'Missing gift ID',
+      });
+      return;
+    }
+
+    const userGift = await userGiftRepository.findById(user_gift_id);
+    if (!userGift || userGift.user_id !== userId) {
+      res.status(404).json({
+        success: false,
+        error: 'Gift not found',
+      });
+      return;
+    }
+
+    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    if (!giftData) {
+      res.status(400).json({
+        success: false,
+        error: 'Gift not found in database',
+      });
+      return;
+    }
+
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      res.status(500).json({
+        success: false,
+        error: 'Bot not configured',
+      });
+      return;
+    }
+
+    const invoicePayload = JSON.stringify({
+      type: 'gift_transfer',
+      user_gift_id,
+      gift_id: giftData.id,
+      from_user_id: userId,
+    });
+
+    const invoiceLink = await axios.post(
+      `https://api.telegram.org/bot${botToken}/createInvoiceLink`,
+      {
+        title: `Подарок: ${giftData.name}`,
+        description: `Перевод подарка "${giftData.name}" (${giftData.stars} ⭐) другу`,
+        payload: invoicePayload,
+        provider_token: '',
+        currency: 'XTR',
+        prices: [{ label: 'Подарок', amount: giftData.stars }],
+      }
+    );
+
+    console.log('📤 Invoice link created:', invoiceLink.data);
+
+    res.json({
+      success: true,
+      data: {
+        invoiceUrl: invoiceLink.data,
+      },
+    });
+  } catch (error) {
+    console.error('transferGiftToFriend error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create transfer invoice',
+    });
+  }
+}
+
+export async function sendGiftToFriendHandler(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const { user_gift_id, friend_id } = req.body;
+
+    console.log('📤 sendGiftToFriend called:', { userId, user_gift_id, friend_id });
+
+    if (!userId) {
+      res.status(401).json({ success: false, error: 'Unauthorized' });
+      return;
+    }
+
+    if (!user_gift_id || !friend_id) {
+      res.status(400).json({ success: false, error: 'Missing parameters' });
+      return;
+    }
+
+    const userGift = await userGiftRepository.findById(user_gift_id);
+    if (!userGift || userGift.user_id !== userId) {
+      res.status(404).json({ success: false, error: 'Gift not found' });
+      return;
+    }
+
+    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    if (!giftData) {
+      res.status(400).json({ success: false, error: 'Gift not found in database' });
+      return;
+    }
+
+    await sendGiftViaApi(friend_id, giftData);
+    console.log('📤 Gift sent to friend:', friend_id);
+
+    await userGiftRepository.delete(user_gift_id);
+
+    await transactionRepository.create({
+      user_id: userId,
+      amount: giftData.stars,
+      type: 'withdrawal',
+      status: 'completed',
+      description: `Отправлен подарок другу: ${giftData.name}`,
+    });
+
+    res.json({ success: true, data: { message: 'Gift sent to friend!' } });
+  } catch (error) {
+    console.error('sendGiftToFriend error:', error);
+    res.status(500).json({ success: false, error: 'Failed to send gift to friend' });
   }
 }

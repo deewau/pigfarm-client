@@ -105,4 +105,18 @@ export const winApi = {
     const response = await api.post('/api/win/send', { user_gift_id: userGiftId });
     return response.data;
   },
+  createTransferInvoice: async (userGiftId: number, friendId: number) => {
+    const response = await api.post('/api/win/transfer', {
+      user_gift_id: userGiftId,
+      friend_id: friendId,
+    });
+    return response.data;
+  },
+  sendGiftToFriend: async (userGiftId: number, friendId: number) => {
+    const response = await api.post('/api/win/send-to-friend', {
+      user_gift_id: userGiftId,
+      friend_id: friendId,
+    });
+    return response.data;
+  },
 };

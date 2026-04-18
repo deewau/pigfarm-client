@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FC } from 'react';
 import lottie from 'lottie-web';
 import { GiftImage } from '../components/GiftAnimation';
+import { winApi } from '../services/api';
 import './GiftReceiveModal.css';
 
 interface GiftReceiveModalProps {
@@ -22,6 +23,8 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
   const containerRef = useRef<HTMLDivElement>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [transferring, setTransferring] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !gift?.animationData) return;
@@ -50,6 +53,64 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
     }
   };
 
+  const handleSendToFriend = async () => {
+    if (!gift) return;
+
+    const tg = (window as any).Telegram?.WebApp;
+    if (!tg) {
+      setTransferError('Telegram WebApp недоступен');
+      return;
+    }
+
+    if (!tg.requestChat) {
+      setTransferError('Функция недоступна. Обновите Telegram.');
+      return;
+    }
+
+    setTransferring(true);
+    setTransferError(null);
+
+    try {
+      const chatPromise = new Promise<any>((resolve, reject) => {
+        tg.requestChat({
+          request_id: 'select_friend_for_gift',
+          bot_username: 'piggitbot',
+        }, (result: any) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(new Error('Отменено пользователем'));
+          }
+        });
+      });
+
+      const chat = await chatPromise;
+      const friendId = chat?.user_id || chat?.peer?.user_id;
+
+      if (!friendId) {
+        setTransferError('Не удалось получить информацию о друге');
+        return;
+      }
+
+      const response = await winApi.sendGiftToFriend(gift.id, friendId);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to send gift');
+      }
+
+      setSent(true);
+      if (onSuccess) onSuccess();
+
+    } catch (err: any) {
+      if (err.message === 'Отменено пользователем') {
+        return;
+      }
+      console.error('Transfer error:', err);
+      setTransferError(err.message || 'Ошибка при отправке');
+    } finally {
+      setTransferring(false);
+    }
+  };
+
   if (!isOpen || !gift) return null;
 
   return (
@@ -74,6 +135,10 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
           }
         </p>
         
+        {transferError && (
+          <p className="gift-receive-modal__error">{transferError}</p>
+        )}
+        
         <div className="gift-receive-modal__actions">
           {sent ? (
             <button 
@@ -83,13 +148,22 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
               Закрыть
             </button>
           ) : (
-            <button 
-              className="gift-receive-modal__btn gift-receive-modal__btn--primary" 
-              onClick={handleSend}
-              disabled={sending}
-            >
-              {sending ? 'Отправка...' : 'Получить подарок'}
-            </button>
+            <>
+              <button 
+                className="gift-receive-modal__btn gift-receive-modal__btn--primary" 
+                onClick={handleSend}
+                disabled={sending}
+              >
+                {sending ? 'Отправка...' : 'Получить подарок'}
+              </button>
+              <button 
+                className="gift-receive-modal__btn gift-receive-modal__btn--secondary" 
+                onClick={handleSendToFriend}
+                disabled={transferring}
+              >
+                {transferring ? 'Подготовка...' : 'Отправить другу'}
+              </button>
+            </>
           )}
         </div>
       </div>
