@@ -159,34 +159,23 @@ export function Play() {
   }, [autoSpinAfterDeposit, user, spinning]);
 
   useEffect(() => {
-    if (!pendingTargetGift || spinning || rouletteItems.length === 0) {
-      return;
-    }
+    if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
     
-    console.log('🎰 EFFECT: pending=', pendingTargetGift?.name, 'items=', rouletteItems.length);
+    const idx = rouletteItems.findIndex(i => i.id === pendingTargetGift.id);
+    console.log('found at idx:', idx, 'target:', pendingTargetGift?.name);
     
     const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
     setRouletteItems(newPattern);
-  }, [pendingTargetGift?.id]);
-  
-  useEffect(() => {
-    if (!pendingTargetGift || spinning || rouletteItems.length === 0) {
-      return;
-    }
-    
-    const idx = rouletteItems.findIndex(i => i.id === pendingTargetGift.id);
-    console.log('🎰 ANIMATE: idx=', idx, 'gift=', pendingTargetGift?.name);
-    
-    if (idx === -1) return;
-    
-    offsetRef.current = 0;
-    if (rouletteRef.current) {
-      rouletteRef.current.style.transform = `translateX(0px)`;
-    }
     
     setTimeout(() => {
+      const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
       const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
-      const scrollDistance = idx * ITEM_FULL_WIDTH + fullPattern;
+      const distance = targetPos * ITEM_FULL_WIDTH + fullPattern;
+      
+      offsetRef.current = 0;
+      if (rouletteRef.current) {
+        rouletteRef.current.style.transform = `translateX(0px)`;
+      }
       
       const startTime = performance.now();
       const duration = 3000;
@@ -202,7 +191,7 @@ export function Play() {
         const progress = Math.min(elapsed / duration, 1);
         
         const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = scrollDistance * easeOut;
+        const current = distance * easeOut;
         
         if (rouletteRef.current) {
           rouletteRef.current.style.transform = `translateX(${-Math.floor(current)}px)`;
@@ -211,7 +200,7 @@ export function Play() {
         if (progress < 1) {
           animationRef.current = requestAnimationFrame(animate);
         } else {
-          console.log('ended:', rouletteItems[idx]?.name, 'expect:', pendingTargetGift?.name);
+          console.log('landed at pos:', targetPos, 'gift:', pendingTargetGift?.name);
           setSpinning(false);
           setPendingTargetGift(null);
           setWonGift(pendingTargetGift);
@@ -221,7 +210,7 @@ export function Play() {
 
       animationRef.current = requestAnimationFrame(animate);
     }, 100);
-  }, [pendingTargetGift, rouletteItems, spinning]);
+  }, [pendingTargetGift?.id]);
 
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
