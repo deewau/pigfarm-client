@@ -324,7 +324,10 @@ export function Play() {
             <input
               type="checkbox"
               checked={demoMode}
-              onChange={() => setDemoMode(!demoMode)}
+              onChange={() => {
+                spinCancelledRef.current = false;
+                setDemoMode(!demoMode);
+              }}
             />
             <span className="play__demo-slider" />
           </label>
