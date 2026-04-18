@@ -196,10 +196,10 @@ export function Play() {
           const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
           const containerRect = containerRef.current!.getBoundingClientRect();
           const markerX = containerRect.width / 2;
-          const scrollDistance = targetX - markerX;
-          console.log('🎰 scroll: idx=', targetIndex, 'targetX=', targetX, 'marker=', markerX, 'dist=', scrollDistance);
+          const targetCenterOffset = targetX - markerX;
+          console.log('🎰 scroll: idx=', targetIndex, 'targetX=', targetX, 'marker=', markerX, 'finalOffset=', targetCenterOffset);
           
-offsetRef.current = 0;
+          offsetRef.current = 0;
           const startTime = performance.now();
           const duration = 3000;
           setSpinning(true);
@@ -214,7 +214,7 @@ offsetRef.current = 0;
             const progress = Math.min(elapsed / duration, 1);
             
             const easeOut = 1 - Math.pow(1 - progress, 3);
-            const currentOffset = finalOffset * easeOut;
+            const currentOffset = targetCenterOffset * easeOut;
             offsetRef.current = currentOffset;
             
             if (rouletteRef.current) {
