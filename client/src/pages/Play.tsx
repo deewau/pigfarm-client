@@ -284,7 +284,6 @@ export function Play() {
     if (spinning || rouletteItems.length === 0) return;
 
     let targetGift: TelegramGift | null = null;
-    let newBalance = user?.balance || 0;
 
     if (!demoMode && user) {
       if (user.balance < SPIN_COST) {
@@ -309,7 +308,6 @@ export function Play() {
           animationSvg: response.data.gift.animationSvg,
           animationData: response.data.gift.animationData,
         };
-        newBalance = response.data.balance;
         refreshBalance();
       } catch (err) {
         console.error('Failed to spin:', err);
@@ -328,54 +326,6 @@ export function Play() {
     const targetItem = targetGift!;
     console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
     setPendingTargetGift(targetItem);
-
-    offsetRef.current = 0;
-    const startOffset = 0;
-    const startTime = performance.now();
-    const duration = 3000;
-
-    setSpinning(true);
-
-    const animate = (timestamp: number) => {
-      if (spinCancelledRef.current) {
-        setSpinning(false);
-        return;
-      }
-
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      const eased = progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-      offsetRef.current = startOffset + finalOffset * eased;
-
-      const rouletteEl = rouletteRef.current;
-      if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
-      }
-
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        animationRef.current = null;
-        setSpinning(false);
-
-        const finalPx = offsetRef.current % TOTAL_WIDTH;
-        const centerX = 180;
-        const itemAtCenter = Math.floor((finalPx + centerX) / ITEM_WIDTH) % PATTERN_SIZE;
-        const actualItem = patternWithTarget[itemAtCenter];
-        console.log('🎰 actual item at center:', itemAtCenter, actualItem.id, actualItem.name);
-        console.log('🎰 expected item:', targetItem.id, targetItem.name);
-
-        const finalWonItem = patternWithTarget[targetPosInPattern];
-        setWonGift(finalWonItem);
-        setShowResult(true);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
   };
 
   const closeModal = () => {
