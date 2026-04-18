@@ -172,14 +172,23 @@ export function Play() {
   }, [autoSpinAfterDeposit, user, spinning]);
 
   useEffect(() => {
-    if (pendingTargetGift && rouletteItems.length > 0 && !spinning) {
-      setPendingTargetGift(null);
+    if (!pendingTargetGift || spinning) {
       return;
     }
     
-    if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
+    if (rouletteItems.length === 0) {
+      console.log('🎰 waiting for rouletteItems...');
+      return;
+    }
     
     const targetPosInPattern = 70;
+    
+    const patternMatch = rouletteItems[targetPosInPattern];
+    console.log('🎰 checking pattern match:', patternMatch?.id, 'expected:', pendingTargetGift.id);
+    if (!patternMatch || patternMatch.id !== pendingTargetGift.id) {
+      console.log('🎰 pattern not ready yet...');
+      return;
+    }
     const itemEls = document.querySelectorAll('[data-roulette-index]');
     const targetEl = itemEls[targetPosInPattern] as HTMLElement;
     
@@ -325,6 +334,9 @@ export function Play() {
 
     const targetItem = targetGift!;
     console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
+    const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
+    console.log('🎰 pattern[70]:', patternWithTarget[70].id, patternWithTarget[70].name);
+    setRouletteItems(patternWithTarget);
     setPendingTargetGift(targetItem);
   };
 
