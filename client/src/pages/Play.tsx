@@ -193,11 +193,13 @@ export function Play() {
             setPendingTargetGift(null);
             return;
           }
-          const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
-          const containerRect = containerRef.current!.getBoundingClientRect();
-          const markerX = containerRect.width / 2;
-          const targetCenterOffset = targetX - markerX;
-          console.log('🎰 scroll: idx=', targetIndex, 'targetX=', targetX, 'marker=', markerX, 'finalOffset=', targetCenterOffset);
+          const targetX = targetEl.offsetLeft;
+          const targetElIndex = targetIndex;
+          const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
+          const targetStartPosition = targetElIndex * ITEM_FULL_WIDTH;
+          const extraSpins = LOOPS * fullPattern;
+          const distance = targetStartPosition + extraSpins;
+          console.log('🎰 idx=', targetElIndex, 'targetStart=', targetStartPosition, 'extra=', extraSpins, 'dist=', distance);
           
           offsetRef.current = 0;
           const startTime = performance.now();
@@ -214,17 +216,19 @@ export function Play() {
             const progress = Math.min(elapsed / duration, 1);
             
             const easeOut = 1 - Math.pow(1 - progress, 3);
-            const currentOffset = targetCenterOffset * easeOut;
+            const currentOffset = distance * easeOut;
             offsetRef.current = currentOffset;
             
             if (rouletteRef.current) {
-              rouletteRef.current.style.transform = `translateX(${-currentOffset}px)`;
+              const wrapped = -currentOffset % TOTAL_WIDTH;
+              rouletteRef.current.style.transform = `translateX(${wrapped}px)`;
             }
 
             if (progress < 1) {
               animationRef.current = requestAnimationFrame(animate);
             } else {
-              const finalPos = Math.round(currentOffset / ITEM_FULL_WIDTH);
+              const finalWrapped = distance % TOTAL_WIDTH;
+              const finalPos = Math.round(finalWrapped / ITEM_FULL_WIDTH);
               const actualIndex = finalPos % rouletteItems.length;
               const landedGiftName = rouletteItems[actualIndex]?.name || 'unknown';
               console.log('🎰 result: finalPos=', finalPos, 'actualIdx=', actualIndex, 'gift=', landedGiftName, 'expected=', pendingTargetGift?.name);
