@@ -173,7 +173,7 @@ export function Play() {
       return;
     }
     
-    console.log('🎰 target already at correct position, starting animation');
+    console.log('🎰 target correct, wait for render then animate');
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -191,19 +191,16 @@ export function Play() {
             setPendingTargetGift(null);
             return;
           }
-          const targetX = targetElNew.offsetLeft + targetElNew.offsetWidth / 2;
+          const targetX = targetElNew.offsetLeft;
+          const targetCenter = targetElNew.offsetLeft + targetElNew.offsetWidth / 2;
           const targetName = rouletteItems[targetPosInPattern]?.name || 'unknown';
           const containerRect = containerRef.current!.getBoundingClientRect();
           const markerX = containerRect.width / 2;
-          console.log('🎰 DEBUG: targetPos=', targetPosInPattern, 'targetName=', targetName, 'targetX=', targetX, 'markerX=', markerX);
+          const idealOffset = targetPosInPattern * ITEM_FULL_WIDTH;
+          const finalOffset = idealOffset;
+          console.log('🎰offset: targetPos=', targetPosInPattern, 'ITEM_FULL=', ITEM_FULL_WIDTH, 'scrollTo=', finalOffset);
           
-          const fullLoop = PATTERN_SIZE * ITEM_FULL_WIDTH;
-          const extraLoops = 2;
-          const finalOffset = targetX - markerX + extraLoops * fullLoop;
-          
-          console.log('🎰 after reset: targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
-          
-          offsetRef.current = 0;
+offsetRef.current = 0;
           const startTime = performance.now();
           const duration = 3000;
           setSpinning(true);
@@ -218,21 +215,19 @@ export function Play() {
             const progress = Math.min(elapsed / duration, 1);
             
             const easeOut = 1 - Math.pow(1 - progress, 3);
-            offsetRef.current = finalOffset * easeOut;
+            const currentOffset = finalOffset * easeOut;
+            offsetRef.current = currentOffset;
             
             if (rouletteRef.current) {
-              const useOffset = offsetRef.current;
-              rouletteRef.current.style.transform = `translateX(-${useOffset}px)`;
+              rouletteRef.current.style.transform = `translateX(${-currentOffset}px)`;
             }
 
             if (progress < 1) {
               animationRef.current = requestAnimationFrame(animate);
             } else {
-              const finalPos = Math.round(((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH / ITEM_FULL_WIDTH);
-              const itemEls = document.querySelectorAll('.play__roulette-item');
-              const landedItem = itemEls[finalPos];
+              const finalPos = Math.round(currentOffset / ITEM_FULL_WIDTH);
               const landedGiftName = rouletteItems[finalPos]?.name || 'unknown';
-            console.log('🎰 result: finalPos=', finalPos, 'landedGift=', landedGiftName, 'should be:', pendingTargetGift?.name);
+              console.log('🎰 result: finalPos=', finalPos, 'landedGift=', landedGiftName, 'should be:', pendingTargetGift?.name);
               setSpinning(false);
               setPendingTargetGift(null);
               setWonGift(pendingTargetGift);
