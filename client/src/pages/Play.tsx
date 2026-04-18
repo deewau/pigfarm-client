@@ -173,7 +173,8 @@ export function Play() {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-        const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
+        const itemFullWidth = ITEM_WIDTH + 12;
+        const targetX = targetPosInPattern * itemFullWidth + ITEM_WIDTH / 2;
         
         if (!containerRef.current || !rouletteRef.current) {
           setPendingTargetGift(null);
@@ -182,13 +183,11 @@ export function Play() {
         
         const containerRect = containerRef.current.getBoundingClientRect();
         const markerX = containerRect.width / 2;
-        const offsetX = markerX - targetX + 16;
         
-        console.log('🎰 targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'offsetX:', offsetX);
+        console.log('🎰 targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'containerWidth:', containerRect.width);
         
-        const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
-        const loopCount = LOOPS;
-        const finalOffset = loopCount * fullLoopWidth + offsetX;
+        const fullLoopWidth = PATTERN_SIZE * itemFullWidth;
+        const finalOffset = targetX - markerX + (LOOPS - 1) * fullLoopWidth;
         
         console.log('🎰 finalOffset:', finalOffset);
         
