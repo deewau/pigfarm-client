@@ -444,3 +444,30 @@ export async function sendGiftToFriendHandler(req: Request, res: Response) {
     res.status(500).json({ success: false, error: 'Failed to send gift to friend' });
   }
 }
+
+export async function createGiftShareLink(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const { gift_id, payload } = req.body;
+
+    console.log('🔗 createGiftShareLink called:', { userId, gift_id, payload });
+
+    if (!userId) {
+      res.status(401).json({ success: false, error: 'Unauthorized' });
+      return;
+    }
+
+    const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'piggitbot';
+    const link = `https://t.me/${botUsername}?startapp=${payload}`;
+
+    console.log('🔗 Created link:', link);
+
+    res.json({
+      success: true,
+      data: { link },
+    });
+  } catch (error) {
+    console.error('createGiftShareLink error:', error);
+    res.status(500).json({ success: false, error: 'Failed to create link' });
+  }
+}

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type FC } from 'react';
 import lottie from 'lottie-web';
 import { GiftImage } from '../components/GiftAnimation';
-import { winApi } from '../services/api';
 import './GiftReceiveModal.css';
 
 interface GiftReceiveModalProps {
@@ -62,53 +61,21 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
       return;
     }
 
-    if (!tg.requestChat) {
-      setTransferError('Функция недоступна. Обновите Telegram.');
-      return;
-    }
-
     setTransferring(true);
     setTransferError(null);
 
-    try {
-      const chatPromise = new Promise<any>((resolve, reject) => {
-        tg.requestChat({
-          request_id: 'select_friend_for_gift',
-          bot_username: 'piggitbot',
-        }, (result: any) => {
-          if (result) {
-            resolve(result);
-          } else {
-            reject(new Error('Отменено пользователем'));
-          }
-        });
-      });
+    const userId = tg.initDataUnsafe?.user?.id || 0;
+    const botUsername = 'piggitbot';
+    const payload = `gift_${gift.id}_${userId}`;
+    const link = `https://t.me/${botUsername}?startapp=${payload}`;
+    const shareText = `Хочу подарить тебе ${gift.gift_name} (${gift.gift_stars} ⭐)! 🎁`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
 
-      const chat = await chatPromise;
-      const friendId = chat?.user_id || chat?.peer?.user_id;
+    tg.openTelegramLink(shareUrl);
 
-      if (!friendId) {
-        setTransferError('Не удалось получить информацию о друге');
-        return;
-      }
-
-      const response = await winApi.sendGiftToFriend(gift.id, friendId);
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to send gift');
-      }
-
-      setSent(true);
-      if (onSuccess) onSuccess();
-
-    } catch (err: any) {
-      if (err.message === 'Отменено пользователем') {
-        return;
-      }
-      console.error('Transfer error:', err);
-      setTransferError(err.message || 'Ошибка при отправке');
-    } finally {
+    setTimeout(() => {
       setTransferring(false);
-    }
+    }, 500);
   };
 
   if (!isOpen || !gift) return null;

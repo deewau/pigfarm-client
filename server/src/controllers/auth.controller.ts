@@ -48,6 +48,20 @@ export async function authWithTelegram(req: Request, res: Response) {
       }
     }
 
+    // Обработка подарка: gift:{giftId}:{fromUserId}
+    let pendingGift: { giftId: number; fromUserId: number } | undefined;
+    if (validatedData.start_param && validatedData.start_param.startsWith('gift_')) {
+      const parts = validatedData.start_param.replace('gift_', '').split('_');
+      if (parts.length >= 2) {
+        const giftId = parseInt(parts[0]);
+        const fromUserId = parseInt(parts[1]);
+        if (!isNaN(giftId) && !isNaN(fromUserId)) {
+          pendingGift = { giftId, fromUserId };
+          console.log(`🎁 Pending gift: ${giftId} from user ${fromUserId}`);
+        }
+      }
+    }
+
     // Ищем или создаём пользователя
     let user = await userRepository.findByTelegramId(telegramUser.id);
 
