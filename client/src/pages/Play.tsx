@@ -189,8 +189,10 @@ export function Play() {
             return;
           }
           const targetX = targetElNew.offsetLeft + targetElNew.offsetWidth / 2;
+          const targetName = rouletteItems[targetPosInPattern]?.name || 'unknown';
           const containerRect = containerRef.current!.getBoundingClientRect();
           const markerX = containerRect.width / 2;
+          console.log('🎰 DEBUG: targetPos=', targetPosInPattern, 'targetName=', targetName, 'targetX=', targetX, 'markerX=', markerX);
           const finalOffset = targetX - markerX;
           
           console.log('🎰 after reset: targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
@@ -224,7 +226,8 @@ export function Play() {
               const finalPos = Math.round(normalizedOffset / ITEM_FULL_WIDTH);
               const itemEls = document.querySelectorAll('.play__roulette-item');
               const landedItem = itemEls[finalPos];
-              console.log('🎰 finalOffset:', finalOffset, 'normalized:', normalizedOffset, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
+              const landedGiftName = rouletteItems[finalPos]?.name || 'unknown';
+            console.log('🎰 result: finalPos=', finalPos, 'landedGift=', landedGiftName, 'should be:', pendingTargetGift?.name);
               setSpinning(false);
               setPendingTargetGift(null);
               setWonGift(pendingTargetGift);
