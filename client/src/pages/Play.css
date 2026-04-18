@@ -88,20 +88,6 @@
   align-items: center;
   height: 100%;
   box-sizing: border-box;
-  mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    black 40px,
-    black calc(100% - 40px),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    black 40px,
-    black calc(100% - 40px),
-    transparent 100%
-  );
 }
 
 .play__roulette-emoji {

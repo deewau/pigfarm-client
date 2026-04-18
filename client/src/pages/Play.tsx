@@ -188,15 +188,12 @@ export function Play() {
           return;
         }
         
-        const relativeX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
+        const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
         const containerRect = containerRef.current.getBoundingClientRect();
         const markerX = containerRect.width / 2;
-        const scrollToTarget = targetEl.offsetLeft - markerX;
-        const fullLoopWidth = PATTERN_SIZE * ITEM_FULL_WIDTH;
-        const fullCycles = LOOPS - 1;
-        const finalOffset = fullCycles * fullLoopWidth + scrollToTarget;
+        const finalOffset = targetX - markerX;
         
-        console.log('🎰 using DOM: targetPos:', targetPosInPattern, 'relativeX:', relativeX, 'markerX:', markerX, 'scrollToTarget:', scrollToTarget, 'fullLoop:', fullLoopWidth);
+        console.log('🎰 using DOM: targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
         
         console.log('🎰 finalOffset:', finalOffset);
         
@@ -222,17 +219,18 @@ export function Play() {
           offsetRef.current = finalOffset * easeOut;
           
           if (rouletteRef.current) {
-            rouletteRef.current.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
+            const normalizedOffset = ((offsetRef.current % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
+            rouletteRef.current.style?.setProperty('transform', `translateX(-${normalizedOffset}px)`);
           }
 
           if (progress < 1) {
             animationRef.current = requestAnimationFrame(animate);
           } else {
-            const finalTranslateX = -((finalOffset % TOTAL_WIDTH));
-            const finalPos = Math.round(finalTranslateX / ITEM_FULL_WIDTH);
+            const normalizedOffset = ((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
+            const finalPos = Math.round(normalizedOffset / ITEM_FULL_WIDTH);
             const itemEls = document.querySelectorAll('.play__roulette-item');
             const landedItem = itemEls[finalPos];
-            console.log('🎰 finalOffset:', finalOffset, 'translateX:', finalTranslateX, 'totalWidth:', TOTAL_WIDTH, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
+            console.log('🎰 finalOffset:', finalOffset, 'normalized:', normalizedOffset, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
             setSpinning(false);
             setPendingTargetGift(null);
             setWonGift(pendingTargetGift);
