@@ -89,14 +89,15 @@ function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
   return items;
 }
 
+const TARGET_POSITION = 10;
+
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
-  const targetPosition = 70;
   
   const items: TelegramGift[] = [];
   
   for (let i = 0; i < PATTERN_SIZE; i++) {
-    if (i === targetPosition) {
+    if (i === TARGET_POSITION) {
       items.push({...targetGift});
     } else {
       const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
@@ -181,23 +182,22 @@ export function Play() {
       return;
     }
     
-    const targetPosInPattern = 70;
-    const actualPatternIndex = targetPosInPattern % PATTERN_SIZE;
+    const targetPosInPattern = TARGET_POSITION;
     
-    if (actualPatternIndex >= rouletteItems.length) {
-      console.log('🎰 actualPatternIndex out of bounds:', actualPatternIndex, 'rouletteItems.length:', rouletteItems.length);
+    if (targetPosInPattern >= rouletteItems.length) {
+      console.log('🎰 targetPosInPattern out of bounds:', targetPosInPattern, 'rouletteItems.length:', rouletteItems.length);
       setPendingTargetGift(null);
       return;
     }
     
-    const patternMatch = rouletteItems[actualPatternIndex];
+    const patternMatch = rouletteItems[targetPosInPattern];
     console.log('🎰 checking pattern match:', patternMatch?.id, 'expected:', pendingTargetGift.id);
     if (!patternMatch || patternMatch.id !== pendingTargetGift.id) {
       console.log('🎰 pattern not ready yet...');
       return;
     }
     const itemEls = document.querySelectorAll('[data-roulette-index]');
-    const targetEl = itemEls[actualPatternIndex] as HTMLElement;
+    const targetEl = itemEls[targetPosInPattern] as HTMLElement;
     
     if (!targetEl) {
       console.log('🎰 targetEl not found in DOM');
@@ -349,7 +349,7 @@ export function Play() {
     const targetItem = targetGift!;
     console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
     const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
-    console.log('🎰 pattern[70]:', patternWithTarget[70].id, patternWithTarget[70].name);
+    console.log('🎰 pattern[' + TARGET_POSITION + ']:', patternWithTarget[TARGET_POSITION]?.id, patternWithTarget[TARGET_POSITION]?.name);
     setRouletteItems(patternWithTarget);
     setPendingTargetGift(targetItem);
   };
