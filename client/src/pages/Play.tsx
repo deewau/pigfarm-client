@@ -218,7 +218,7 @@ export function Play() {
           } else {
             setSpinning(false);
             setPendingTargetGift(null);
-            setWonGift(rouletteItems[targetPosInPattern]);
+            setWonGift(pendingTargetGift);
             setShowResult(true);
           }
         };
