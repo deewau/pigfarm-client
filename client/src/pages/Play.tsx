@@ -70,15 +70,14 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
-  
+  const shuffled = [...otherGifts].sort(() => Math.random() - 0.5);
   const items: TelegramGift[] = [];
   
   for (let i = 0; i < PATTERN_SIZE; i++) {
     if (i === TARGET_POSITION) {
       items.push({...targetGift});
     } else {
-      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
-      items.push({...randomGift});
+      items.push({...shuffled[i % shuffled.length]});
     }
   }
   
@@ -158,58 +157,75 @@ export function Play() {
     }
     
     const hasTarget = rouletteItems.some(item => item.id === pendingTargetGift.id);
-    console.log('🎰 hasTarget:', hasTarget, 'pending:', pendingTargetGift.id);
     if (!hasTarget) {
-      console.log('🎰 generating new pattern...');
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
-    const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
-    console.log('🎰 found target at position:', targetPosInPattern, 'id:', pendingTargetGift.id);
-    
-    const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
-    const centerX = 180;
-    const loopCount = LOOPS;
-    const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
-    const finalOffset = loopCount * fullLoopWidth + targetX - centerX;
-    console.log('🎰 finalOffset:', finalOffset, 'targetX:', targetX, 'centerX:', centerX);
-    
-    offsetRef.current = 0;
-    const startTime = performance.now();
-    const duration = 3000;
-    setSpinning(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+        
+        const itemEls = document.querySelectorAll('.play__roulette-item');
+        const targetEl = itemEls[targetPosInPattern] as HTMLElement;
+        
+        if (!targetEl || !containerRef.current || !rouletteRef.current) {
+          setPendingTargetGift(null);
+          return;
+        }
+        
+        const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const markerX = containerRect.left + containerRect.width / 2;
+        const offsetX = markerX - targetX;
+        
+        console.log('🎰 targetX:', targetX, 'markerX:', markerX, 'offsetX:', offsetX);
+        
+        const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
+        const loopCount = LOOPS;
+        const finalOffset = loopCount * fullLoopWidth + offsetX;
+        
+        console.log('🎰 finalOffset:', finalOffset);
+        
+        offsetRef.current = 0;
+        if (rouletteRef.current) {
+          rouletteRef.current.style.transform = `translateX(0px)`;
+        }
+        
+        const startTime = performance.now();
+        const duration = 3000;
+        setSpinning(true);
 
-    const animate = (timestamp: number) => {
-      if (spinCancelledRef.current) {
-        setSpinning(false);
-        return;
-      }
-      
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      offsetRef.current = finalOffset * easeOut;
-      
-      if (rouletteRef.current) {
-        rouletteRef.current.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
-      }
+        const animate = (timestamp: number) => {
+          if (spinCancelledRef.current) {
+            setSpinning(false);
+            return;
+          }
+          
+          const elapsed = timestamp - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          offsetRef.current = finalOffset * easeOut;
+          
+          if (rouletteRef.current) {
+            rouletteRef.current.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
+          }
 
-      if (progress < 1) {
+          if (progress < 1) {
+            animationRef.current = requestAnimationFrame(animate);
+          } else {
+            setSpinning(false);
+            setPendingTargetGift(null);
+            setWonGift(rouletteItems[targetPosInPattern]);
+            setShowResult(true);
+          }
+        };
+
         animationRef.current = requestAnimationFrame(animate);
-      } else {
-        setSpinning(false);
-        setPendingTargetGift(null);
-        console.log('🎰 winner:', targetPosInPattern, rouletteItems[targetPosInPattern]?.id, rouletteItems[targetPosInPattern]?.name);
-        console.log('🎰 expected:', pendingTargetGift.id, pendingTargetGift.name);
-        setWonGift(rouletteItems[targetPosInPattern]);
-        setShowResult(true);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
+      });
+    });
   }, [pendingTargetGift, rouletteItems, spinning, availableGifts]);
 
   const handleSpin = async () => {
@@ -245,14 +261,13 @@ export function Play() {
       }
     } else {
       targetGift = weightedRandomSelect(availableGifts);
-      console.log('🎰 targetItem from server (demo):', targetGift.id, targetGift.name);
     }
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
-    console.log('🎰 setting pendingTargetGift:', targetGift.id, targetGift.name);
+    console.log('🎰 targetItem from server:', targetGift.id, targetGift.name);
     setPendingTargetGift(targetGift);
   };
 
@@ -279,7 +294,7 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {[...rouletteItems, ...rouletteItems, ...rouletteItems].map((item, index) => (
-            <div key={index} data-roulette-index={index % rouletteItems.length} className="play__roulette-item">
+            <div key={index} data-roulette-index={index} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
