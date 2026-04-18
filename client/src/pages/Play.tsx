@@ -85,6 +85,7 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
     }
   }
   
+  console.log('🎰 PATTERN: targetGift.id=', targetGift.id, 'position=', (LOOPS-1)*PATTERN_SIZE+TARGET_POSITION, 'itemAtPos70=', items[70]?.id, items[70]?.name);
   return items;
 }
 
