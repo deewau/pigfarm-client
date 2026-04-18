@@ -48,10 +48,10 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
-const TOTAL_ITEMS = PATTERN_SIZE * 3;
+const LOOPS = 3;
+const TOTAL_ITEMS = PATTERN_SIZE * LOOPS;
 const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
 const TARGET_POSITION = 10;
-const LOOPS = 3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
@@ -73,11 +73,13 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
   const shuffled = [...otherGifts].sort(() => Math.random() - 0.5);
   const items: TelegramGift[] = [];
   
-  for (let i = 0; i < PATTERN_SIZE; i++) {
-    if (i === TARGET_POSITION) {
-      items.push({...targetGift});
-    } else {
-      items.push({...shuffled[i % shuffled.length]});
+  for (let loop = 0; loop < LOOPS; loop++) {
+    for (let i = 0; i < PATTERN_SIZE; i++) {
+      if (loop === LOOPS - 1 && i === TARGET_POSITION) {
+        items.push({...targetGift});
+      } else {
+        items.push({...shuffled[(loop * PATTERN_SIZE + i) % shuffled.length]});
+      }
     }
   }
   
@@ -113,8 +115,10 @@ export function Play() {
 
   const initializeRoulette = useCallback(() => {
     const items: TelegramGift[] = [];
-    for (let i = 0; i < PATTERN_SIZE; i++) {
-      items.push(weightedRandomSelect(availableGifts));
+    for (let loop = 0; loop < LOOPS; loop++) {
+      for (let i = 0; i < PATTERN_SIZE; i++) {
+        items.push(weightedRandomSelect(availableGifts));
+      }
     }
     setRouletteItems(items);
     setPossibleGifts(getPossibleGifts(availableGifts));
@@ -158,29 +162,29 @@ export function Play() {
     
     const hasTarget = rouletteItems.some(item => item.id === pendingTargetGift.id);
     if (!hasTarget) {
+      console.log('🎰 generating pattern with target:', pendingTargetGift.id, pendingTargetGift.name);
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
+    console.log('🎰 target found in pattern, starting animation');
+    
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+        const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
+        const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
         
-        const itemEls = document.querySelectorAll('.play__roulette-item');
-        const targetEl = itemEls[targetPosInPattern] as HTMLElement;
-        
-        if (!targetEl || !containerRef.current || !rouletteRef.current) {
+        if (!containerRef.current || !rouletteRef.current) {
           setPendingTargetGift(null);
           return;
         }
         
-        const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
         const containerRect = containerRef.current.getBoundingClientRect();
-        const markerX = containerRect.left + containerRect.width / 2;
-        const offsetX = markerX - targetX;
+        const markerX = containerRect.width / 2;
+        const offsetX = markerX - targetX + 16;
         
-        console.log('🎰 targetX:', targetX, 'markerX:', markerX, 'offsetX:', offsetX);
+        console.log('🎰 targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'offsetX:', offsetX);
         
         const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
         const loopCount = LOOPS;
@@ -293,7 +297,7 @@ export function Play() {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
-          {[...rouletteItems, ...rouletteItems, ...rouletteItems].map((item, index) => (
+          {rouletteItems.map((item, index) => (
             <div key={index} data-roulette-index={index} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
