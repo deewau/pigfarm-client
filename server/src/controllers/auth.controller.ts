@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { validateTelegramInitData } from '../utils/telegram.js';
-import { userRepository } from '../db/repository.js';
+import { userRepository, userGiftRepository, transactionRepository } from '../db/repository.js';
+import { sendGiftToUser, GIFTS_DATA } from '../services/telegram.js';
+import type { TelegramGift } from '../services/telegram.js';
 
 export async function authWithTelegram(req: Request, res: Response) {
   try {
@@ -77,6 +80,22 @@ export async function authWithTelegram(req: Request, res: Response) {
       console.log(`🆕 New user registered: ${user.first_name} (@${user.username || user.telegram_id})`);
     }
 
+    // Обрабатываем подарок
+    if (pendingGift) {
+      try {
+        const { giftId, fromUserId } = pendingGift;
+        
+        // Не даём отправить самому себе
+        if (fromUserId !== user.telegram_id) {
+          await processGiftTransfer(giftId, fromUserId, user.telegram_id, user.id);
+        } else {
+          console.log(`🎁 Cannot gift to self`);
+        }
+      } catch (err) {
+        console.error('Gift transfer error:', err);
+      }
+    }
+
     res.json({
       success: true,
       data: {
@@ -95,5 +114,93 @@ export async function authWithTelegram(req: Request, res: Response) {
       success: false,
       error: 'Authentication failed',
     });
+  }
+}
+
+/**
+ * Обработка передачи подарка от одного пользователя другому
+ */
+async function processGiftTransfer(giftId: number, fromUserId: number, recipientTelegramId: number, recipientUserId: number) {
+  try {
+    // Находим подарок в БД
+    const userGift = await userGiftRepository.findById(giftId);
+    
+    if (!userGift) {
+      console.log(`🎁 Gift ${giftId} not found`);
+      await sendTelegramMessage(recipientTelegramId, 'Извини, этот подарок уже был отправлен или удалён. 😔');
+      return;
+    }
+
+    if (userGift.user_id !== fromUserId) {
+      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, not ${fromUserId}`);
+      await sendTelegramMessage(recipientTelegramId, 'Этот подарок принадлежит другому пользователю.');
+      return;
+    }
+
+    // Находим данные подарка
+    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    if (!giftData) {
+      console.log(`🎁 Gift data not found for ${userGift.gift_id}`);
+      await sendTelegramMessage(recipientTelegramId, 'Подарок не найден в базе данных.');
+      return;
+    }
+
+    // Отправляем подарок получателю
+    await sendGiftToUser(recipientTelegramId, giftData);
+    console.log(`🎁 Gift ${giftData.name} sent to ${recipientTelegramId}`);
+
+    // Удаляем подарок у отправителя
+    await userGiftRepository.delete(giftId);
+
+    // Находим internal ID отправителя
+    const senderUser = await userRepository.findByTelegramId(fromUserId);
+    
+    // Создаём транзакцию у отправителя
+    if (senderUser) {
+      await transactionRepository.create({
+        user_id: senderUser.id,
+        amount: giftData.stars,
+        type: 'withdrawal',
+        status: 'completed',
+        description: `Подарен другу: ${giftData.name}`,
+      });
+    }
+
+    // Создаём запись о получении у получателя
+    await userGiftRepository.create({
+      user_id: recipientUserId,
+      gift_id: giftData.id,
+      gift_name: giftData.name,
+      gift_stars: giftData.stars,
+    });
+
+    await transactionRepository.create({
+      user_id: recipientUserId,
+      amount: giftData.stars,
+      type: 'deposit',
+      status: 'completed',
+      description: `Получен подарок: ${giftData.name}`,
+    });
+
+    // Отправляем уведомления
+    await sendTelegramMessage(fromUserId, `Ты подарил(а) ${giftData.name} пользователю! 🎁`);
+    await sendTelegramMessage(recipientTelegramId, `Ты получил(а) подарок ${giftData.name}! 🎁\n\nОн появится в твоём профиле.`);
+  } catch (error) {
+    console.error('processGiftTransfer error:', error);
+    await sendTelegramMessage(recipientTelegramId, 'Произошла ошибка при отправке подарка. Попробуй позже.');
+  }
+}
+
+/**
+ * Отправка сообщения через бота
+ */
+async function sendTelegramMessage(chatId: number, text: string) {
+  try {
+    await axios.post(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      { chat_id: chatId, text }
+    );
+  } catch (err) {
+    console.error('sendTelegramMessage error:', err);
   }
 }
