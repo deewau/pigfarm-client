@@ -47,7 +47,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
-const PATTERN_SIZE = 31;
+const PATTERN_SIZE = 30;
 const TOTAL_ITEMS = PATTERN_SIZE * 3;
 const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
 const TARGET_POSITION = 10;
@@ -70,7 +70,6 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
-  const shuffled = [...otherGifts].sort(() => Math.random() - 0.5);
   
   const items: TelegramGift[] = [];
   
@@ -78,12 +77,10 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
     if (i === TARGET_POSITION) {
       items.push({...targetGift});
     } else {
-      items.push({...shuffled[i % shuffled.length]});
+      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
+      items.push({...randomGift});
     }
   }
-  
-  const first = items[0];
-  items.push({...first});
   
   return items;
 }
@@ -161,19 +158,23 @@ export function Play() {
     }
     
     const hasTarget = rouletteItems.some(item => item.id === pendingTargetGift.id);
+    console.log('🎰 hasTarget:', hasTarget, 'pending:', pendingTargetGift.id);
     if (!hasTarget) {
+      console.log('🎰 generating new pattern...');
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
     const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+    console.log('🎰 found target at position:', targetPosInPattern, 'id:', pendingTargetGift.id);
     
     const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
     const centerX = 180;
     const loopCount = LOOPS;
     const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
     const finalOffset = loopCount * fullLoopWidth + targetX - centerX;
+    console.log('🎰 finalOffset:', finalOffset, 'targetX:', targetX, 'centerX:', centerX);
     
     offsetRef.current = 0;
     const startTime = performance.now();
@@ -201,6 +202,8 @@ export function Play() {
       } else {
         setSpinning(false);
         setPendingTargetGift(null);
+        console.log('🎰 winner:', targetPosInPattern, rouletteItems[targetPosInPattern]?.id, rouletteItems[targetPosInPattern]?.name);
+        console.log('🎰 expected:', pendingTargetGift.id, pendingTargetGift.name);
         setWonGift(rouletteItems[targetPosInPattern]);
         setShowResult(true);
       }
@@ -242,12 +245,14 @@ export function Play() {
       }
     } else {
       targetGift = weightedRandomSelect(availableGifts);
+      console.log('🎰 targetItem from server (demo):', targetGift.id, targetGift.name);
     }
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
+    console.log('🎰 setting pendingTargetGift:', targetGift.id, targetGift.name);
     setPendingTargetGift(targetGift);
   };
 
