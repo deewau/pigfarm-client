@@ -259,9 +259,9 @@ export function Play() {
     const targetPosInPattern = 0;
     const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
     const centerX = 180;
-    const targetInThirdCopy = fullLoopWidth * 2 + targetPosInPattern * ITEM_WIDTH;
-    const finalOffset = targetInThirdCopy + centerX - ITEM_WIDTH / 2;
-    console.log('🎰 finalOffset:', finalOffset, 'fullLoopWidth:', fullLoopWidth, 'targetPosInPattern:', targetPosInPattern);
+    const centerOffset = centerX - ITEM_WIDTH / 2;
+    const finalOffset = centerOffset + fullLoopWidth * 3;
+    console.log('🎰 finalOffset:', finalOffset, 'fullLoopWidth:', fullLoopWidth, 'centerX:', centerX);
 
     offsetRef.current = 0;
     const startOffset = 0;
