@@ -91,9 +91,9 @@ function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
+  const targetPosition = 70;
   
   const items: TelegramGift[] = [];
-  const targetPosition = Math.floor(PATTERN_SIZE / 2);
   
   for (let i = 0; i < PATTERN_SIZE; i++) {
     if (i === targetPosition) {
@@ -126,6 +126,7 @@ export function Play() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const [autoSpinAfterDeposit, setAutoSpinAfterDeposit] = useState(false);
+  const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -169,6 +170,78 @@ export function Play() {
       handleSpin();
     }
   }, [autoSpinAfterDeposit, user, spinning]);
+
+  useEffect(() => {
+    if (pendingTargetGift && rouletteItems.length > 0 && !spinning) {
+      setPendingTargetGift(null);
+      return;
+    }
+    
+    if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
+    
+    const targetPosInPattern = 70;
+    const itemEls = document.querySelectorAll('[data-roulette-index]');
+    const targetEl = itemEls[targetPosInPattern] as HTMLElement;
+    
+    if (!targetEl || !containerRef.current) {
+      setPendingTargetGift(null);
+      return;
+    }
+    
+    const itemRect = targetEl.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const markerX = containerRect.left + containerRect.width / 2;
+    const itemCenterX = itemRect.left + itemRect.width / 2;
+    const actualOffset = markerX - itemCenterX;
+    
+    console.log('🎰 markerX:', markerX, 'itemCenterX:', itemCenterX, 'actualOffset:', actualOffset);
+    
+    const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
+    const finalOffset = actualOffset + fullLoopWidth * 3;
+    
+    console.log('🎰 finalOffset from DOM:', finalOffset, 'actualOffset:', actualOffset);
+    
+    offsetRef.current = 0;
+    const startOffset = 0;
+    const startTime = performance.now();
+    const duration = 100;
+
+    setSpinning(true);
+
+    const animate = (timestamp: number) => {
+      if (spinCancelledRef.current) {
+        setSpinning(false);
+        return;
+      }
+
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      offsetRef.current = startOffset + finalOffset * progress;
+
+      const rouletteEl = rouletteRef.current;
+      if (rouletteEl) {
+        rouletteEl.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
+      }
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        animationRef.current = null;
+        setSpinning(false);
+        setPendingTargetGift(null);
+
+        const finalPx = offsetRef.current % TOTAL_WIDTH;
+        const centerW = (containerRef.current?.offsetWidth || 360) / 2;
+        const itemAtCenter = Math.floor((finalPx + centerW) / ITEM_WIDTH) % PATTERN_SIZE;
+        const actualItem = rouletteItems[itemAtCenter];
+        console.log('🎰 actual item at center:', itemAtCenter, actualItem?.id, actualItem?.name);
+        console.log('🎰 expected item:', pendingTargetGift.id, pendingTargetGift.name);
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+  }, [pendingTargetGift, rouletteItems.length, spinning]);
 
   const startScrolling = useCallback(() => {
     if (animationRef.current) {
@@ -254,16 +327,7 @@ export function Play() {
 
     const targetItem = targetGift!;
     console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
-    
-    const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
-    console.log('🎰 patternWithTarget[0]:', patternWithTarget[0].id, patternWithTarget[0].name);
-    setRouletteItems(patternWithTarget);
-
-    const targetPosInPattern = Math.floor(PATTERN_SIZE / 2) - 1;
-    const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
-    const centerX = 180;
-    const finalOffset = targetPosInPattern * ITEM_WIDTH + centerX - ITEM_WIDTH / 2 + fullLoopWidth * 2;
-    console.log('🎰 finalOffset:', finalOffset, 'fullLoopWidth:', fullLoopWidth, 'targetPosInPattern:', targetPosInPattern);
+    setPendingTargetGift(targetItem);
 
     offsetRef.current = 0;
     const startOffset = 0;
@@ -342,7 +406,7 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {[...rouletteItems, ...rouletteItems, ...rouletteItems].map((item, index) => (
-            <div key={index} className="play__roulette-item">
+            <div key={index} data-roulette-index={index % PATTERN_SIZE} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
