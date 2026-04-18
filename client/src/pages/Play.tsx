@@ -163,15 +163,17 @@ export function Play() {
       return;
     }
     
-    const hasTarget = rouletteItems.some(item => item.id === pendingTargetGift.id);
-    if (!hasTarget) {
-      console.log('🎰 generating pattern with target:', pendingTargetGift.id, pendingTargetGift.name);
+    const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
+    const currentAtTargetPos = rouletteItems[targetPos]?.id;
+    
+    if (currentAtTargetPos !== pendingTargetGift.id) {
+      console.log('🎰 generating NEW pattern:', pendingTargetGift.id, pendingTargetGift.name, 'current at pos 70:', currentAtTargetPos);
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
-    console.log('🎰 target found in pattern, starting animation');
+    console.log('🎰 target already at correct position, starting animation');
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
