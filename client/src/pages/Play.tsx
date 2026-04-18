@@ -47,7 +47,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
-const PATTERN_SIZE = 30;
+const PATTERN_SIZE = 31;
 const TOTAL_ITEMS = PATTERN_SIZE * 3;
 const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
 const TARGET_POSITION = 10;
@@ -70,6 +70,7 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
+  const shuffled = [...otherGifts].sort(() => Math.random() - 0.5);
   
   const items: TelegramGift[] = [];
   
@@ -77,10 +78,12 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
     if (i === TARGET_POSITION) {
       items.push({...targetGift});
     } else {
-      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
-      items.push({...randomGift});
+      items.push({...shuffled[i % shuffled.length]});
     }
   }
+  
+  const first = items[0];
+  items.push({...first});
   
   return items;
 }
@@ -271,7 +274,7 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {[...rouletteItems, ...rouletteItems, ...rouletteItems].map((item, index) => (
-            <div key={index} data-roulette-index={index % PATTERN_SIZE} className="play__roulette-item">
+            <div key={index} data-roulette-index={index % rouletteItems.length} className="play__roulette-item">
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
