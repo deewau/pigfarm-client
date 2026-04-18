@@ -90,40 +90,31 @@ function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
 }
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
-  const items: TelegramGift[] = [];
+  const otherGifts = gifts.filter(g => g.id !== targetGift.id);
   
-  // Добавляем targetGift в случайную позицию (но не в начало)
-  const targetPosition = 1 + Math.floor(Math.random() * (PATTERN_SIZE - 2));
+  const items: TelegramGift[] = [];
+  const targetPosition = 0;
   
   for (let i = 0; i < PATTERN_SIZE; i++) {
     if (i === targetPosition) {
       items.push({...targetGift});
     } else {
-      items.push(weightedRandomSelect(gifts));
+      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
+      items.push({...randomGift});
     }
   }
   
-  // Перемешиваем, но оставляем targetGift на нужной позиции
-  const targetItem = items[targetPosition];
-  const otherItems = items.filter((_, i) => i !== targetPosition);
-  
-  for (let i = otherItems.length - 1; i > 0; i--) {
+  for (let i = items.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [otherItems[i], otherItems[j]] = [otherItems[j], otherItems[i]];
+    [items[i], items[j]] = [items[j], items[i]];
   }
   
-  // Собираем обратно
-  const result: TelegramGift[] = [];
-  let otherIdx = 0;
-  for (let i = 0; i < PATTERN_SIZE; i++) {
-    if (i === targetPosition) {
-      result.push(targetItem);
-    } else {
-      result.push(otherItems[otherIdx++]);
-    }
+  const idxWithTarget = items.findIndex(item => item.id === targetGift.id);
+  if (idxWithTarget !== targetPosition) {
+    [items[targetPosition], items[idxWithTarget]] = [items[idxWithTarget], items[targetPosition]];
   }
   
-  return result;
+  return items;
 }
 
 function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: number })[] {
@@ -271,19 +262,18 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const targetIndex = availableGifts.findIndex(g => g.id === targetGift!.id);
-    const targetItem = availableGifts[targetIndex >= 0 ? targetIndex : 0];
+    const targetItem = targetGift!;
     const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
     setRouletteItems(patternWithTarget);
 
-    const targetPosInPattern = patternWithTarget.findIndex(item => item.id === targetItem.id);
-    const centerW = (containerRef.current?.offsetWidth || 360) / 2;
-    const centerItemOffset = centerW;
-    const targetPixelPos = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
-    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + (PATTERN_SIZE * ITEM_WIDTH - targetPixelPos) + ITEM_WIDTH / 2;
-    const finalOffset = offsetRef.current + extra;
+    const targetPosInPattern = 0;
+    const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
+    const LOOPS = 5;
+    const centerX = 180;
+    const targetCenter = ITEM_WIDTH / 2;
+    const finalOffset = LOOPS * fullLoopWidth + centerX - targetCenter;
 
-    const startOffset = offsetRef.current;
+    offsetRef.current = 0;
     const startTime = performance.now();
     const duration = 3000;
 
