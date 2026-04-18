@@ -48,9 +48,10 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
 const PATTERN_SIZE = 30;
-const TOTAL_ITEMS = PATTERN_SIZE * 3; // 90 элементов (3 копии)
+const TOTAL_ITEMS = PATTERN_SIZE * 3;
 const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
-const SCROLL_SPEED = 0.15;
+const TARGET_POSITION = 10;
+const LOOPS = 3;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
@@ -66,31 +67,6 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   
   return gifts[gifts.length - 1];
 }
-
-function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
-  const items: TelegramGift[] = [];
-  
-  // Гарантируем что все подарки есть хотя бы раз
-  gifts.forEach(gift => {
-    items.push({...gift});
-  });
-  
-  // Дополняем до PATTERN_SIZE случайными
-  while (items.length < PATTERN_SIZE) {
-    items.push(weightedRandomSelect(gifts));
-  }
-  
-  // Перемешиваем (Fisher-Yates)
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
-  }
-  
-  return items;
-}
-
-const TARGET_POSITION = 10;
-const LOOPS = 3;
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
@@ -137,7 +113,10 @@ export function Play() {
   const spinCancelledRef = useRef(false);
 
   const initializeRoulette = useCallback(() => {
-    const items = generatePattern(availableGifts);
+    const items: TelegramGift[] = [];
+    for (let i = 0; i < PATTERN_SIZE; i++) {
+      items.push(weightedRandomSelect(availableGifts));
+    }
     setRouletteItems(items);
     setPossibleGifts(getPossibleGifts(availableGifts));
     offsetRef.current = 0;
@@ -178,24 +157,20 @@ export function Play() {
       return;
     }
     
-    const hasTarget = rouletteItems.some((item, idx) => item.id === pendingTargetGift.id);
+    const hasTarget = rouletteItems.some(item => item.id === pendingTargetGift.id);
     if (!hasTarget) {
-      console.log('🎰 target not in pattern yet, generating...');
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
     const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
-    console.log('🎰 found target at position:', targetPosInPattern);
     
     const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
     const centerX = 180;
     const loopCount = LOOPS;
     const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
     const finalOffset = loopCount * fullLoopWidth + targetX - centerX;
-    
-    console.log('🎰 calculated finalOffset:', finalOffset);
     
     offsetRef.current = 0;
     const startTime = performance.now();
@@ -223,55 +198,13 @@ export function Play() {
       } else {
         setSpinning(false);
         setPendingTargetGift(null);
-        
-        const finalPx = offsetRef.current % TOTAL_WIDTH;
-        const centerW = 180;
-        const itemAtCenter = Math.floor((finalPx + centerW) / ITEM_WIDTH) % PATTERN_SIZE;
-        console.log('🎰 winner:', itemAtCenter, rouletteItems[itemAtCenter]?.id);
-        setWonGift(rouletteItems[itemAtCenter]);
+        setWonGift(rouletteItems[targetPosInPattern]);
         setShowResult(true);
       }
     };
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [pendingTargetGift, rouletteItems, spinning]);
-
-  const startScrolling = useCallback(() => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-
-    let speed = 0;
-    const targetSpeed = SCROLL_SPEED;
-    const acceleration = 0.02;
-
-    const animate = () => {
-      const rouletteEl = rouletteRef.current;
-      if (!rouletteEl) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      // Плавное ускорение
-      if (speed < targetSpeed) {
-        speed += acceleration;
-        if (speed > targetSpeed) speed = targetSpeed;
-      }
-
-      offsetRef.current += speed;
-      // Сбрасываем на один паттерн назад
-      if (offsetRef.current >= PATTERN_SIZE * ITEM_WIDTH) {
-        offsetRef.current -= PATTERN_SIZE * ITEM_WIDTH;
-      }
-
-      if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${offsetRef.current}px)`;
-      }
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-  }, []);
+  }, [pendingTargetGift, rouletteItems, spinning, availableGifts]);
 
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
@@ -291,7 +224,6 @@ export function Play() {
             setShowDeposit(true);
             return;
           }
-          console.error('Spin failed:', response.error);
           return;
         }
         targetGift = {
@@ -303,30 +235,17 @@ export function Play() {
         };
         refreshBalance();
       } catch (err) {
-        console.error('Failed to spin:', err);
         return;
       }
     } else {
       targetGift = weightedRandomSelect(availableGifts);
     }
 
-    spinCancelledRef.current = false;
-
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
-    const targetItem = targetGift!;
-    console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
-    const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
-    console.log('🎰 pattern[' + TARGET_POSITION + ']:', patternWithTarget[TARGET_POSITION]?.id, patternWithTarget[TARGET_POSITION]?.name);
-    setRouletteItems(patternWithTarget);
-    setPendingTargetGift(targetItem);
-  };
-
-  const closeModal = () => {
-    setShowResult(false);
-    // Не запускаем прокрутку - оставляем как есть
+    setPendingTargetGift(targetGift);
   };
 
   const handleGoToProfile = () => {
@@ -409,11 +328,10 @@ export function Play() {
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.animationData}
-          onClose={closeModal}
+          onClose={() => setShowResult(false)}
           onDisableDemo={() => {
             setShowResult(false);
             setDemoMode(false);
-            startScrolling();
           }}
           isDemo={demoMode}
           onGoToProfile={handleGoToProfile}
