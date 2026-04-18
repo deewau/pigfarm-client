@@ -47,10 +47,12 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 
 const SPIN_COST = 25;
 const ITEM_WIDTH = 97;
+const ITEM_GAP = 12;
 const PATTERN_SIZE = 30;
 const LOOPS = 3;
 const TOTAL_ITEMS = PATTERN_SIZE * LOOPS;
-const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_WIDTH;
+const ITEM_FULL_WIDTH = ITEM_WIDTH + ITEM_GAP;
+const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_FULL_WIDTH;
 const TARGET_POSITION = 10;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
@@ -172,22 +174,29 @@ export function Play() {
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-        const itemFullWidth = ITEM_WIDTH + 12;
-        const targetX = targetPosInPattern * itemFullWidth + ITEM_WIDTH / 2;
-        
         if (!containerRef.current || !rouletteRef.current) {
           setPendingTargetGift(null);
           return;
         }
         
+        const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
+        const itemEls = document.querySelectorAll('.play__roulette-item');
+        const targetEl = itemEls[targetPosInPattern] as HTMLElement;
+        
+        if (!targetEl) {
+          setPendingTargetGift(null);
+          return;
+        }
+        
+        const relativeX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
         const containerRect = containerRef.current.getBoundingClientRect();
         const markerX = containerRect.width / 2;
+        const scrollToTarget = targetEl.offsetLeft - markerX;
+        const fullLoopWidth = PATTERN_SIZE * ITEM_FULL_WIDTH;
+        const fullCycles = LOOPS - 1;
+        const finalOffset = fullCycles * fullLoopWidth + scrollToTarget;
         
-        console.log('🎰 targetPos:', targetPosInPattern, 'targetX:', targetX, 'markerX:', markerX, 'containerWidth:', containerRect.width);
-        
-        const fullLoopWidth = PATTERN_SIZE * itemFullWidth;
-        const finalOffset = targetX - markerX + (LOOPS - 1) * fullLoopWidth;
+        console.log('🎰 using DOM: targetPos:', targetPosInPattern, 'relativeX:', relativeX, 'markerX:', markerX, 'scrollToTarget:', scrollToTarget, 'fullLoop:', fullLoopWidth);
         
         console.log('🎰 finalOffset:', finalOffset);
         
@@ -219,10 +228,11 @@ export function Play() {
           if (progress < 1) {
             animationRef.current = requestAnimationFrame(animate);
           } else {
-            const finalPos = Math.round(finalOffset) % TOTAL_ITEMS;
+            const finalTranslateX = -((finalOffset % TOTAL_WIDTH));
+            const finalPos = Math.round(finalTranslateX / ITEM_FULL_WIDTH);
             const itemEls = document.querySelectorAll('.play__roulette-item');
-            const landedItem = itemEls[finalPos]?.querySelector('.play__roulette-emoji')?.textContent || 'unknown';
-            console.log('🎰 animation ended at pos:', finalPos, 'item:', landedItem, 'target was:', pendingTargetGift?.name);
+            const landedItem = itemEls[finalPos];
+            console.log('🎰 finalOffset:', finalOffset, 'translateX:', finalTranslateX, 'totalWidth:', TOTAL_WIDTH, 'finalPos:', finalPos, 'item:', landedItem?.textContent?.trim(), 'target was:', pendingTargetGift?.name);
             setSpinning(false);
             setPendingTargetGift(null);
             setWonGift(pendingTargetGift);
