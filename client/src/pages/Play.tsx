@@ -93,25 +93,12 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
   
   const items: TelegramGift[] = [];
-  const targetPosition = 0;
   
-  for (let i = 0; i < PATTERN_SIZE; i++) {
-    if (i === targetPosition) {
-      items.push({...targetGift});
-    } else {
-      const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
-      items.push({...randomGift});
-    }
-  }
+  items[0] = {...targetGift};
   
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
-  }
-  
-  const idxWithTarget = items.findIndex(item => item.id === targetGift.id);
-  if (idxWithTarget !== targetPosition) {
-    [items[targetPosition], items[idxWithTarget]] = [items[idxWithTarget], items[targetPosition]];
+  for (let i = 1; i < PATTERN_SIZE; i++) {
+    const randomGift = otherGifts[Math.floor(Math.random() * otherGifts.length)];
+    items.push({...randomGift});
   }
   
   return items;
@@ -263,7 +250,10 @@ export function Play() {
     }
 
     const targetItem = targetGift!;
+    console.log('🎰 targetItem from server:', targetItem.id, targetItem.name);
+    
     const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
+    console.log('🎰 patternWithTarget[0]:', patternWithTarget[0].id, patternWithTarget[0].name);
     setRouletteItems(patternWithTarget);
 
     const targetPosInPattern = 0;
@@ -305,6 +295,13 @@ export function Play() {
       } else {
         animationRef.current = null;
         setSpinning(false);
+
+        const finalPx = offsetRef.current % TOTAL_WIDTH;
+        const centerX = 180;
+        const itemAtCenter = Math.floor((finalPx + centerX) / ITEM_WIDTH) % PATTERN_SIZE;
+        const actualItem = patternWithTarget[itemAtCenter];
+        console.log('🎰 actual item at center:', itemAtCenter, actualItem.id, actualItem.name);
+        console.log('🎰 expected item:', targetItem.id, targetItem.name);
 
         const finalWonItem = patternWithTarget[targetPosInPattern];
         setWonGift(finalWonItem);
