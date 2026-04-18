@@ -25,19 +25,19 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 100px;
+  width: 80px;
   z-index: 5;
   pointer-events: none;
 }
 
 .play__roulette-container::before {
   left: 0;
-  background: linear-gradient(90deg, rgba(20, 18, 32, 1) 0%, rgba(20, 18, 32, 0.7) 40%, rgba(20, 18, 32, 0) 100%);
+  background: linear-gradient(90deg, rgba(20, 18, 32, 1) 0%, rgba(20, 18, 32, 0.7) 30%, transparent 100%);
 }
 
 .play__roulette-container::after {
   right: 0;
-  background: linear-gradient(270deg, rgba(20, 18, 32, 1) 0%, rgba(20, 18, 32, 0.7) 40%, rgba(20, 18, 32, 0) 100%);
+  background: linear-gradient(270deg, rgba(20, 18, 32, 1) 0%, rgba(20, 18, 32, 0.7) 30%, transparent 100%);
 }
 
 .play__roulette-pointer {
@@ -88,6 +88,8 @@
   align-items: center;
   height: 100%;
   box-sizing: border-box;
+  -webkit-mask-image: linear-gradient(to right, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%);
 }
 
 .play__roulette-emoji {

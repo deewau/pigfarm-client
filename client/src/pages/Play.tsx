@@ -193,13 +193,12 @@ export function Play() {
             setPendingTargetGift(null);
             return;
           }
-          const targetX = targetEl.offsetLeft;
           const targetElIndex = targetIndex;
           const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
           const targetStartPosition = targetElIndex * ITEM_FULL_WIDTH;
-          const extraSpins = LOOPS * fullPattern;
-          const distance = targetStartPosition + extraSpins;
-          console.log('🎰 idx=', targetElIndex, 'targetStart=', targetStartPosition, 'extra=', extraSpins, 'dist=', distance);
+          const loops = LOOPS;
+          const distance = targetStartPosition + loops * fullPattern;
+          console.log('idx:', targetElIndex, 'toScroll:', distance);
           
           offsetRef.current = 0;
           const startTime = performance.now();
@@ -220,18 +219,17 @@ export function Play() {
             offsetRef.current = currentOffset;
             
             if (rouletteRef.current) {
-              const wrapped = -currentOffset % TOTAL_WIDTH;
-              rouletteRef.current.style.transform = `translateX(${wrapped}px)`;
+              const scrollBy = Math.floor(currentOffset);
+              rouletteRef.current.style.transform = `translateX(${-scrollBy}px)`;
             }
 
             if (progress < 1) {
               animationRef.current = requestAnimationFrame(animate);
             } else {
-              const finalWrapped = distance % TOTAL_WIDTH;
-              const finalPos = Math.round(finalWrapped / ITEM_FULL_WIDTH);
+              const finalPos = Math.floor(distance / ITEM_FULL_WIDTH);
               const actualIndex = finalPos % rouletteItems.length;
               const landedGiftName = rouletteItems[actualIndex]?.name || 'unknown';
-              console.log('🎰 result: finalPos=', finalPos, 'actualIdx=', actualIndex, 'gift=', landedGiftName, 'expected=', pendingTargetGift?.name);
+              console.log('result: finalPos=', finalPos, 'actualIdx=', actualIndex, 'gift=', landedGiftName, 'expected=', pendingTargetGift?.name);
               setSpinning(false);
               setPendingTargetGift(null);
               setWonGift(pendingTargetGift);
