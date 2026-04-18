@@ -274,6 +274,7 @@ export function Play() {
     const finalOffset = LOOPS * fullLoopWidth + centerX - targetCenter;
 
     offsetRef.current = 0;
+    const startOffset = 0;
     const startTime = performance.now();
     const duration = 3000;
 
