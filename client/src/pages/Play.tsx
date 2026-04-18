@@ -161,54 +161,70 @@ export function Play() {
   useEffect(() => {
     if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
     
-    const idx = rouletteItems.findIndex(i => i.id === pendingTargetGift.id);
-    console.log('found at idx:', idx, 'target:', pendingTargetGift?.name);
-    
     const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
     setRouletteItems(newPattern);
     
     setTimeout(() => {
-      const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-      const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
-      const distance = targetPos * ITEM_FULL_WIDTH + fullPattern;
-      
-      offsetRef.current = 0;
-      if (rouletteRef.current) {
-        rouletteRef.current.style.transform = `translateX(0px)`;
-      }
-      
-      const startTime = performance.now();
-      const duration = 3000;
-      setSpinning(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
+          const targetEl = document.querySelectorAll('.play__roulette-item')[targetPos] as HTMLElement;
+          const containerEl = document.querySelector('.play__roulette-container');
+          
+          if (!targetEl || !containerEl || !rouletteRef.current) {
+            setPendingTargetGift(null);
+            return;
+          }
+          
+          const winnerCenter = targetEl.offsetLeft + targetEl.offsetWidth / 2;
+          const containerRect = containerEl.getBoundingClientRect();
+          const markerCenter = containerRect.width / 2;
+          const targetX = markerCenter - winnerCenter;
+          
+          console.log('DOM: winnerCenter=', winnerCenter, 'markerCenter=', markerCenter, 'targetX=', targetX);
+          
+          offsetRef.current = 0;
+          if (rouletteRef.current) {
+            rouletteRef.current.style.transform = `translateX(0px)`;
+          }
+          
+          const startTime = performance.now();
+          const duration = 6000;
+          setSpinning(true);
 
-      const animate = (timestamp: number) => {
-        if (spinCancelledRef.current) {
-          setSpinning(false);
-          return;
-        }
-        
-        const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = distance * easeOut;
-        
-        if (rouletteRef.current) {
-          rouletteRef.current.style.transform = `translateX(${-Math.floor(current)}px)`;
-        }
+          const animate = (timestamp: number) => {
+            if (spinCancelledRef.current) {
+              setSpinning(false);
+              return;
+            }
+            
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const currentX = targetX * easeOut;
+            
+            if (rouletteRef.current) {
+              rouletteRef.current.style.transform = `translateX(${Math.floor(currentX)}px)`;
+            }
 
-        if (progress < 1) {
+            if (progress < 1) {
+              animationRef.current = requestAnimationFrame(animate);
+            } else {
+              if (rouletteRef.current) {
+                rouletteRef.current.style.transform = `translateX(${Math.floor(targetX)}px)`;
+              }
+              console.log('landed: gift=', pendingTargetGift?.name);
+              setSpinning(false);
+              setPendingTargetGift(null);
+              setWonGift(pendingTargetGift);
+              setShowResult(true);
+            }
+          };
+
           animationRef.current = requestAnimationFrame(animate);
-        } else {
-          console.log('landed at pos:', targetPos, 'gift:', pendingTargetGift?.name);
-          setSpinning(false);
-          setPendingTargetGift(null);
-          setWonGift(pendingTargetGift);
-          setShowResult(true);
-        }
-      };
-
-      animationRef.current = requestAnimationFrame(animate);
+        });
+      });
     }, 100);
   }, [pendingTargetGift?.id]);
 
