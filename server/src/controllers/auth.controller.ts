@@ -122,6 +122,14 @@ export async function authWithTelegram(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientTelegramId: number, recipientUserId: number) {
   try {
+    // Конвертируем Telegram ID в internal ID
+    const senderUser = await userRepository.findByTelegramId(fromUserId);
+    if (!senderUser) {
+      console.log(`🎁 Sender not found: ${fromUserId}`);
+      await sendTelegramMessage(recipientTelegramId, 'Отправитель не найден.');
+      return;
+    }
+
     // Находим подарок в БД
     const userGift = await userGiftRepository.findById(giftId);
     
@@ -131,8 +139,9 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
       return;
     }
 
-    if (userGift.user_id !== fromUserId) {
-      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, not ${fromUserId}`);
+    // Сравниваем internal ID
+    if (userGift.user_id !== senderUser.id) {
+      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, but sender is ${senderUser.id}`);
       await sendTelegramMessage(recipientTelegramId, 'Этот подарок принадлежит другому пользователю.');
       return;
     }
@@ -151,20 +160,15 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
 
     // Удаляем подарок у отправителя
     await userGiftRepository.delete(giftId);
-
-    // Находим internal ID отправителя
-    const senderUser = await userRepository.findByTelegramId(fromUserId);
     
     // Создаём транзакцию у отправителя
-    if (senderUser) {
-      await transactionRepository.create({
-        user_id: senderUser.id,
-        amount: giftData.stars,
-        type: 'withdrawal',
-        status: 'completed',
-        description: `Подарен другу: ${giftData.name}`,
-      });
-    }
+    await transactionRepository.create({
+      user_id: senderUser.id,
+      amount: giftData.stars,
+      type: 'withdrawal',
+      status: 'completed',
+      description: `Подарен другу: ${giftData.name}`,
+    });
 
     // Создаём запись о получении у получателя
     await userGiftRepository.create({
