@@ -90,6 +90,7 @@ function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
 }
 
 const TARGET_POSITION = 10;
+const LOOPS = 3;
 
 function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
@@ -173,62 +174,32 @@ export function Play() {
   }, [autoSpinAfterDeposit, user, spinning]);
 
   useEffect(() => {
-    if (!pendingTargetGift || spinning) {
+    if (!pendingTargetGift || spinning || rouletteItems.length === 0) {
       return;
     }
     
-    if (rouletteItems.length === 0) {
-      console.log('🎰 waiting for rouletteItems...');
+    const hasTarget = rouletteItems.some((item, idx) => item.id === pendingTargetGift.id);
+    if (!hasTarget) {
+      console.log('🎰 target not in pattern yet, generating...');
+      const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
+      setRouletteItems(newPattern);
       return;
     }
     
-    const targetPosInPattern = TARGET_POSITION;
-    
-    if (targetPosInPattern >= rouletteItems.length) {
-      console.log('🎰 targetPosInPattern out of bounds:', targetPosInPattern, 'rouletteItems.length:', rouletteItems.length);
-      setPendingTargetGift(null);
-      return;
-    }
-    
-    const patternMatch = rouletteItems[targetPosInPattern];
-    console.log('🎰 checking pattern match:', patternMatch?.id, 'expected:', pendingTargetGift.id);
-    if (!patternMatch || patternMatch.id !== pendingTargetGift.id) {
-      console.log('🎰 pattern not ready yet...');
-      return;
-    }
-    const itemEls = document.querySelectorAll('[data-roulette-index]');
-    const targetEl = itemEls[targetPosInPattern] as HTMLElement;
-    
-    if (!targetEl) {
-      console.log('🎰 targetEl not found in DOM');
-      setPendingTargetGift(null);
-      return;
-    }
-    
-    if (!containerRef.current) {
-      console.log('🎰 containerRef not ready');
-      setPendingTargetGift(null);
-      return;
-    }
-    
-    const itemRect = targetEl.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const markerX = containerRect.left + containerRect.width / 2;
-    const itemCenterX = itemRect.left + itemRect.width / 2;
-    const actualOffset = markerX - itemCenterX;
-    
-    console.log('🎰 markerX:', markerX, 'itemCenterX:', itemCenterX, 'actualOffset:', actualOffset);
+    const targetPosInPattern = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+    console.log('🎰 found target at position:', targetPosInPattern);
     
     const fullLoopWidth = PATTERN_SIZE * ITEM_WIDTH;
-    const finalOffset = actualOffset + fullLoopWidth * 3;
+    const centerX = 180;
+    const loopCount = LOOPS;
+    const targetX = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
+    const finalOffset = loopCount * fullLoopWidth + targetX - centerX;
     
-    console.log('🎰 finalOffset from DOM:', finalOffset, 'actualOffset:', actualOffset);
+    console.log('🎰 calculated finalOffset:', finalOffset);
     
     offsetRef.current = 0;
-    const startOffset = 0;
     const startTime = performance.now();
-    const duration = 100;
-
+    const duration = 3000;
     setSpinning(true);
 
     const animate = (timestamp: number) => {
@@ -236,35 +207,34 @@ export function Play() {
         setSpinning(false);
         return;
       }
-
+      
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      offsetRef.current = startOffset + finalOffset * progress;
-
-      const rouletteEl = rouletteRef.current;
-      if (rouletteEl) {
-        rouletteEl.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      offsetRef.current = finalOffset * easeOut;
+      
+      if (rouletteRef.current) {
+        rouletteRef.current.style.transform = `translateX(-${(offsetRef.current % TOTAL_WIDTH)}px)`;
       }
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        animationRef.current = null;
         setSpinning(false);
         setPendingTargetGift(null);
-
+        
         const finalPx = offsetRef.current % TOTAL_WIDTH;
-        const centerW = (containerRef.current?.offsetWidth || 360) / 2;
+        const centerW = 180;
         const itemAtCenter = Math.floor((finalPx + centerW) / ITEM_WIDTH) % PATTERN_SIZE;
-        const actualItem = rouletteItems[itemAtCenter];
-        console.log('🎰 actual item at center:', itemAtCenter, actualItem?.id, actualItem?.name);
-        console.log('🎰 expected item:', pendingTargetGift.id, pendingTargetGift.name);
+        console.log('🎰 winner:', itemAtCenter, rouletteItems[itemAtCenter]?.id);
+        setWonGift(rouletteItems[itemAtCenter]);
+        setShowResult(true);
       }
     };
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [pendingTargetGift, rouletteItems.length, spinning]);
+  }, [pendingTargetGift, rouletteItems, spinning]);
 
   const startScrolling = useCallback(() => {
     if (animationRef.current) {
