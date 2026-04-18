@@ -163,17 +163,15 @@ export function Play() {
       return;
     }
     
-    const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-    const currentAtTargetPos = rouletteItems[targetPos]?.id;
-    
-    if (currentAtTargetPos !== pendingTargetGift.id) {
-      console.log('🎰 generating NEW pattern:', pendingTargetGift.id, pendingTargetGift.name, 'current at pos 70:', currentAtTargetPos);
+    const targetIndex = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+    if (targetIndex === -1) {
+      console.log('🎰 target not in pattern, generating new');
       const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
       setRouletteItems(newPattern);
       return;
     }
     
-    console.log('🎰 target correct, wait for render then animate');
+    console.log('🎰 target found at index:', targetIndex, 'name:', pendingTargetGift.name);
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -185,20 +183,21 @@ export function Play() {
         rouletteRef.current.style.transform = `translateX(0px)`;
         
         requestAnimationFrame(() => {
-          const targetPosInPattern = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
-          const targetElNew = document.querySelectorAll('.play__roulette-item')[targetPosInPattern] as HTMLElement;
-          if (!targetElNew) {
+          const targetIndex = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
+          if (targetIndex === -1) {
             setPendingTargetGift(null);
             return;
           }
-          const targetX = targetElNew.offsetLeft;
-          const targetCenter = targetElNew.offsetLeft + targetElNew.offsetWidth / 2;
-          const targetName = rouletteItems[targetPosInPattern]?.name || 'unknown';
+          const targetEl = document.querySelectorAll('.play__roulette-item')[targetIndex] as HTMLElement;
+          if (!targetEl) {
+            setPendingTargetGift(null);
+            return;
+          }
+          const targetX = targetEl.offsetLeft + targetEl.offsetWidth / 2;
           const containerRect = containerRef.current!.getBoundingClientRect();
           const markerX = containerRect.width / 2;
-          const idealOffset = targetPosInPattern * ITEM_FULL_WIDTH;
-          const finalOffset = idealOffset;
-          console.log('🎰offset: targetPos=', targetPosInPattern, 'ITEM_FULL=', ITEM_FULL_WIDTH, 'scrollTo=', finalOffset);
+          const scrollDistance = targetX - markerX;
+          console.log('🎰 scroll: idx=', targetIndex, 'targetX=', targetX, 'marker=', markerX, 'dist=', scrollDistance);
           
 offsetRef.current = 0;
           const startTime = performance.now();
@@ -226,8 +225,9 @@ offsetRef.current = 0;
               animationRef.current = requestAnimationFrame(animate);
             } else {
               const finalPos = Math.round(currentOffset / ITEM_FULL_WIDTH);
-              const landedGiftName = rouletteItems[finalPos]?.name || 'unknown';
-              console.log('🎰 result: finalPos=', finalPos, 'landedGift=', landedGiftName, 'should be:', pendingTargetGift?.name);
+              const actualIndex = finalPos % rouletteItems.length;
+              const landedGiftName = rouletteItems[actualIndex]?.name || 'unknown';
+              console.log('🎰 result: finalPos=', finalPos, 'actualIdx=', actualIndex, 'gift=', landedGiftName, 'expected=', pendingTargetGift?.name);
               setSpinning(false);
               setPendingTargetGift(null);
               setWonGift(pendingTargetGift);
