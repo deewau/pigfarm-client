@@ -196,7 +196,10 @@ export function Play() {
           const containerRect = containerRef.current!.getBoundingClientRect();
           const markerX = containerRect.width / 2;
           console.log('🎰 DEBUG: targetPos=', targetPosInPattern, 'targetName=', targetName, 'targetX=', targetX, 'markerX=', markerX);
-          const finalOffset = targetX - markerX;
+          
+          const fullLoop = PATTERN_SIZE * ITEM_FULL_WIDTH;
+          const extraLoops = 2;
+          const finalOffset = targetX - markerX + extraLoops * fullLoop;
           
           console.log('🎰 after reset: targetX:', targetX, 'markerX:', markerX, 'finalOffset:', finalOffset);
           
@@ -218,15 +221,14 @@ export function Play() {
             offsetRef.current = finalOffset * easeOut;
             
             if (rouletteRef.current) {
-              const normalizedOffset = ((offsetRef.current % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
-              rouletteRef.current.style.transform = `translateX(-${normalizedOffset}px)`;
+              const useOffset = offsetRef.current;
+              rouletteRef.current.style.transform = `translateX(-${useOffset}px)`;
             }
 
             if (progress < 1) {
               animationRef.current = requestAnimationFrame(animate);
             } else {
-              const normalizedOffset = ((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH;
-              const finalPos = Math.round(normalizedOffset / ITEM_FULL_WIDTH);
+              const finalPos = Math.round(((finalOffset % TOTAL_WIDTH) + TOTAL_WIDTH) % TOTAL_WIDTH / ITEM_FULL_WIDTH);
               const itemEls = document.querySelectorAll('.play__roulette-item');
               const landedItem = itemEls[finalPos];
               const landedGiftName = rouletteItems[finalPos]?.name || 'unknown';
