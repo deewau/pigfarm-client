@@ -89,6 +89,43 @@ function generatePattern(gifts: TelegramGift[]): TelegramGift[] {
   return items;
 }
 
+function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGift): TelegramGift[] {
+  const items: TelegramGift[] = [];
+  
+  // Добавляем targetGift в случайную позицию (но не в начало)
+  const targetPosition = 1 + Math.floor(Math.random() * (PATTERN_SIZE - 2));
+  
+  for (let i = 0; i < PATTERN_SIZE; i++) {
+    if (i === targetPosition) {
+      items.push({...targetGift});
+    } else {
+      items.push(weightedRandomSelect(gifts));
+    }
+  }
+  
+  // Перемешиваем, но оставляем targetGift на нужной позиции
+  const targetItem = items[targetPosition];
+  const otherItems = items.filter((_, i) => i !== targetPosition);
+  
+  for (let i = otherItems.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [otherItems[i], otherItems[j]] = [otherItems[j], otherItems[i]];
+  }
+  
+  // Собираем обратно
+  const result: TelegramGift[] = [];
+  let otherIdx = 0;
+  for (let i = 0; i < PATTERN_SIZE; i++) {
+    if (i === targetPosition) {
+      result.push(targetItem);
+    } else {
+      result.push(otherItems[otherIdx++]);
+    }
+  }
+  
+  return result;
+}
+
 function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: number })[] {
   return gifts.map((gift) => ({
     ...gift,
@@ -192,6 +229,9 @@ export function Play() {
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
 
+    let targetGift: TelegramGift | null = null;
+    let newBalance = user?.balance || 0;
+
     if (!demoMode && user) {
       if (user.balance < SPIN_COST) {
         setShowDeposit(true);
@@ -199,17 +239,30 @@ export function Play() {
       }
 
       try {
-        const response = await userApi.spend(SPIN_COST, 'Крутка рулетки');
-        if (response.success) {
-          refreshBalance();
-        } else {
-          console.error('Failed to spend:', response.error);
+        const response = await winApi.spin();
+        if (!response.success) {
+          if (response.error === 'Insufficient_balance') {
+            setShowDeposit(true);
+            return;
+          }
+          console.error('Spin failed:', response.error);
           return;
         }
+        targetGift = {
+          id: response.data.gift.id,
+          name: response.data.gift.name,
+          stars: response.data.gift.stars,
+          animationSvg: response.data.gift.animationSvg,
+          animationData: response.data.gift.animationData,
+        };
+        newBalance = response.data.balance;
+        refreshBalance();
       } catch (err) {
-        console.error('Failed to spend balance:', err);
+        console.error('Failed to spin:', err);
         return;
       }
+    } else {
+      targetGift = weightedRandomSelect(availableGifts);
     }
 
     spinCancelledRef.current = false;
@@ -218,10 +271,17 @@ export function Play() {
       cancelAnimationFrame(animationRef.current);
     }
 
-    // Просто крутим рулетку
-    const currentPos = offsetRef.current;
-    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + Math.floor(Math.random() * PATTERN_SIZE * 3) * ITEM_WIDTH;
-    const finalOffset = currentPos + extra;
+    const targetIndex = availableGifts.findIndex(g => g.id === targetGift!.id);
+    const targetItem = availableGifts[targetIndex >= 0 ? targetIndex : 0];
+    const patternWithTarget = generatePatternWithTarget(availableGifts, targetItem);
+    setRouletteItems(patternWithTarget);
+
+    const targetPosInPattern = patternWithTarget.findIndex(item => item.id === targetItem.id);
+    const centerW = (containerRef.current?.offsetWidth || 360) / 2;
+    const centerItemOffset = centerW;
+    const targetPixelPos = targetPosInPattern * ITEM_WIDTH + ITEM_WIDTH / 2;
+    const extra = 3 * PATTERN_SIZE * ITEM_WIDTH + (PATTERN_SIZE * ITEM_WIDTH - targetPixelPos) + ITEM_WIDTH / 2;
+    const finalOffset = offsetRef.current + extra;
 
     const startOffset = offsetRef.current;
     const startTime = performance.now();
@@ -229,7 +289,7 @@ export function Play() {
 
     setSpinning(true);
 
-const animate = (timestamp: number) => {
+    const animate = (timestamp: number) => {
       if (spinCancelledRef.current) {
         setSpinning(false);
         return;
@@ -238,9 +298,6 @@ const animate = (timestamp: number) => {
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Сигмоидная кривая: плавный старт + плавный финиш
-      // 4 * x * (1-x) ^ 2 дает плавный старт
-      // комбинируем с ease-out
       const eased = progress < 0.5
         ? 4 * progress * progress * progress
         : 1 - Math.pow(-2 * progress + 2, 3) / 2;
@@ -258,32 +315,9 @@ const animate = (timestamp: number) => {
         animationRef.current = null;
         setSpinning(false);
 
-        // Вычисляем какой подарок реально в центре
-        const finalPx = offsetRef.current % TOTAL_WIDTH;
-        const centerW = (containerRef.current?.offsetWidth || 360) / 2;
-        const itemPx = finalPx + centerW;
-        const idx = Math.floor(itemPx / ITEM_WIDTH) % (PATTERN_SIZE * 2);
-        
-        const actualWonItem = rouletteItems[idx % PATTERN_SIZE];
-
-        if (demoMode) {
-          setWonGift(actualWonItem);
-          setShowResult(true);
-        } else {
-          console.log('🎁 Claiming gift:', actualWonItem);
-          winApi.claim({
-            id: actualWonItem.id,
-            name: actualWonItem.name,
-            stars: actualWonItem.stars,
-          }).then((response) => {
-            console.log('🎁 Claim response:', response);
-            setWonGift(actualWonItem);
-            setShowResult(true);
-          }).catch((err) => {
-            console.error('Failed to claim gift:', err);
-            startScrolling();
-          });
-        }
+        const finalWonItem = patternWithTarget[targetPosInPattern];
+        setWonGift(finalWonItem);
+        setShowResult(true);
       }
     };
 

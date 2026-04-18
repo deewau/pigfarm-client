@@ -2,6 +2,116 @@ import { Request, Response } from 'express';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
 import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
 
+const GIFT_PROBABILITIES: Record<string, number> = {
+  '5170145012310081615': 18.72,
+  '5170233102089322756': 18.72,
+  '5170250947678437525': 30.63,
+  '5168103777563050263': 30.05,
+  '5170144170496491616': 0.406,
+  '5170314324215857265': 0.506,
+  '5170564780938756245': 0.506,
+  '6028601630662853006': 0.506,
+  '5168043875654172773': 0.715,
+  '5170690322832818290': 0.812,
+  '5170521118301225164': 0.812,
+};
+
+const SPIN_COST = 25;
+
+function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
+  const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
+  let random = Math.random() * totalWeight;
+  
+  for (const item of gifts) {
+    const weight = GIFT_PROBABILITIES[item.id] || 0;
+    random -= weight;
+    if (random <= 0) {
+      return item;
+    }
+  }
+  
+  return gifts[gifts.length - 1];
+}
+
+export async function spinRoulette(req: Request, res: Response) {
+  let userId: number | undefined;
+  
+  try {
+    userId = req.user?.id;
+    console.log('🎰 spinRoulette called:', { userId });
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+      return;
+    }
+
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    if (user.balance < SPIN_COST) {
+      res.status(400).json({
+        success: false,
+        error: 'Insufficient_balance',
+        needed: SPIN_COST,
+        current: user.balance,
+      });
+      return;
+    }
+
+    const wonGift = weightedRandomSelect(GIFTS_DATA);
+    console.log('🎰 Won gift:', wonGift.name);
+
+    await userRepository.addBalance(userId, -SPIN_COST);
+
+    const gift = await userGiftRepository.create({
+      user_id: userId,
+      gift_id: wonGift.id,
+      gift_name: wonGift.name,
+      gift_stars: wonGift.stars,
+    });
+
+    await transactionRepository.create({
+      user_id: userId,
+      amount: SPIN_COST,
+      type: 'spend',
+      status: 'completed',
+      description: `Крутка рулетки: выигран ${wonGift.name}`,
+    });
+
+    const updatedUser = await userRepository.findById(userId);
+    console.log(`🎰 Spin complete: ${wonGift.name} for user ${userId}. Balance: ${updatedUser?.balance}`);
+
+    res.json({
+      success: true,
+      data: {
+        gift: {
+          id: wonGift.id,
+          name: wonGift.name,
+          stars: wonGift.stars,
+          animationSvg: wonGift.animationSvg,
+          animationData: wonGift.animationData,
+        },
+        balance: updatedUser?.balance,
+      },
+    });
+  } catch (error) {
+    console.error('spinRoulette error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to spin roulette',
+    });
+  }
+}
+
 export async function claimGift(req: Request, res: Response) {
   let userId: number | undefined;
   
