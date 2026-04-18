@@ -163,25 +163,31 @@ export function Play() {
       return;
     }
     
-    const targetIdx = rouletteItems.findIndex(item => item.id === pendingTargetGift.id);
-    if (targetIdx === -1) {
-      console.log('🎰 generate new pattern');
-      const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
-      setRouletteItems(newPattern);
+    console.log('🎰 EFFECT: pending=', pendingTargetGift?.name, 'items=', rouletteItems.length);
+    
+    const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
+    setRouletteItems(newPattern);
+  }, [pendingTargetGift?.id]);
+  
+  useEffect(() => {
+    if (!pendingTargetGift || spinning || rouletteItems.length === 0) {
       return;
     }
     
-    console.log('🎰 start spin to idx:', targetIdx);
+    const idx = rouletteItems.findIndex(i => i.id === pendingTargetGift.id);
+    console.log('🎰 ANIMATE: idx=', idx, 'gift=', pendingTargetGift?.name);
+    
+    if (idx === -1) return;
     
     offsetRef.current = 0;
     if (rouletteRef.current) {
       rouletteRef.current.style.transform = `translateX(0px)`;
     }
     
-    const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
-    const scrollDistance = targetIdx * ITEM_FULL_WIDTH + fullPattern;
-    
     setTimeout(() => {
+      const fullPattern = PATTERN_SIZE * ITEM_FULL_WIDTH;
+      const scrollDistance = idx * ITEM_FULL_WIDTH + fullPattern;
+      
       const startTime = performance.now();
       const duration = 3000;
       setSpinning(true);
@@ -205,8 +211,7 @@ export function Play() {
         if (progress < 1) {
           animationRef.current = requestAnimationFrame(animate);
         } else {
-          const finalIdx = targetIdx;
-          console.log('result:', rouletteItems[finalIdx]?.name);
+          console.log('ended:', rouletteItems[idx]?.name, 'expect:', pendingTargetGift?.name);
           setSpinning(false);
           setPendingTargetGift(null);
           setWonGift(pendingTargetGift);
@@ -216,7 +221,7 @@ export function Play() {
 
       animationRef.current = requestAnimationFrame(animate);
     }, 100);
-  }, [pendingTargetGift, rouletteItems, spinning, availableGifts]);
+  }, [pendingTargetGift, rouletteItems, spinning]);
 
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
