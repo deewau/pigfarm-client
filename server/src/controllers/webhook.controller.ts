@@ -46,28 +46,7 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
       await handleRefundedPayment(payment.telegram_payment_charge_id);
     }
 
-    // Обработка команды /start с подарком (gift_{giftId}_{fromUserId})
-    if (update.message?.text && update.message.text.startsWith('/start gift_')) {
-      const payload = update.message.text.replace('/start ', '');
-      const parts = payload.replace('gift_', '').split('_');
-      
-      if (parts.length >= 2) {
-        const giftId = parseInt(parts[0]);
-        const fromUserId = parseInt(parts[1]);
-        const recipientId = update.message.from.id;
-
-        console.log(`🎁 Gift transfer via /start: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}`);
-
-        // Не дарим себе
-        if (fromUserId === recipientId) {
-          console.log(`🎁 Cannot gift to self`);
-        } else if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
-          await processGiftTransfer(giftId, fromUserId, recipientId);
-        }
-      }
-    }
-
-    // Обработка startapp параметра (когда открывают Mini App через ссылку)
+    // Обработка /start с подарком (gift_{giftId}_{fromUserId})
     if (update.message?.text && update.message.text.startsWith('/start ')) {
       const payload = update.message.text.replace('/start ', '');
       

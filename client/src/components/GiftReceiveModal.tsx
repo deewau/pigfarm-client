@@ -72,10 +72,8 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
 
     tg.openTelegramLink(shareUrl);
-
-    setTimeout(() => {
-      setTransferring(false);
-    }, 500);
+    tg.close();
+    setTransferring(false);
   };
 
   if (!isOpen || !gift) return null;
