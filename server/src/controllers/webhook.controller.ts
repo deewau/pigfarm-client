@@ -58,7 +58,10 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
 
         console.log(`🎁 Gift transfer via /start: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}`);
 
-        if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
+        // Не дарим себе
+        if (fromUserId === recipientId) {
+          console.log(`🎁 Cannot gift to self`);
+        } else if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
           await processGiftTransfer(giftId, fromUserId, recipientId);
         }
       }
@@ -77,7 +80,10 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
 
           console.log(`🎁 Gift transfer via startapp: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}`);
 
-          if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
+          // Не дарим себе
+          if (fromUserId === recipientId) {
+            console.log(`🎁 Cannot gift to self`);
+          } else if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
             await processGiftTransfer(giftId, fromUserId, recipientId);
           }
         }
@@ -124,6 +130,14 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientId: number) {
   try {
+    // Конвертируем Telegram ID в internal ID
+    const senderUser = await userRepository.findByTelegramId(fromUserId);
+    if (!senderUser) {
+      console.log(`🎁 Sender not found: ${fromUserId}`);
+      await sendMessage(recipientId, 'Отправитель не найден.');
+      return;
+    }
+
     // Находим подарок в БД
     const userGift = await userGiftRepository.findById(giftId);
     
@@ -133,8 +147,9 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
       return;
     }
 
-    if (userGift.user_id !== fromUserId) {
-      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, not ${fromUserId}`);
+    // Сравниваем internal ID
+    if (userGift.user_id !== senderUser.id) {
+      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, but sender is ${senderUser.id}`);
       await sendMessage(recipientId, 'Этот подарок принадлежит другому пользователю.');
       return;
     }
