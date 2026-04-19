@@ -90,6 +90,7 @@ export async function authWithTelegram(req: Request, res: Response) {
           await processGiftTransfer(giftId, fromUserId, user.telegram_id, user.id);
         } else {
           console.log(`🎁 Cannot gift to self`);
+          await sendTelegramMessage(user.telegram_id, 'Нельзя дарить подарок самому себе! 😅\n\nПоделись ссылкой с другом.');
         }
       } catch (err) {
         console.error('Gift transfer error:', err);

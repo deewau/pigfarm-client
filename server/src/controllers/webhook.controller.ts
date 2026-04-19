@@ -59,9 +59,10 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
 
           console.log(`🎁 Gift transfer via startapp: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}`);
 
-          // Не дарим себе
+          // Не дарим себе - отправляем сообщение
           if (fromUserId === recipientId) {
             console.log(`🎁 Cannot gift to self`);
+            await sendMessage(recipientId, 'Нельзя дарить подарок самому себе! 😅\n\nПоделись ссылкой с другом.');
           } else if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
             await processGiftTransfer(giftId, fromUserId, recipientId);
           }
