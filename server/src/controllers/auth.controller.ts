@@ -170,22 +170,6 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
       description: `Подарен другу: ${giftData.name}`,
     });
 
-    // Создаём запись о получении у получателя
-    await userGiftRepository.create({
-      user_id: recipientUserId,
-      gift_id: giftData.id,
-      gift_name: giftData.name,
-      gift_stars: giftData.stars,
-    });
-
-    await transactionRepository.create({
-      user_id: recipientUserId,
-      amount: giftData.stars,
-      type: 'deposit',
-      status: 'completed',
-      description: `Получен подарок: ${giftData.name}`,
-    });
-
     // Отправляем уведомления
     await sendTelegramMessage(fromUserId, `Ты подарил(а) ${giftData.name} пользователю! 🎁`);
     await sendTelegramMessage(recipientTelegramId, `Ты получил(а) подарок ${giftData.name}! 🎁\n\nОн появится в твоём профиле.`);

@@ -170,30 +170,14 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
     await userGiftRepository.delete(giftId);
 
     // Создаём транзакцию у отправителя
-    await transactionRepository.create({
-      user_id: fromUserId,
-      amount: giftData.stars,
-      type: 'withdrawal',
-      status: 'completed',
-      description: `Подарен другу: ${giftData.name}`,
-    });
-
-    // Создаём запись о получении у получателя
-    const recipientUser = await userRepository.findByTelegramId(recipientId);
-    if (recipientUser) {
-      await userGiftRepository.create({
-        user_id: recipientUser.id,
-        gift_id: giftData.id,
-        gift_name: giftData.name,
-        gift_stars: giftData.stars,
-      });
-
+    const senderRecord = await userRepository.findByTelegramId(fromUserId);
+    if (senderRecord) {
       await transactionRepository.create({
-        user_id: recipientUser.id,
+        user_id: senderRecord.id,
         amount: giftData.stars,
-        type: 'deposit',
+        type: 'withdrawal',
         status: 'completed',
-        description: `Получен подарок: ${giftData.name}`,
+        description: `Подарен другу: ${giftData.name}`,
       });
     }
 
