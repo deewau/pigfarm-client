@@ -46,55 +46,22 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
       await handleRefundedPayment(payment.telegram_payment_charge_id);
     }
 
-    // Обработка /start с подарком (gift_{giftId}_{fromUserId})
+    // Обработка /start с подарком (gift_{giftId}_{fromUserId}) - только сообщение, не передаём напрямую
     if (update.message?.text && update.message.text.startsWith('/start ')) {
       const payload = update.message.text.replace('/start ', '');
       
       if (payload.startsWith('gift_')) {
         const parts = payload.replace('gift_', '').split('_');
         if (parts.length >= 2) {
-          const giftId = parseInt(parts[0]);
           const fromUserId = parseInt(parts[1]);
           const recipientId = update.message.from.id;
 
-          console.log(`🎁 Gift transfer via startapp: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}`);
-
-          // Не дарим себе - отправляем сообщение
-          if (fromUserId === recipientId) {
-            console.log(`🎁 Cannot gift to self`);
-            await sendMessage(recipientId, 'Нельзя дарить подарок самому себе! 😅\n\nПоделись ссылкой с другом.');
-          } else if (!isNaN(giftId) && !isNaN(fromUserId) && !isNaN(recipientId)) {
-            await processGiftTransfer(giftId, fromUserId, recipientId);
-          }
+          await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
         }
       }
     }
 
-    // Обработка callback_query (нажатие на inline кнопку)
-    if (update.callback_query) {
-      const { callback_query } = update;
-      const data = callback_query.data;
-
-      if (data?.startsWith('accept_gift_')) {
-        const parts = data.replace('accept_gift_', '').split('_');
-        if (parts.length >= 2) {
-          const giftId = parseInt(parts[0]);
-          const fromUserId = parseInt(parts[1]);
-          const recipientId = callback_query.from.id;
-
-          await processGiftTransfer(giftId, fromUserId, recipientId);
-          
-          // Отвечаем на callback
-          await axios.post(
-            `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/answerCallbackQuery`,
-            {
-              callback_query_id: callback_query.id,
-              text: 'Подарок получен! 🎁',
-            }
-          );
-        }
-      }
-    }
+    // Обработка callback_query - убрана для подарков
 
     // Всегда отвечаем 200 OK
     res.json({ ok: true });
