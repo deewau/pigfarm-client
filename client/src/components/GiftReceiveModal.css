@@ -10,14 +10,14 @@
 }
 
 .gift-receive-modal {
-  background: linear-gradient(180deg, rgba(30, 27, 45, 0.95) 0%, rgba(20, 18, 32, 0.98) 100%);
+  background: #2A1B63;
   border-radius: 24px;
   padding: 32px 24px;
   max-width: 320px;
   width: 100%;
   text-align: center;
-  border: 1px solid rgba(170, 59, 255, 0.2);
-  box-shadow: 0 16px 64px rgba(170, 59, 255, 0.3);
+  border: 1px solid rgba(117, 71, 255, 0.2);
+  box-shadow: 0 16px 64px rgba(117, 71, 255, 0.3);
 }
 
 .gift-receive-modal__gift {
@@ -34,6 +34,7 @@
 }
 
 .gift-receive-modal__title {
+  font-family: 'Gilroy', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #fff;
@@ -41,15 +42,17 @@
 }
 
 .gift-receive-modal__value {
+  font-family: 'Gilroy', sans-serif;
   font-size: 18px;
   font-weight: 600;
-  color: #5ac8fa;
+  color: #47FFC2;
   margin: 0 0 16px;
 }
 
 .gift-receive-modal__desc {
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #9ca3af;
+  color: #5936C1;
   margin: 0 0 24px;
   line-height: 1.5;
 }
@@ -63,6 +66,7 @@
 .gift-receive-modal__btn {
   padding: 16px 24px;
   border-radius: 14px;
+  font-family: 'Gilroy', sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -71,14 +75,14 @@
 }
 
 .gift-receive-modal__btn--primary {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #fff;
-  box-shadow: 0 4px 20px rgba(170, 59, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(117, 71, 255, 0.4);
 }
 
 .gift-receive-modal__btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(170, 59, 255, 0.5);
+  box-shadow: 0 6px 24px rgba(117, 71, 255, 0.5);
 }
 
 .gift-receive-modal__btn--primary:disabled {

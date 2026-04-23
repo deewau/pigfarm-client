@@ -3,9 +3,9 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: linear-gradient(135deg, rgba(170, 59, 255, 0.15) 0%, rgba(90, 200, 250, 0.1) 100%);
+  background: rgba(117, 71, 255, 0.15);
   border-radius: 16px;
-  border: 1px solid rgba(170, 59, 255, 0.2);
+  border: 1px solid rgba(117, 71, 255, 0.2);
 }
 
 .profile-bar__avatar {
@@ -13,14 +13,14 @@
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
+  background: #7547FF;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
 }
 
 .profile-bar__avatar img {
@@ -37,6 +37,7 @@
 }
 
 .profile-bar__name {
+  font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
@@ -50,9 +51,10 @@
   background: rgba(0, 0, 0, 0.3);
   padding: 4px 10px;
   border-radius: 20px;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #5ac8fa;
+  color: #47FFC2;
 }
 
 .profile-bar__balance-star {

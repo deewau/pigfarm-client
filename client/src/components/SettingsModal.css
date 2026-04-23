@@ -21,12 +21,12 @@
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
-  background: linear-gradient(180deg, #1e1b2d 0%, #14121f 100%);
+  background: #2A1B63;
   border-radius: 24px 24px 0 0;
   display: flex;
   flex-direction: column;
   animation: settings-sheet-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(170, 59, 255, 0.15);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   border-bottom: none;
 }
 
@@ -69,7 +69,7 @@
 .settings-modal__drag-bar {
   width: 40px;
   height: 4px;
-  background: rgba(170, 59, 255, 0.3);
+  background: rgba(117, 71, 255, 0.3);
   border-radius: 2px;
 }
 
@@ -82,7 +82,7 @@
 }
 
 .settings-modal__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -91,9 +91,9 @@
 }
 
 .settings-modal__close {
-  background: rgba(170, 59, 255, 0.1);
+  background: rgba(117, 71, 255, 0.1);
   border: none;
-  color: #9ca3af;
+  color: #5936C1;
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -104,8 +104,8 @@
 }
 
 .settings-modal__close:hover {
-  background: rgba(170, 59, 255, 0.2);
-  color: #aa3bff;
+  background: rgba(117, 71, 255, 0.2);
+  color: #7547FF;
 }
 
 .settings-modal__content {
@@ -120,10 +120,10 @@
 }
 
 .settings-section__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #6b6375;
+  color: #5936C1;
   margin: 0 0 12px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -133,10 +133,10 @@
 .settings-section__options {
   display: flex;
   gap: 8px;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.1);
 }
 
 .settings-option {
@@ -149,8 +149,8 @@
   background: transparent;
   border: none;
   border-radius: 11px;
-  color: #6b6375;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #5936C1;
+  font-family: 'Gilroy', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -159,18 +159,18 @@
 }
 
 .settings-option:hover {
-  background: rgba(170, 59, 255, 0.1);
-  color: #9ca3af;
+  background: rgba(117, 71, 255, 0.1);
+  color: #47FFC2;
 }
 
 .settings-option--active {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
 }
 
 .settings-option--active:hover {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
 }
 
@@ -187,11 +187,11 @@
   justify-content: center;
   gap: 6px;
   padding: 14px 10px;
-  background: rgba(170, 59, 255, 0.06);
+  background: rgba(117, 71, 255, 0.06);
   border: 2px solid transparent;
   border-radius: 14px;
-  color: #9ca3af;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #47FFC2;
+  font-family: 'Gilroy', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -199,15 +199,15 @@
 }
 
 .settings-lang:hover {
-  background: rgba(170, 59, 255, 0.1);
+  background: rgba(117, 71, 255, 0.1);
   color: #ffffff;
 }
 
 .settings-lang--active {
-  border-color: #aa3bff;
-  background: rgba(170, 59, 255, 0.15);
+  border-color: #7547FF;
+  background: rgba(117, 71, 255, 0.15);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.2);
 }
 
 /* Тактильный отклик */

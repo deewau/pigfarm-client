@@ -7,7 +7,7 @@
 }
 
 .coming-soon__content {
-  background: linear-gradient(180deg, rgba(0, 122, 255, 0.15), rgba(88, 86, 214, 0.1));
+  background: #2A1B63;
   border-radius: 24px;
   padding: 48px 32px;
   display: flex;
@@ -24,7 +24,7 @@
 }
 
 .coming-soon__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #ffffff;
@@ -32,9 +32,9 @@
 }
 
 .coming-soon__subtitle {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #8e8e93;
+  color: #5936C1;
   margin: 0;
   text-align: center;
   line-height: 1.5;
@@ -43,11 +43,11 @@
 .coming-soon__btn {
   margin-top: 16px;
   padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #7547FF;
   color: #ffffff;
   border: none;
   border-radius: 14px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -56,5 +56,5 @@
 }
 
 .coming-soon__btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #5936C1;
 }

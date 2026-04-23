@@ -9,11 +9,11 @@
 
 /* Карточка профиля */
 .profile__card {
-  background: linear-gradient(135deg, rgba(30, 27, 45, 0.9) 0%, rgba(20, 18, 32, 0.95) 100%);
+  background: #2A1B63;
   border-radius: 20px;
   padding: 20px;
-  border: 1px solid rgba(170, 59, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(117, 71, 255, 0.1);
 }
 
 .profile__header {
@@ -40,13 +40,13 @@
 .profile__level-badge {
   font-size: 10px;
   font-weight: 700;
-  color: #aa3bff;
-  background: rgba(170, 59, 255, 0.15);
+  color: #7547FF;
+  background: rgba(117, 71, 255, 0.15);
   padding: 3px 10px;
   border-radius: 8px;
   white-space: nowrap;
   margin-top: -2px;
-  border: 1px solid rgba(170, 59, 255, 0.3);
+  border: 1px solid rgba(117, 71, 255, 0.3);
 }
 
 .profile__details {
@@ -56,7 +56,7 @@
 }
 
 .profile__name {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -70,25 +70,22 @@
 }
 
 .profile__balance-value {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 22px;
   font-weight: 800;
-  background: linear-gradient(90deg, #aa3bff, #5ac8fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #7547FF;
 }
 
 .profile__balance-icon {
   display: flex;
   align-items: center;
-  color: #5ac8fa;
+  color: #47FFC2;
 }
 
 .profile__settings {
-  background: rgba(170, 59, 255, 0.1);
-  border: 1px solid rgba(170, 59, 255, 0.2);
-  color: #9ca3af;
+  background: rgba(117, 71, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.2);
+  color: #47FFC2;
   cursor: pointer;
   padding: 10px;
   display: flex;
@@ -99,28 +96,28 @@
 }
 
 .profile__settings:hover {
-  background: rgba(170, 59, 255, 0.2);
-  color: #aa3bff;
+  background: rgba(117, 71, 255, 0.2);
+  color: #7547FF;
 }
 
 .profile__deposit {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
   border: none;
   border-radius: 14px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(170, 59, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(117, 71, 255, 0.35);
 }
 
 .profile__deposit:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(170, 59, 255, 0.45);
+  box-shadow: 0 6px 20px rgba(117, 71, 255, 0.45);
 }
 
 .profile__deposit:active {
@@ -129,13 +126,13 @@
 
 /* Реферальный баннер */
 .profile__referral-banner {
-  background: linear-gradient(135deg, #aa3bff 0%, #5ac8fa 100%);
+  background: #7547FF;
   border-radius: 18px;
   padding: 22px 20px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 8px 24px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(117, 71, 255, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -158,11 +155,11 @@
 
 .profile__referral-banner:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(170, 59, 255, 0.4);
+  box-shadow: 0 12px 32px rgba(117, 71, 255, 0.4);
 }
 
 .profile__referral-title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -171,7 +168,7 @@
 }
 
 .profile__referral-subtitle {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.85);
   margin: 0 0 16px;
@@ -186,7 +183,7 @@
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -201,10 +198,10 @@
 /* Вкладки */
 .profile__tabs {
   display: flex;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.1);
 }
 
 .profile__tab {
@@ -212,25 +209,25 @@
   padding: 12px 10px;
   border: none;
   border-radius: 11px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
-  color: #6b6375;
+  color: #5936C1;
   letter-spacing: 0.2px;
 }
 
 .profile__tab--active {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
 }
 
 .profile__tab:not(.profile__tab--active):hover {
-  color: #9ca3af;
-  background: rgba(170, 59, 255, 0.1);
+  color: #47FFC2;
+  background: rgba(117, 71, 255, 0.1);
 }
 
 /* Содержимое вкладок */
@@ -255,9 +252,9 @@
   align-items: center;
   justify-content: center;
   padding: 50px 20px;
-  background: rgba(170, 59, 255, 0.05);
+  background: rgba(117, 71, 255, 0.05);
   border-radius: 18px;
-  border: 1px solid rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.1);
 }
 
 .profile__empty-icon {
@@ -267,16 +264,16 @@
 }
 
 .profile__empty p {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #6b6375;
+  color: #5936C1;
   margin: 0;
 }
 
 .profile__loading {
   text-align: center;
   padding: 50px;
-  color: #6b6375;
+  color: #5936C1;
   font-size: 14px;
 }
 
@@ -300,12 +297,12 @@
 }
 
 .profile__history-list::-webkit-scrollbar-track {
-  background: rgba(170, 59, 255, 0.05);
+  background: rgba(117, 71, 255, 0.05);
   border-radius: 2px;
 }
 
 .profile__history-list::-webkit-scrollbar-thumb {
-  background: rgba(170, 59, 255, 0.3);
+  background: rgba(117, 71, 255, 0.3);
   border-radius: 2px;
 }
 
@@ -314,14 +311,14 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: rgba(170, 59, 255, 0.05);
+  background: rgba(117, 71, 255, 0.05);
   border-radius: 16px;
-  border: 1px solid rgba(170, 59, 255, 0.08);
+  border: 1px solid rgba(117, 71, 255, 0.08);
   transition: all 0.2s ease;
 }
 
 .profile__history-item:hover {
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
 }
 
 .profile__history-icon {
@@ -330,7 +327,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(170, 59, 255, 0.2) 0%, rgba(90, 200, 250, 0.15) 100%);
+  background: rgba(117, 71, 255, 0.2);
   border-radius: 14px;
   font-size: 20px;
   flex-shrink: 0;
@@ -344,30 +341,27 @@
 }
 
 .profile__history-title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
 }
 
 .profile__history-time {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 12px;
-  color: #6b6375;
+  color: #5936C1;
 }
 
 .profile__history-amount {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .profile__history-amount--positive {
-  background: linear-gradient(90deg, #34d399, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #47FFC2;
 }
 
 .profile__history-amount--negative {
@@ -388,17 +382,17 @@
   align-items: center;
   gap: 8px;
   padding: 14px 10px;
-  background: rgba(170, 59, 255, 0.06);
+  background: rgba(117, 71, 255, 0.06);
   border-radius: 18px;
-  border: 1px solid rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.1);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .profile__gift-card:hover {
   transform: translateY(-2px);
-  background: rgba(170, 59, 255, 0.1);
-  border-color: rgba(170, 59, 255, 0.2);
+  background: rgba(117, 71, 255, 0.1);
+  border-color: rgba(117, 71, 255, 0.2);
 }
 
 .profile__gift-icon {
@@ -407,18 +401,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border-radius: 50%;
-  border: 1px solid rgba(170, 59, 255, 0.15);
+  border: 1px solid rgba(117, 71, 255, 0.15);
 }
 
 .profile__gift-icon span {
   font-size: 18px;
   font-weight: 700;
-  background: linear-gradient(135deg, #aa3bff, #5ac8fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #7547FF;
 }
 
 .profile__gift-name {
@@ -430,5 +421,5 @@
 
 .profile__gift-date {
   font-size: 10px;
-  color: #6b6375;
+  color: #5936C1;
 }

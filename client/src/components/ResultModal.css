@@ -48,13 +48,13 @@
   width: 160px;
   height: 160px;
   margin-bottom: 32px;
-  background: linear-gradient(135deg, rgba(170, 59, 255, 0.2) 0%, rgba(90, 200, 250, 0.15) 100%);
+  background: rgba(117, 71, 255, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 60px rgba(170, 59, 255, 0.4), 0 0 100px rgba(90, 200, 250, 0.2);
-  border: 2px solid rgba(170, 59, 255, 0.3);
+  box-shadow: 0 0 60px rgba(117, 71, 255, 0.4);
+  border: 2px solid rgba(117, 71, 255, 0.3);
 }
 
 .result-modal__gift svg {
@@ -63,20 +63,19 @@
 }
 
 .result-modal__message {
+  font-family: 'Gilroy', sans-serif;
   font-size: 26px;
   font-weight: 800;
-  background: linear-gradient(90deg, #aa3bff, #5ac8fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #7547FF;
   margin: 0 0 12px;
   text-align: center;
   letter-spacing: 0.5px;
 }
 
 .result-modal__description {
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #6b6375;
+  color: #5936C1;
   line-height: 1.5;
   margin: 0 0 40px;
   text-align: center;
@@ -95,6 +94,7 @@
   width: 100%;
   padding: 16px 24px;
   border-radius: 16px;
+  font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 700;
   border: none;
@@ -108,22 +108,22 @@
 }
 
 .result-modal__btn--primary {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
-  box-shadow: 0 4px 20px rgba(170, 59, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(117, 71, 255, 0.4);
 }
 
 .result-modal__btn--primary:hover {
-  box-shadow: 0 6px 28px rgba(170, 59, 255, 0.5);
+  box-shadow: 0 6px 28px rgba(117, 71, 255, 0.5);
 }
 
 .result-modal__btn--secondary {
-  background: rgba(170, 59, 255, 0.1);
-  color: #9ca3af;
-  border: 1px solid rgba(170, 59, 255, 0.2);
+  background: rgba(117, 71, 255, 0.1);
+  color: #47FFC2;
+  border: 1px solid rgba(117, 71, 255, 0.2);
 }
 
 .result-modal__btn--secondary:hover {
-  background: rgba(170, 59, 255, 0.15);
+  background: rgba(117, 71, 255, 0.15);
   color: #ffffff;
 }

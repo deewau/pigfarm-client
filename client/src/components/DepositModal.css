@@ -21,12 +21,12 @@
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
-  background: linear-gradient(180deg, #1e1b2d 0%, #14121f 100%);
+  background: #2A1B63;
   border-radius: 24px 24px 0 0;
   display: flex;
   flex-direction: column;
   animation: deposit-sheet-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(170, 59, 255, 0.15);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   border-bottom: none;
 }
 
@@ -69,7 +69,7 @@
 .deposit-modal__drag-bar {
   width: 40px;
   height: 4px;
-  background: rgba(170, 59, 255, 0.3);
+  background: rgba(117, 71, 255, 0.3);
   border-radius: 2px;
 }
 
@@ -82,7 +82,7 @@
 }
 
 .deposit-modal__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -91,9 +91,9 @@
 }
 
 .deposit-modal__close {
-  background: rgba(170, 59, 255, 0.1);
+  background: rgba(117, 71, 255, 0.1);
   border: none;
-  color: #9ca3af;
+  color: #5936C1;
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -104,8 +104,8 @@
 }
 
 .deposit-modal__close:hover {
-  background: rgba(170, 59, 255, 0.2);
-  color: #aa3bff;
+  background: rgba(117, 71, 255, 0.2);
+  color: #7547FF;
 }
 
 .deposit-modal__content {
@@ -120,10 +120,10 @@
 /* Табы */
 .deposit-modal__tabs {
   display: flex;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(117, 71, 255, 0.1);
 }
 
 .deposit-modal__tab {
@@ -131,19 +131,19 @@
   padding: 12px;
   border: none;
   border-radius: 11px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
-  color: #6b6375;
+  color: #5936C1;
 }
 
 .deposit-modal__tab--active {
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
 }
 
 .deposit-modal__tab--disabled {
@@ -159,10 +159,10 @@
 }
 
 .deposit-modal__label {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #47FFC2;
   letter-spacing: 0.3px;
 }
 
@@ -177,16 +177,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border-radius: 14px;
   padding: 14px 16px;
-  border: 1px solid rgba(170, 59, 255, 0.15);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   transition: all 0.2s ease;
 }
 
 .deposit-modal__input-wrapper:focus-within {
-  border-color: rgba(170, 59, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(170, 59, 255, 0.1);
+  border-color: rgba(117, 71, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(117, 71, 255, 0.1);
 }
 
 .deposit-modal__input-icon {
@@ -200,7 +200,7 @@
   border: none;
   outline: none;
   color: #ffffff;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 20px;
   font-weight: 700;
 }
@@ -213,27 +213,27 @@
 
 .deposit-modal__max-btn {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
   border: none;
   border-radius: 12px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
 }
 
 .deposit-modal__max-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(170, 59, 255, 0.4);
+  box-shadow: 0 6px 16px rgba(117, 71, 255, 0.4);
 }
 
 .deposit-modal__hint {
   font-size: 12px;
-  color: #6b6375;
+  color: #5936C1;
 }
 
 /* Пресеты */
@@ -252,11 +252,11 @@
 .deposit-modal__preset {
   flex-shrink: 0;
   padding: 14px 20px;
-  background: rgba(170, 59, 255, 0.08);
+  background: rgba(117, 71, 255, 0.08);
   border: 2px solid transparent;
   border-radius: 14px;
-  color: #9ca3af;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #47FFC2;
+  font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -265,37 +265,37 @@
 }
 
 .deposit-modal__preset:hover {
-  background: rgba(170, 59, 255, 0.12);
+  background: rgba(117, 71, 255, 0.12);
   color: #ffffff;
 }
 
 .deposit-modal__preset--active {
-  border-color: #aa3bff;
-  background: rgba(170, 59, 255, 0.15);
+  border-color: #7547FF;
+  background: rgba(117, 71, 255, 0.15);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.2);
 }
 
 /* Кнопка пополнить */
 .deposit-modal__submit {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #aa3bff 0%, #9055e8 100%);
+  background: #7547FF;
   color: #ffffff;
   border: none;
   border-radius: 16px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Gilroy', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 20px rgba(170, 59, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(117, 71, 255, 0.4);
   letter-spacing: 0.3px;
 }
 
 .deposit-modal__submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(170, 59, 255, 0.5);
+  box-shadow: 0 8px 28px rgba(117, 71, 255, 0.5);
 }
 
 .deposit-modal__submit:active {
@@ -304,14 +304,14 @@
 
 .deposit-modal__terms {
   font-size: 11px;
-  color: #4a4a52;
+  color: #5936C1;
   text-align: center;
   margin: 0;
   line-height: 1.4;
 }
 
 .deposit-modal__terms a {
-  color: #aa3bff;
+  color: #7547FF;
   text-decoration: none;
 }
 
