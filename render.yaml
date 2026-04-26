@@ -4,10 +4,8 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: |
-      npm run build:client
-      npm run build:server
-    startCommand: npm start
+    buildCommand: cd client && npm install && npx vite build && cd ../server && npm install
+    startCommand: cd server && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc
     envVars:
       - key: NODE_ENV
         value: production
