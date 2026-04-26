@@ -90,8 +90,9 @@ export async function authWithTelegram(req: Request, res: Response) {
         console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId} (${typeof fromUserId}), user.telegram_id=${user.telegram_id} (${typeof user.telegram_id}), userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
         
         // Проверка: если отправитель переходит по своей же ссылке - просто блокируем без сообщения
+        // webhook отправит сообщение
         if (userTgId === fromTgId) {
-          console.log(`🎁 BLOCKING SELF-GIFT: userTgId=${userTgId} === fromTgId=${fromTgId}`);
+          console.log(`🎁 BLOCKING SELF-GIFT in auth: userTgId=${userTgId} === fromTgId=${fromTgId}`);
           return;
         }
         
