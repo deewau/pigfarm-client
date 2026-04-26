@@ -87,29 +87,26 @@ export async function authWithTelegram(req: Request, res: Response) {
         const userTgId = Number(user.telegram_id);
         const fromTgId = Number(fromUserId);
         
-        console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId} (${typeof fromUserId}), user.telegram_id=${user.telegram_id} (${typeof user.telegram_id}), userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
-        
-        // Проверка: если отправитель переходит по своей же ссылке - просто блокируем без сообщения
-        // webhook отправит сообщение
-        if (userTgId === fromTgId) {
-          console.log(`🎁 BLOCKING SELF-GIFT in auth: userTgId=${userTgId} === fromTgId=${fromTgId}`);
-          return;
-        }
+        console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId}, userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
         
         // Проверяем, существует ли подарок ещё в БД перед передачей
         const checkGift = await userGiftRepository.findById(giftId);
         if (!checkGift) {
           console.log(`🎁 Gift ${giftId} already processed - skipping`);
-          return;
+        } else if (userTgId === fromTgId) {
+          // Блокируем передачу самому себе - отправляем сообщение ТОЛЬКО здесь
+          console.log(`🎁 BLOCK SELF-GIFT: sending message to ${userTgId}`);
+          await sendTelegramMessage(userTgId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+        } else {
+          // Нормальная передача подарка
+          await processGiftTransfer(giftId, fromTgId, userTgId, user.id);
         }
-        
-        await processGiftTransfer(giftId, fromTgId, userTgId, user.id);
       } catch (err) {
         console.error('Gift transfer error:', err);
       }
     }
 
-    res.json({
+res.json({
       success: true,
       data: {
         user: {
@@ -129,76 +126,6 @@ export async function authWithTelegram(req: Request, res: Response) {
     });
   }
 }
-
-/**
- * Обработка передачи подарка от одного пользователя другому
- */
-async function processGiftTransfer(giftId: number, fromUserId: number, recipientTelegramId: number, recipientUserId: number) {
-  try {
-    // Проверка уже делается до вызова этой функции - оставляем на всякий случай
-    if (fromUserId === recipientTelegramId) {
-      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift - ALREADY BLOCKED`);
-      return;
-    }
-
-    // Конвертируем Telegram ID в internal ID
-    const senderUser = await userRepository.findByTelegramId(fromUserId);
-    if (!senderUser) {
-      console.log(`🎁 Sender not found: ${fromUserId}`);
-      await sendTelegramMessage(recipientTelegramId, 'Отправитель не найден.');
-      return;
-    }
-
-    // Находим подарок в БД
-    const userGift = await userGiftRepository.findById(giftId);
-    
-    if (!userGift) {
-      console.log(`🎁 Gift ${giftId} not found - already transferred or not exist`);
-      await sendTelegramMessage(recipientTelegramId, 'Извини, этот подарок уже был отправлен или удалён. 😔');
-      return;
-    }
-    
-    // Дополнительная проверка: если подарок уже был каким-то образом передан (проверяем по статусу если есть)
-    if ((userGift as any).status === 'transferred' || (userGift as any).status === 'pending') {
-      console.log(`🎁 Gift ${giftId} already ${(userGift as any).status} - SKIPPING`);
-      return;
-    }
-
-    // Сравниваем internal ID
-    if (userGift.user_id !== senderUser.id) {
-      console.log(`🎁 Gift ${giftId} belongs to user ${userGift.user_id}, but sender is ${senderUser.id}`);
-      await sendTelegramMessage(recipientTelegramId, 'Этот подарок принадлежит другому пользователю.');
-      return;
-    }
-
-    // Находим данные подарка
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
-    if (!giftData) {
-      console.log(`🎁 Gift data not found for ${userGift.gift_id}`);
-      await sendTelegramMessage(recipientTelegramId, 'Подарок не найден в базе данных.');
-      return;
-    }
-
-    // Отправляем подарок получателю
-    await sendGiftToUser(recipientTelegramId, giftData);
-    console.log(`🎁 Gift ${giftData.name} sent to ${recipientTelegramId}`);
-
-    // Удаляем подарок у отправителя
-    await userGiftRepository.delete(giftId);
-    
-    // Создаём транзакцию у отправителя
-    await transactionRepository.create({
-      user_id: senderUser.id,
-      amount: giftData.stars,
-      type: 'withdrawal',
-      status: 'completed',
-      description: `Подарен другу: ${giftData.name}`,
-    });
-
-    // Отправляем уведомления
-    await sendTelegramMessage(fromUserId, `Ты подарил(а) ${giftData.name} пользователю! 🎁`);
-    await sendTelegramMessage(recipientTelegramId, `Ты получил(а) подарок ${giftData.name}! 🎁\n\nОн появится в твоём профиле.`);
-  } catch (error) {
     console.error('processGiftTransfer error:', error);
     await sendTelegramMessage(recipientTelegramId, 'Произошла ошибка при отправке подарка. Попробуй позже.');
   }
