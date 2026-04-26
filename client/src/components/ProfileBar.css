@@ -3,9 +3,9 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: rgba(117, 71, 255, 0.15);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid rgba(117, 71, 255, 0.2);
+  border: 1px solid var(--border);
 }
 
 .profile-bar__avatar {
@@ -13,14 +13,13 @@
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  background: #7547FF;
+  background: #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(117, 71, 255, 0.3);
+  border: 2px solid #e5e5e5;
 }
 
 .profile-bar__avatar img {
@@ -40,7 +39,7 @@
   font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 600;
-  color: #ffffff;
+  color: #1a1a1a;
   letter-spacing: 0.3px;
 }
 
@@ -48,13 +47,13 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--accent-bg);
   padding: 4px 10px;
   border-radius: 20px;
   font-family: 'Gilroy', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #47FFC2;
+  color: var(--accent);
 }
 
 .profile-bar__balance-star {
