@@ -9,10 +9,9 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "tunnel": "lt --port 5173",
     "start": "cd server && node dist/index.js",
-    "build": "cd server && npm install && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc && npx shx cp src/db/schema.sql dist/db/",
+    "build": "npm install && npm run client:build && npm run server:build",
     "client:build": "cd client && npm install && npx vite build",
-    "client:install": "npm install --prefix client",
-    "server:install": "npm install --prefix server"
+    "server:build": "cd server && npm install && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
