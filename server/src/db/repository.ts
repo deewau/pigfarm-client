@@ -36,21 +36,11 @@ export const userRepository = {
     referredBy?: number;
   }): Promise<User> {
     const pool = getPool();
-    const fields = ['telegram_id', 'first_name', 'last_name', 'username', 'language_code'];
-    const values = [data.telegram_id, data.first_name, data.last_name || null, data.username || null, data.language_code || 'ru'];
-    const placeholders = ['$1', '$2', '$3', '$4', '$5'];
-    let query = `INSERT INTO users (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`;
-    
-    if (data.referredBy) {
-      query += `, referred_by) VALUES (${placeholders.join(', ')}, $6)`;
-      values.push(data.referredBy);
-    } else {
-      query += ') VALUES (${placeholders.join(', ')})';
-    }
-    
-    query += ' RETURNING *';
-    
-    const result = await pool.query(query, values);
+    const result = await pool.query(
+      `INSERT INTO users (telegram_id, first_name, last_name, username, language_code)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [data.telegram_id, data.first_name, data.last_name || null, data.username || null, data.language_code || 'ru']
+    );
     return result.rows[0] as User;
   },
 
