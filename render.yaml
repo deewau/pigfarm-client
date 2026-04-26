@@ -4,9 +4,7 @@ services:
     env: node
     region: frankfurt
     plan: free
-    rootDirectory: server
-    buildCommand: npm install && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc
-    startCommand: npm start
+    startCommand: node server/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
