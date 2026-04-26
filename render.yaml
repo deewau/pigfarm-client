@@ -4,7 +4,8 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: npm run install:all
+    rootDirectory: server
+    buildCommand: npm install && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc
     startCommand: npm start
     envVars:
       - key: NODE_ENV
