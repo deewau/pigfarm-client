@@ -4,7 +4,9 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: npm run build
+    buildCommand: |
+      npm run build:client
+      npm run build:server
     startCommand: npm start
     envVars:
       - key: NODE_ENV
