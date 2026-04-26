@@ -57,7 +57,7 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
           const fromUserId = parseInt(parts[1]);
           const recipientId = update.message.from.id;
 
-          // Проверка: отправитель не может получить свой собственный подарок - молча блокируем
+          // Проверка: отправитель не может получить свой собственный подарок - НЕ отправляем сообщение
           if (fromUserId === recipientId) {
             console.log(`🎁 BLOCKED in webhook: User ${fromUserId} tried to claim their own gift`);
           } else {
@@ -83,10 +83,9 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientId: number) {
   try {
-    // Проверка: если отправитель переходит по своей же ссылке
+    // Проверка уже делается до вызова - оставляем для безопасности
     if (fromUserId === recipientId) {
-      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift`);
-      await sendMessage(recipientId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+      console.log(`🎁 BLOCKED in webhook processGiftTransfer: ${fromUserId} tried self-gift`);
       return;
     }
 

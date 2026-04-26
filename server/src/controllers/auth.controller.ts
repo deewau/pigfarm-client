@@ -136,10 +136,9 @@ export async function authWithTelegram(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientTelegramId: number, recipientUserId: number) {
   try {
-    // Проверка: если отправитель переходит по своей же ссылке
+    // Проверка уже делается до вызова этой функции - оставляем на всякий случай
     if (fromUserId === recipientTelegramId) {
-      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift`);
-      await sendTelegramMessage(recipientTelegramId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift - ALREADY BLOCKED`);
       return;
     }
 
