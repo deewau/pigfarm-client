@@ -57,8 +57,12 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
           const fromUserId = parseInt(parts[1]);
           const recipientId = update.message.from.id;
 
-          // Всегда отправляем сообщение - пусть Mini App обработает подарок
-          await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
+          // Проверка: если отправитель открывает свою же ссылку - НЕ отправляем сообщение
+          if (fromUserId === recipientId) {
+            console.log(`🎁 Self-gift detected in webhook - skipping message`);
+          } else {
+            await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
+          }
         }
       }
     }
