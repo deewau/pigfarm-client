@@ -5,6 +5,10 @@ import { userRepository, userGiftRepository, transactionRepository } from '../db
 import { sendGiftToUser, GIFTS_DATA } from '../services/telegram.js';
 import type { TelegramGift } from '../services/telegram.js';
 
+// Простой дедупликатор - хранит recent запросы
+const recentGiftRequests = new Map<string, number>();
+const DEDUP_WINDOW_MS = 5000; // 5 секунд
+
 export async function authWithTelegram(req: Request, res: Response) {
   try {
     const { initData } = req.body;
@@ -86,6 +90,17 @@ export async function authWithTelegram(req: Request, res: Response) {
         const { giftId, fromUserId } = pendingGift;
         const userTgId = Number(user.telegram_id);
         const fromTgId = Number(fromUserId);
+        
+        // Дедупликатор - проверяем недавший ли уже обрабатывали этот подарок
+        const dedupKey = `gift_${giftId}_${fromTgId}_${userTgId}`;
+        const now = Date.now();
+        const lastSeen = recentGiftRequests.get(dedupKey);
+        
+        if (lastSeen && (now - lastSeen) < DEDUP_WINDOW_MS) {
+          console.log(`🎁 DEDUP BLOCK: ${dedupKey} repeated within ${DEDUP_WINDOW_MS}ms`);
+          return;
+        }
+        recentGiftRequests.set(dedupKey, now);
         
         console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId}, userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
         
