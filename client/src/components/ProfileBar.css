@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: #ffffff;
+  background: #1a1a1a;
   border-radius: 16px;
   border: 1px solid var(--border);
 }
@@ -13,13 +13,13 @@
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  background: #f0f0f0;
+  background: #252525;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
-  border: 2px solid #e5e5e5;
+  border: 2px solid #333;
 }
 
 .profile-bar__avatar img {
@@ -39,7 +39,7 @@
   font-family: 'Gilroy', sans-serif;
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #ffffff;
   letter-spacing: 0.3px;
 }
 
