@@ -53,10 +53,17 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
       if (payload.startsWith('gift_')) {
         const parts = payload.replace('gift_', '').split('_');
         if (parts.length >= 2) {
+          const giftId = parseInt(parts[0]);
           const fromUserId = parseInt(parts[1]);
           const recipientId = update.message.from.id;
 
-          await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
+          // Проверка: отправитель не может получить свой собственный подарок
+          if (fromUserId === recipientId) {
+            console.log(`🎁 BLOCKED: User ${fromUserId} tried to claim their own gift`);
+            await sendMessage(recipientId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+          } else {
+            await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
+          }
         }
       }
     }

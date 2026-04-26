@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS user_gifts (
   gift_id TEXT NOT NULL,
   gift_name TEXT NOT NULL,
   gift_stars INTEGER NOT NULL,
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'pending', 'transferred')),
+  pending_for INTEGER,
   won_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 

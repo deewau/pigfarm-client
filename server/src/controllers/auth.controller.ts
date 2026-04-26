@@ -84,14 +84,27 @@ export async function authWithTelegram(req: Request, res: Response) {
     if (pendingGift) {
       try {
         const { giftId, fromUserId } = pendingGift;
+        const userTgId = Number(user.telegram_id);
+        const fromTgId = Number(fromUserId);
+        
+        console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId} (${typeof fromUserId}), user.telegram_id=${user.telegram_id} (${typeof user.telegram_id}), userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
         
         // Проверка: если отправитель переходит по своей же ссылке
-        if (fromUserId === user.telegram_id) {
-          console.log(`🎁 Sender ${fromUserId} tried to claim their own gift`);
-          await sendTelegramMessage(user.telegram_id, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
-        } else {
-          await processGiftTransfer(giftId, fromUserId, user.telegram_id, user.id);
+        if (userTgId === fromTgId) {
+          console.log(`🎁 BLOCKING SELF-GIFT: userTgId=${userTgId} === fromTgId=${fromTgId}`);
+          await sendTelegramMessage(userTgId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+          return;
         }
+        
+        // Проверяем, существует ли подарок ещё в БД перед передачей
+        const checkGift = await userGiftRepository.findById(giftId);
+        if (!checkGift) {
+          console.log(`🎁 Gift ${giftId} already processed - skipping`);
+          await sendTelegramMessage(userTgId, 'Этот подарок уже был отправлен! 🎁');
+          return;
+        }
+        
+        await processGiftTransfer(giftId, fromTgId, userTgId, user.id);
       } catch (err) {
         console.error('Gift transfer error:', err);
       }
@@ -142,8 +155,14 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
     const userGift = await userGiftRepository.findById(giftId);
     
     if (!userGift) {
-      console.log(`🎁 Gift ${giftId} not found`);
+      console.log(`🎁 Gift ${giftId} not found - already transferred or not exist`);
       await sendTelegramMessage(recipientTelegramId, 'Извини, этот подарок уже был отправлен или удалён. 😔');
+      return;
+    }
+    
+    // Дополнительная проверка: если подарок уже был каким-то образом передан (проверяем по статусу если есть)
+    if ((userGift as any).status === 'transferred' || (userGift as any).status === 'pending') {
+      console.log(`🎁 Gift ${giftId} already ${(userGift as any).status} - SKIPPING`);
       return;
     }
 
