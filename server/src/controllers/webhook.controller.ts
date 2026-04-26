@@ -59,9 +59,9 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
 
           console.log(`🎁 WEBHOOK: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}, self=${fromUserId === recipientId}`);
 
-          // Если отправитель сам себе - НЕ отправляем сообщение
+          // Если отправитель сам себе - отправляем "Упс..."
           if (fromUserId === recipientId) {
-            console.log(`🎁 WEBHOOK: self-gift - no message`);
+            await sendMessage(recipientId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
           } else {
             await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
           }
