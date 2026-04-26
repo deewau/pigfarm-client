@@ -89,10 +89,9 @@ export async function authWithTelegram(req: Request, res: Response) {
         
         console.log(`🎁 DEBUG: giftId=${giftId}, fromUserId=${fromUserId} (${typeof fromUserId}), user.telegram_id=${user.telegram_id} (${typeof user.telegram_id}), userTgId=${userTgId}, fromTgId=${fromTgId}, equal=${userTgId === fromTgId}`);
         
-        // Проверка: если отправитель переходит по своей же ссылке
+        // Проверка: если отправитель переходит по своей же ссылке - просто блокируем без сообщения
         if (userTgId === fromTgId) {
           console.log(`🎁 BLOCKING SELF-GIFT: userTgId=${userTgId} === fromTgId=${fromTgId}`);
-          await sendTelegramMessage(userTgId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
           return;
         }
         
@@ -100,7 +99,6 @@ export async function authWithTelegram(req: Request, res: Response) {
         const checkGift = await userGiftRepository.findById(giftId);
         if (!checkGift) {
           console.log(`🎁 Gift ${giftId} already processed - skipping`);
-          await sendTelegramMessage(userTgId, 'Этот подарок уже был отправлен! 🎁');
           return;
         }
         
