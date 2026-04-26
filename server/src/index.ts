@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { initializeDatabase } from './db/connection.js';
+import { runMigrations } from './db/migrate.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -79,6 +80,7 @@ app.use(errorHandler);
 // Инициализация БД и запуск сервера
 async function start() {
   await initializeDatabase();
+  await runMigrations();
 
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
