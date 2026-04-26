@@ -93,13 +93,16 @@ export async function authWithTelegram(req: Request, res: Response) {
         const checkGift = await userGiftRepository.findById(giftId);
         if (!checkGift) {
           console.log(`🎁 Gift ${giftId} already processed - skipping`);
+          return;
         } else if (userTgId === fromTgId) {
-          // Блокируем передачу самому себе - отправляем сообщение
+          // Блокируем передачу самому себе - отправляем сообщение и ВЫХОДИМ
           console.log(`🎁 BLOCK SELF-GIFT for ${userTgId}`);
           await sendTelegramMessage(userTgId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+          return;
         } else {
           // Нормальная передача подарка
           await processGiftTransfer(giftId, fromTgId, userTgId, user.id);
+          return;
         }
       } catch (err) {
         console.error('Gift transfer error:', err);
