@@ -2,9 +2,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
+import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
 import { ComingSoon } from './components/ComingSoon';
-import { GiftsIcon, GameIcon, ProfileIcon } from './components/icons';
+import { GiftsIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route index element={<Play />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
           <Route path="play" element={<Play />} />
+          <Route path="inventory" element={<Inventory />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Route>
@@ -30,6 +32,7 @@ function Layout() {
           <Route index element={<Play />} />
           <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
           <Route path="play" element={<Play />} />
+          <Route path="inventory" element={<Inventory />} />
           <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
           <Route path="profile" element={<Profile />} />
         </Routes>
@@ -58,6 +61,12 @@ function BottomBar() {
           label: 'Играть',
           path: '/play',
           icon: <GameIcon />,
+        },
+        {
+          id: 'inventory',
+          label: 'Инвентарь',
+          path: '/inventory',
+          icon: <InventoryIcon />,
         },
         {
           id: 'profile',

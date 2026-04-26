@@ -5,10 +5,7 @@ import { GameIcon } from '../components/icons';
 import { CircularAvatar } from '../components/CircularAvatar';
 import { SettingsModal } from '../components/SettingsModal';
 import { DepositModal } from '../components/DepositModal';
-import { GiftImage } from '../components/GiftAnimation';
-import { GiftReceiveModal } from '../components/GiftReceiveModal';
 import { timeAgo } from '../utils/timeAgo';
-import { winApi } from '../services/api';
 import './Profile.css';
 
 export function Profile() {
@@ -16,15 +13,7 @@ export function Profile() {
   const { user, loading, error, addBalance } = useAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
-  const [tab, setTab] = useState<'gifts' | 'friends' | 'history'>('gifts');
-  const [selectedGift, setSelectedGift] = useState<{
-    id: number;
-    gift_id: string;
-    gift_name: string;
-    gift_stars: number;
-    animationSvg?: string;
-    animationData?: any;
-  } | null>(null);
+const [tab, setTab] = useState<'friends' | 'history'>('friends');
   const [level, setLevel] = useState(1);
 
   const handleInvite = () => {
@@ -61,26 +50,9 @@ export function Profile() {
     }
   };
 
-  // Gifts data
-  const [userGifts, setUserGifts] = useState<any[]>([]);
-  const [giftsLoading, setGiftsLoading] = useState(false);
-
-  const loadGifts = async () => {
-    if (userGifts.length > 0) return;
-    setGiftsLoading(true);
-    try {
-      const response = await winApi.getMy();
-      if (response.success) setUserGifts(response.data?.gifts || []);
-    } catch (err) {
-      console.error('Failed to load gifts:', err);
-    } finally {
-      setGiftsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (tab === 'gifts') {
-      loadGifts();
+    if (tab === 'history') {
+      loadHistory();
     }
   }, [tab]);
 
@@ -137,12 +109,6 @@ export function Profile() {
       {/* Вкладки */}
       <div className="profile__tabs">
         <button
-          className={`profile__tab ${tab === 'gifts' ? 'profile__tab--active' : ''}`}
-          onClick={() => setTab('gifts')}
-        >
-          Подарки
-        </button>
-        <button
           className={`profile__tab ${tab === 'friends' ? 'profile__tab--active' : ''}`}
           onClick={() => setTab('friends')}
         >
@@ -157,39 +123,6 @@ export function Profile() {
       </div>
 
       {/* Содержимое вкладок */}
-      {tab === 'gifts' && (
-        <div className="profile__tab-content profile__tab-content--scrollable">
-          {giftsLoading ? (
-            <div className="profile__loading">Загрузка...</div>
-          ) : userGifts.length === 0 ? (
-            <div className="profile__empty">
-              <div className="profile__empty-icon">🎁</div>
-              <p>У вас ещё нет подарков</p>
-            </div>
-          ) : (
-            <div className="profile__gifts-grid">
-              {userGifts.map((gift, index) => (
-                <div 
-                  key={gift.id} 
-                  className="profile__gift-card"
-                  onClick={() => setSelectedGift(gift)}
-                >
-                  <div className="profile__gift-icon">
-                    {gift.animationSvg ? (
-                      <GiftImage svgContent={gift.animationSvg} size={60} uniqueId={`profile-gift-${gift.id}`} />
-                    ) : (
-                      <span>{gift.gift_stars} ⭐</span>
-                    )}
-                  </div>
-                  <span className="profile__gift-name">{gift.gift_name}</span>
-                  <span className="profile__gift-date">{timeAgo(gift.won_at)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {tab === 'friends' && (
         <div className="profile__tab-content">
           <div className="profile__empty">
@@ -235,16 +168,6 @@ export function Profile() {
 
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <DepositModal isOpen={depositOpen} onClose={() => setDepositOpen(false)} onDepositSuccess={(amount) => { addBalance(amount); }} />
-      <GiftReceiveModal
-        isOpen={!!selectedGift}
-        gift={selectedGift}
-        onClose={() => setSelectedGift(null)}
-        onSend={async () => {
-          if (!selectedGift) return;
-          await winApi.send(selectedGift.id);
-        }}
-        onSuccess={loadGifts}
-      />
     </div>
   );
 }

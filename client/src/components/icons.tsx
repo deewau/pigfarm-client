@@ -41,3 +41,10 @@ export const ReferralIcon: FC = () => (
     <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
   </svg>
 );
+
+// Иконка инвентаря (рюкзак)
+export const InventoryIcon: FC = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+    <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-2V4h2v2z" />
+  </svg>
+);
