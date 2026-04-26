@@ -33,12 +33,15 @@ export async function authWithTelegram(req: Request, res: Response) {
     const validatedData = validateTelegramInitData(initData, botToken);
 
     if (!validatedData) {
+      console.log(`❌ auth validation FAILED for initData:`, initData.substring(0, 100) + '...');
       res.status(401).json({
         success: false,
         error: 'Invalid or expired Telegram init data',
       });
       return;
     }
+
+    console.log(`✅ auth validation OK: user=${validatedData.user?.id}, first_name=${validatedData.user?.first_name}`);
 
     const telegramUser = validatedData.user;
 
@@ -71,6 +74,7 @@ export async function authWithTelegram(req: Request, res: Response) {
 
     // Ищем или создаём пользователя
     let user = await userRepository.findByTelegramId(telegramUser.id);
+    console.log(`🔍 findByTelegramId(${telegramUser.id}):`, user ? `found id=${user.id}` : 'NOT found');
 
     if (!user) {
       user = await userRepository.create({
@@ -81,7 +85,9 @@ export async function authWithTelegram(req: Request, res: Response) {
         language_code: telegramUser.language_code || 'ru',
         referredBy,
       });
-      console.log(`🆕 New user registered: ${user.first_name} (@${user.username || user.telegram_id})`);
+      console.log(`🆕 New user created: id=${user.id}, balance=${user.balance}`);
+    } else {
+      console.log(`👤 Existing user: id=${user.id}, balance=${user.balance}`);
     }
 
     // Обрабатываем подарок
@@ -136,6 +142,7 @@ export async function authWithTelegram(req: Request, res: Response) {
         },
       },
     });
+    console.log(`✅ Auth response: userId=${user.id}, balance=${user.balance}`);
   } catch (error) {
     console.error('authWithTelegram error:', error);
     res.status(500).json({

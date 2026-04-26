@@ -13,7 +13,9 @@ export const userRepository = {
     const pool = getPool();
     const result = await pool.query('SELECT * FROM users WHERE telegram_id = $1', [telegramId]);
     if (result.rows.length === 0) return undefined;
-    return result.rows[0] as User;
+    const user = result.rows[0] as User;
+    console.log(`📊 DB findByTelegramId result:`, JSON.stringify(user));
+    return user;
   },
 
   async create(data: {

@@ -9,15 +9,14 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "tunnel": "lt --port 5173",
     "start": "cd server && node dist/index.js",
-    "build": "npm run client:build && npm run server:build",
-    "client:build": "npm run build --prefix client",
-    "server:build": "npm run build --prefix server",
+    "build": "cd server && npm install && npx shx rm -rf public && npx shx cp -r ../client/dist public/ && tsc && npx shx cp src/db/schema.sql dist/db/",
+    "client:build": "cd client && npm install && npx vite build",
     "client:install": "npm install --prefix client",
-    "server:install": "npm install --prefix server",
-    "install:all": "npm install && npm run client:install && npm run server:install"
+    "server:install": "npm install --prefix server"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
     "localtunnel": "^2.0.2"
   }
+}
 }
