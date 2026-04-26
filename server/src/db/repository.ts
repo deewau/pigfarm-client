@@ -10,12 +10,21 @@ export const userRepository = {
   },
 
   async findByTelegramId(telegramId: number): Promise<User | undefined> {
+    console.log(`📊 DB: findByTelegramId(${telegramId})`);
     const pool = getPool();
-    const result = await pool.query('SELECT * FROM users WHERE telegram_id = $1', [telegramId]);
-    if (result.rows.length === 0) return undefined;
-    const user = result.rows[0] as User;
-    console.log(`📊 DB findByTelegramId result:`, JSON.stringify(user));
-    return user;
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE telegram_id = $1', [telegramId]);
+      if (result.rows.length === 0) {
+        console.log(`📊 DB: no user found for telegram_id=${telegramId}`);
+        return undefined;
+      }
+      const user = result.rows[0] as User;
+      console.log(`📊 DB: found user id=${user.id}, telegram_id=${user.telegram_id}, balance=${user.balance}`);
+      return user;
+    } catch (err) {
+      console.error(`📊 DB ERROR:`, err);
+      throw err;
+    }
   },
 
   async create(data: {
