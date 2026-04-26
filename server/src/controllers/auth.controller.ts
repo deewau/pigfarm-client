@@ -123,6 +123,13 @@ export async function authWithTelegram(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientTelegramId: number, recipientUserId: number) {
   try {
+    // Проверка: если отправитель переходит по своей же ссылке
+    if (fromUserId === recipientTelegramId) {
+      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift`);
+      await sendTelegramMessage(recipientTelegramId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+      return;
+    }
+
     // Конвертируем Telegram ID в internal ID
     const senderUser = await userRepository.findByTelegramId(fromUserId);
     if (!senderUser) {

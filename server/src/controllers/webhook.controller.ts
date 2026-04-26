@@ -77,6 +77,13 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
  */
 async function processGiftTransfer(giftId: number, fromUserId: number, recipientId: number) {
   try {
+    // Проверка: если отправитель переходит по своей же ссылке
+    if (fromUserId === recipientId) {
+      console.log(`🎁 Sender ${fromUserId} tried to claim their own gift`);
+      await sendMessage(recipientId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
+      return;
+    }
+
     // Конвертируем Telegram ID в internal ID
     const senderUser = await userRepository.findByTelegramId(fromUserId);
     if (!senderUser) {
