@@ -51,6 +51,7 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
       const payload = update.message.text.replace('/start ', '');
       
       if (payload.startsWith('gift_')) {
+        console.log(`🎁 WEBHOOK received: ${payload}`);
         const parts = payload.replace('gift_', '').split('_');
         if (parts.length >= 2) {
           const giftId = parseInt(parts[0]);
@@ -59,12 +60,8 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
 
           console.log(`🎁 WEBHOOK: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}, self=${fromUserId === recipientId}`);
 
-          // Если отправитель сам себе - отправляем "Упс..."
-          if (fromUserId === recipientId) {
-            await sendMessage(recipientId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
-          } else {
-            await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
-          }
+          // Всегда отправляем сообщение - Mini App обработает подарок
+          await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
         }
       }
     }

@@ -94,8 +94,9 @@ export async function authWithTelegram(req: Request, res: Response) {
         if (!checkGift) {
           console.log(`🎁 Gift ${giftId} already processed - skipping`);
         } else if (userTgId === fromTgId) {
-          // Блокируем передачу самому себе - НО НЕ отправляем сообщение (webhook обработает)
+          // Блокируем передачу самому себе - отправляем сообщение
           console.log(`🎁 BLOCK SELF-GIFT for ${userTgId}`);
+          await sendTelegramMessage(userTgId, 'Упс, ты чуть не получил подарок, который отправлял другу! 😄\n\nДождись, пока друг заберёт подарок.');
         } else {
           // Нормальная передача подарка
           await processGiftTransfer(giftId, fromTgId, userTgId, user.id);
