@@ -46,23 +46,14 @@ export async function handleTelegramWebhook(req: Request, res: Response) {
       await handleRefundedPayment(payment.telegram_payment_charge_id);
     }
 
-    // Обработка /start с подарком (gift_{giftId}_{fromUserId}) - только сообщение, не передаём напрямую
+    // Обработка /start с подарком (gift_{giftId}_{fromUserId}) - НЕ отправляем никакое сообщение
+    // Mini App сама обработает подарок при авторизации
     if (update.message?.text && update.message.text.startsWith('/start ')) {
       const payload = update.message.text.replace('/start ', '');
       
       if (payload.startsWith('gift_')) {
-        console.log(`🎁 WEBHOOK received: ${payload}`);
-        const parts = payload.replace('gift_', '').split('_');
-        if (parts.length >= 2) {
-          const giftId = parseInt(parts[0]);
-          const fromUserId = parseInt(parts[1]);
-          const recipientId = update.message.from.id;
-
-          console.log(`🎁 WEBHOOK: giftId=${giftId}, fromUserId=${fromUserId}, recipientId=${recipientId}, self=${fromUserId === recipientId}`);
-
-          // Всегда отправляем сообщение - Mini App обработает подарок
-          await sendMessage(recipientId, 'Чтобы забрать подарок, открой Mini App: 🎁');
-        }
+        console.log(`🎁 WEBHOOK: gift link received but NOT sending message - Mini App will handle`);
+        // Ничего не отправляем - Mini App обработает
       }
     }
 
