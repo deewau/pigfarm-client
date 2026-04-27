@@ -294,6 +294,12 @@ export function Play() {
         };
         refreshBalance();
         refreshXp();
+        setTimeout(() => {
+          const cached = localStorage.getItem('pigfarm_userLevel');
+          if (cached) {
+            window.dispatchEvent(new CustomEvent('xp-updated', { detail: JSON.parse(cached) }));
+          }
+        }, 100);
       } catch (err) {
         return;
       }
