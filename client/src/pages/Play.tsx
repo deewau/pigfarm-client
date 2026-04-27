@@ -415,8 +415,7 @@ export function Play() {
 
         {showResult && wonGift && (
           <ResultModal
-            animationSvg={wonGift.animationSvg}
-            giftId={wonGift.id}
+            animationData={wonGift.animationData}
             onClose={() => setShowResult(false)}
             onDisableDemo={() => {
               setShowResult(false);
