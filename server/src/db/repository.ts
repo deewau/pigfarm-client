@@ -71,6 +71,15 @@ export const userRepository = {
     return result.rows[0] as User;
   },
 
+  async addXp(userId: number, amount: number): Promise<User> {
+    const pool = getPool();
+    const result = await pool.query(
+      'UPDATE users SET xp = xp + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+      [amount, userId]
+    );
+    return result.rows[0] as User;
+  },
+
   async getReferrals(userId: number): Promise<User[]> {
     const pool = getPool();
     const result = await pool.query('SELECT * FROM users WHERE referred_by = $1 ORDER BY created_at DESC', [userId]);

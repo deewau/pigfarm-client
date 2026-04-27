@@ -97,7 +97,7 @@ function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: numb
 }
 
 export function Play() {
-  const { user, addBalance, refreshBalance } = useAuth();
+  const { user, addBalance, refreshBalance, refreshXp } = useAuth();
   const [demoMode, setDemoMode] = useState(true);
   const [spinning, setSpinning] = useState(false);
   const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
@@ -256,6 +256,7 @@ export function Play() {
           animationData: response.data.gift.animationData,
         };
         refreshBalance();
+        refreshXp();
       } catch (err) {
         return;
       }

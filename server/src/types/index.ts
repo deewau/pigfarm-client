@@ -6,6 +6,7 @@ export interface User {
   username?: string;
   language_code: string;
   balance: number;
+  xp: number;
   referred_by?: number;
   referral_earnings: number;
   created_at: string;

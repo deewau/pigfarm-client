@@ -9,7 +9,7 @@ import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, addBalance } = useAuth();
+  const { user, loading, error, addBalance, refreshXp, userLevel } = useAuth();
   const [depositOpen, setDepositOpen] = useState(false);
   const [tab, setTab] = useState<'history'>('history');
 
@@ -19,6 +19,10 @@ export function Profile() {
 
   const [transactions, setTransactions] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  useEffect(() => {
+    refreshXp();
+  }, []);
 
   const loadHistory = async () => {
     if (transactions.length > 0) return;
@@ -67,6 +71,21 @@ export function Profile() {
             </div>
           </div>
         </div>
+
+        <div className="profile__level-bar">
+          <div className="profile__level-header">
+            <span className="profile__level-label">Уровень {userLevel?.level || 1}</span>
+            <span className="profile__level-xp">{userLevel?.currentXp || 0} / {userLevel?.xpForNextLevel || 1000} XP</span>
+          </div>
+          <div className="profile__progress-track">
+            <div
+              className="profile__progress-fill"
+              style={{ width: `${userLevel?.progress || 0}%` }}
+            />
+            <div className="profile__progress-glow" style={{ width: `${userLevel?.progress || 0}%` }} />
+          </div>
+        </div>
+
         <button className="profile__deposit" onClick={() => setDepositOpen(true)}>Пополнить баланс</button>
       </div>
 

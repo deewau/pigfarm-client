@@ -6,6 +6,7 @@ export interface User {
   username?: string;
   language_code: string;
   balance: number;
+  xp: number;
   created_at: string;
   updated_at: string;
 }
@@ -47,4 +48,11 @@ export interface DepositResponse {
     description?: string;
     created_at: string;
   };
+}
+
+export interface UserLevel {
+  level: number;
+  currentXp: number;
+  xpForNextLevel: number;
+  progress: number;
 }

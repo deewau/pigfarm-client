@@ -18,6 +18,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 };
 
 const SPIN_COST = 25;
+const XP_PER_SPIN = 50;
 
 function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
@@ -87,6 +88,8 @@ export async function spinRoulette(req: Request, res: Response) {
       status: 'completed',
       description: `Крутка рулетки: выигран ${wonGift.name}`,
     });
+
+    await userRepository.addXp(userId, XP_PER_SPIN);
 
     const updatedUser = await userRepository.findById(userId);
     console.log(`🎰 Spin complete: ${wonGift.name} for user ${userId}. Balance: ${updatedUser?.balance}`);

@@ -139,6 +139,7 @@ export async function authWithTelegram(req: Request, res: Response) {
           first_name: user.first_name,
           username: user.username,
           balance: user.balance,
+          xp: user.xp,
         },
       },
     });

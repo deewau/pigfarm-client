@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse, AuthResponse, DepositResponse } from '../types';
+import type { ApiResponse, AuthResponse, DepositResponse, UserLevel } from '../types';
 
 // В разработке используем относительные пути (через Vite proxy),
 // в продакшене — VITE_API_URL
@@ -33,6 +33,10 @@ export const authApi = {
 export const userApi = {
   getBalance: async (): Promise<ApiResponse<{ balance: number }>> => {
     const response = await api.get<ApiResponse<{ balance: number }>>('/api/user/balance');
+    return response.data;
+  },
+  getXp: async (): Promise<ApiResponse<UserLevel>> => {
+    const response = await api.get<ApiResponse<UserLevel>>('/api/user/xp');
     return response.data;
   },
   spend: async (amount: number, description?: string): Promise<ApiResponse<{ balance: number }>> => {

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authApi, userApi } from '../services/api';
-import type { User } from '../types';
+import type { User, UserLevel } from '../types';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
 
   const login = useCallback(async () => {
     const tg = (window as any).Telegram?.WebApp;
@@ -31,6 +32,7 @@ export function useAuth() {
           username: userData.username,
           language_code: tg.initDataUnsafe?.user?.language_code || 'ru',
           balance: userData.balance,
+          xp: userData.xp || 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           last_name: tg.initDataUnsafe?.user?.last_name,
@@ -59,6 +61,18 @@ export function useAuth() {
     }
   }, [user]);
 
+  const refreshXp = useCallback(async () => {
+    try {
+      const response = await userApi.getXp();
+      if (response.success && response.data) {
+        setUserLevel(response.data);
+        setUser((prev) => (prev ? { ...prev, xp: response.data!.currentXp } : null));
+      }
+    } catch (err) {
+      console.error('Failed to refresh XP:', err);
+    }
+  }, []);
+
   // Мгновенное обновление баланса на клиенте
   const addBalance = useCallback((amount: number) => {
     setUser((prev) => (prev ? { ...prev, balance: prev.balance + amount } : null));
@@ -73,6 +87,8 @@ export function useAuth() {
     loading,
     error,
     refreshBalance,
+    refreshXp,
+    userLevel,
     addBalance,
     login,
   };

@@ -4,7 +4,6 @@ export async function runMigrations() {
   const pool = await getPool().connect();
   
   try {
-    // Добавляем колонку referred_by если её нет
     await pool.query(`
       DO $$ 
       BEGIN 
@@ -19,6 +18,22 @@ export async function runMigrations() {
         END IF;
       END $$;
     `);
+
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'users' AND column_name = 'xp'
+        ) THEN
+          ALTER TABLE users ADD COLUMN xp INTEGER DEFAULT 0 CHECK(xp >= 0);
+          RAISE NOTICE 'Column xp added';
+        ELSE
+          RAISE NOTICE 'Column xp already exists';
+        END IF;
+      END $$;
+    `);
+
     console.log('✅ Migration completed');
   } catch (err) {
     console.error('❌ Migration failed:', err);

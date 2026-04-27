@@ -181,3 +181,79 @@ export async function spendBalance(req: Request, res: Response) {
     });
   }
 }
+
+export async function getUserXp(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+      return;
+    }
+
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        xp: user.xp,
+        level: calculateLevel(user.xp),
+      },
+    });
+  } catch (error) {
+    console.error('getUserXp error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch XP',
+    });
+  }
+}
+
+function calculateLevel(xp: number): { level: number; currentXp: number; xpForNextLevel: number; progress: number } {
+  const levels = [
+    { level: 1, xpRequired: 0 },
+    { level: 2, xpRequired: 1000 },
+    { level: 3, xpRequired: 2200 },
+    { level: 4, xpRequired: 3600 },
+    { level: 5, xpRequired: 5200 },
+    { level: 6, xpRequired: 7000 },
+    { level: 7, xpRequired: 9000 },
+    { level: 8, xpRequired: 11200 },
+    { level: 9, xpRequired: 13600 },
+    { level: 10, xpRequired: 16200 },
+  ];
+
+  let currentLevel = 1;
+  let xpForNextLevel = 1000;
+
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (xp >= levels[i].xpRequired) {
+      currentLevel = levels[i].level;
+      xpForNextLevel = i < levels.length - 1 ? levels[i + 1].xpRequired : levels[i].xpRequired + 2000;
+      break;
+    }
+  }
+
+  const previousXp = currentLevel === 1 ? 0 : levels[currentLevel - 1].xpRequired;
+  const xpInLevel = xp - previousXp;
+  const xpNeeded = xpForNextLevel - previousXp;
+  const progress = Math.min((xpInLevel / xpNeeded) * 100, 100);
+
+  return {
+    level: currentLevel,
+    currentXp: xpInLevel,
+    xpForNextLevel: xpNeeded,
+    progress,
+  };
+}
