@@ -413,18 +413,19 @@ export function Play() {
         ))}
       </div>
 
-      {showResult && wonGift && (
-        <ResultModal
-          animationData={wonGift.animationData}
-          onClose={() => setShowResult(false)}
-          onDisableDemo={() => {
-            setShowResult(false);
-            setDemoMode(false);
-          }}
-          isDemo={demoMode}
-          onGoToProfile={handleGoToProfile}
-        />
-      )}
+        {showResult && wonGift && (
+          <ResultModal
+            animationSvg={wonGift.animationSvg}
+            giftId={wonGift.id}
+            onClose={() => setShowResult(false)}
+            onDisableDemo={() => {
+              setShowResult(false);
+              setDemoMode(false);
+            }}
+            isDemo={demoMode}
+            onGoToProfile={handleGoToProfile}
+          />
+        )}
 
       {showDeposit && (
         <DepositModal

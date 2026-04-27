@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
-import lottie from 'lottie-web';
+import { GiftImage } from '../components/GiftAnimation';
 import './ResultModal.css';
 
 interface ResultModalProps {
-  animationData: any;
+  animationSvg?: string;
+  giftId?: string;
   onClose: () => void;
   onDisableDemo?: () => void;
   isDemo?: boolean;
@@ -11,32 +11,24 @@ interface ResultModalProps {
 }
 
 export function ResultModal({ 
-  animationData, 
+  animationSvg,
+  giftId,
   onClose, 
   onDisableDemo, 
   isDemo = true,
   onGoToProfile 
 }: ResultModalProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || !animationData) return;
-
-    const animation = lottie.loadAnimation({
-      container: containerRef.current,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      animationData: animationData,
-    });
-
-    return () => animation.destroy();
-  }, [animationData]);
-
   return (
     <div className="result-modal-overlay" onClick={onClose}>
       <div className="result-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="result-modal__gift" ref={containerRef} />
+        <div className="result-modal__gift">
+          <GiftImage 
+            svgContent={animationSvg} 
+            giftId={giftId}
+            size={200}
+            fallbackEmoji="🎁"
+          />
+        </div>
         <h2 className="result-modal__message">
           {isDemo ? 'Вы выиграли подарок!' : '🎉 Поздравляем!'}
         </h2>

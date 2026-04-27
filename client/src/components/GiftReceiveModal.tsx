@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, type FC } from 'react';
-import lottie from 'lottie-web';
+import { useState, type FC } from 'react';
 import { GiftImage } from '../components/GiftAnimation';
 import './GiftReceiveModal.css';
 
@@ -11,7 +10,6 @@ interface GiftReceiveModalProps {
     gift_name: string;
     gift_stars: number;
     animationSvg?: string;
-    animationData?: any;
   } | null;
   onClose: () => void;
   onSend: () => void;
@@ -19,25 +17,10 @@ interface GiftReceiveModalProps {
 }
 
 export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onClose, onSend, onSuccess }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || !gift?.animationData) return;
-
-    const animation = lottie.loadAnimation({
-      container: containerRef.current,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      animationData: gift.animationData,
-    });
-
-    return () => animation.destroy();
-  }, [gift?.animationData]);
 
   const handleSend = async () => {
     setSending(true);
