@@ -15,7 +15,7 @@ export function useAuth() {
         return null;
       }
     }
-    return { level: 1, currentXp: 0, xpForNextLevel: 1000, progress: 0 };
+    return null;
   });
 
   const login = useCallback(async () => {
@@ -75,11 +75,16 @@ export function useAuth() {
     try {
       const response = await userApi.getXp();
       if (response.success && response.data) {
-        setUserLevel(response.data);
-        setUser((prev) => (prev ? { ...prev, xp: response.data!.currentXp } : null));
-        const levelData = JSON.stringify(response.data);
-        localStorage.setItem('pigfarm_userLevel', levelData);
-        window.dispatchEvent(new CustomEvent('xp-updated', { detail: response.data }));
+        const levelData = {
+          level: response.data.level.level,
+          currentXp: response.data.level.currentXp,
+          xpForNextLevel: response.data.level.xpForNextLevel,
+          progress: response.data.level.progress,
+        };
+        setUserLevel(levelData);
+        setUser((prev) => (prev ? { ...prev, xp: response.data!.xp } : null));
+        localStorage.setItem('pigfarm_userLevel', JSON.stringify(levelData));
+        window.dispatchEvent(new CustomEvent('xp-updated', { detail: levelData }));
       }
     } catch (err) {
       console.error('Failed to refresh XP:', err);

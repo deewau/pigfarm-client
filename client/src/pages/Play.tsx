@@ -299,13 +299,6 @@ export function Play() {
       }
     } else {
       targetGift = weightedRandomSelect(availableGifts);
-      const cached = localStorage.getItem('pigfarm_userLevel');
-      let level = cached ? JSON.parse(cached) : { level: 1, currentXp: 0, xpForNextLevel: 1000, progress: 0 };
-      const newXp = (level.currentXp || 0) + 50;
-      const newLevel = calculateNextLevel(newXp, level.level);
-      const updatedLevel = { ...level, currentXp: newXp, ...newLevel };
-      localStorage.setItem('pigfarm_userLevel', JSON.stringify(updatedLevel));
-      window.dispatchEvent(new CustomEvent('xp-updated', { detail: updatedLevel }));
     }
 
     if (animationRef.current) {
