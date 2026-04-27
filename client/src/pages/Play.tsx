@@ -55,11 +55,12 @@ const PROBABILITIES_LOW: Record<string, number> = {
 
 const GIFTS_HIGH = [
   { id: '5170250947678437525', name: 'Подарок', stars: 25 },
-  { id: '5168103777563050263', name: 'Р��за', stars: 25 },
+  { id: '5168103777563050263', name: 'Роза', stars: 25 },
   { id: '6028601630662853006', name: 'Шампанское', stars: 50 },
   { id: '5170564780938756245', name: 'Ракета', stars: 50 },
   { id: '5170314324215857265', name: 'Букет', stars: 50 },
   { id: '5170144170496491616', name: 'Торт', stars: 50 },
+  { id: 'vicecream', name: 'Мороженое', stars: 370 },
   { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
   { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
   { id: '5168043875654172773', name: 'Кубок', stars: 100 },
@@ -145,7 +146,7 @@ export function Play() {
       if (spinCost === 25) {
         return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
       } else {
-        return gifts.filter(g => [25, 50, 100].includes(g.stars));
+        return gifts.filter(g => [25, 50, 100, 370].includes(g.stars));
       }
     }
     return spinCost === 25 ? GIFTS_LOW : GIFTS_HIGH;

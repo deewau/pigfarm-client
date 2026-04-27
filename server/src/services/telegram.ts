@@ -166,9 +166,9 @@ function loadGiftSvg(giftId: string): any {
   }
 }
 
-function loadGiftAnimation(giftId: string): any {
+function loadGiftAnimation(giftId: string, folder: string = 'gifts'): any {
   try {
-    const assetsPath = path.join(__dirname, '..', '..', 'assets', 'gifts');
+    const assetsPath = path.join(__dirname, '..', '..', 'assets', folder);
     const filePath = path.join(assetsPath, `${giftId}.json`);
     const data = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(data);
@@ -256,6 +256,13 @@ export const GIFTS_DATA: TelegramGift[] = [
     stars: 100,
     animationSvg: loadGiftSvg('5170521118301225164'),
     animationData: loadGiftAnimation('5170521118301225164'),
+  },
+  {
+    id: 'vicecream',
+    name: 'Мороженое',
+    stars: 370,
+    animationSvg: loadGiftSvg('vicecream'),
+    animationData: loadGiftAnimation('vicecream', 'gifts50'),
   },
 ];
 
