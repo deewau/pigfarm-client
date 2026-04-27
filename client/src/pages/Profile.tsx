@@ -9,9 +9,11 @@ import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, addBalance, refreshXp, userLevel, setUserLevel } = useAuth();
+  const { user, loading, error, addBalance, refreshXp } = useAuth();
   const [depositOpen, setDepositOpen] = useState(false);
   const [tab, setTab] = useState<'history'>('history');
+
+  const [levelData, setLevelData] = useState<{ level: number; currentXp: number; xpForNextLevel: number; progress: number } | null>(null);
 
   const avatarUrl = tgUser?.photo_url || '';
   const displayName = user?.first_name || tgUser?.first_name || 'Пользователь';
@@ -20,30 +22,33 @@ export function Profile() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  const loadLevelFromStorage = useCallback(() => {
+    const cached = localStorage.getItem('pigfarm_userLevel');
+    if (cached) {
+      try {
+        setLevelData(JSON.parse(cached));
+      } catch {
+        setLevelData(null);
+      }
+    }
+  }, []);
+
   useEffect(() => {
+    loadLevelFromStorage();
     refreshXp();
   }, []);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refreshXp();
-      }
-    };
-
     const handleXpUpdate = (e: Event) => {
       const customEvent = e as CustomEvent;
-      setUserLevel(customEvent.detail);
+      setLevelData(customEvent.detail);
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('xp-updated', handleXpUpdate);
-    
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('xp-updated', handleXpUpdate);
     };
-  }, [refreshXp]);
+  }, []);
 
   const loadHistory = async () => {
     if (transactions.length > 0) return;
@@ -95,15 +100,15 @@ export function Profile() {
 
         <div className="profile__level-bar">
           <div className="profile__level-header">
-            <span className="profile__level-label">Уровень {userLevel?.level || 1}</span>
-            <span className="profile__level-xp">{userLevel?.currentXp || 0} / {userLevel?.xpForNextLevel || 1000} XP</span>
+            <span className="profile__level-label">Уровень {levelData?.level || 1}</span>
+            <span className="profile__level-xp">{levelData?.currentXp || 0} / {levelData?.xpForNextLevel || 1000} XP</span>
           </div>
           <div className="profile__progress-track">
             <div
               className="profile__progress-fill"
-              style={{ width: `${userLevel?.progress || 0}%` }}
+              style={{ width: `${levelData?.progress || 0}%` }}
             />
-            <div className="profile__progress-glow" style={{ width: `${userLevel?.progress || 0}%` }} />
+            <div className="profile__progress-glow" style={{ width: `${levelData?.progress || 0}%` }} />
           </div>
         </div>
 
