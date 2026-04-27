@@ -8,7 +8,14 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
   const [userLevel, setUserLevel] = useState<UserLevel | null>(() => {
     const cached = localStorage.getItem('pigfarm_userLevel');
-    return cached ? JSON.parse(cached) : null;
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        return null;
+      }
+    }
+    return { level: 1, currentXp: 0, xpForNextLevel: 1000, progress: 0 };
   });
 
   const login = useCallback(async () => {
@@ -72,10 +79,7 @@ export function useAuth() {
         setUser((prev) => (prev ? { ...prev, xp: response.data!.currentXp } : null));
         const levelData = JSON.stringify(response.data);
         localStorage.setItem('pigfarm_userLevel', levelData);
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'pigfarm_userLevel',
-          newValue: levelData
-        }));
+        window.dispatchEvent(new CustomEvent('xp-updated', { detail: response.data }));
       }
     } catch (err) {
       console.error('Failed to refresh XP:', err);

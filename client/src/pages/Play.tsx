@@ -17,6 +17,43 @@ interface TelegramGift {
   sticker?: any;
 }
 
+function calculateNextLevel(totalXp: number, currentLevel: number): { level: number; currentXp: number; xpForNextLevel: number; progress: number } {
+  const levels = [
+    { level: 1, xpRequired: 0 },
+    { level: 2, xpRequired: 1000 },
+    { level: 3, xpRequired: 2200 },
+    { level: 4, xpRequired: 3600 },
+    { level: 5, xpRequired: 5200 },
+    { level: 6, xpRequired: 7000 },
+    { level: 7, xpRequired: 9000 },
+    { level: 8, xpRequired: 11200 },
+    { level: 9, xpRequired: 13600 },
+    { level: 10, xpRequired: 16200 },
+  ];
+
+  let level = currentLevel;
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (totalXp >= levels[i].xpRequired) {
+      level = levels[i].level;
+      break;
+    }
+  }
+
+  const levelIndex = level - 1;
+  const previousXp = levelIndex > 0 ? levels[levelIndex - 1].xpRequired : 0;
+  const nextXpThreshold = level < levels.length ? levels[levelIndex].xpRequired : levels[levels.length - 1].xpRequired + 2000;
+  const xpInLevel = totalXp - previousXp;
+  const xpNeeded = nextXpThreshold - previousXp;
+  const progress = Math.min((xpInLevel / xpNeeded) * 100, 100);
+
+  return {
+    level,
+    currentXp: xpInLevel,
+    xpForNextLevel: xpNeeded,
+    progress,
+  };
+}
+
 const DEFAULT_GIFTS: TelegramGift[] = [
   { id: '5170145012310081615', name: 'Сердце', stars: 15, animationSvg: '' },
   { id: '5170233102089322756', name: 'Мишка', stars: 15, animationSvg: '' },
@@ -262,6 +299,13 @@ export function Play() {
       }
     } else {
       targetGift = weightedRandomSelect(availableGifts);
+      const cached = localStorage.getItem('pigfarm_userLevel');
+      let level = cached ? JSON.parse(cached) : { level: 1, currentXp: 0, xpForNextLevel: 1000, progress: 0 };
+      const newXp = (level.currentXp || 0) + 50;
+      const newLevel = calculateNextLevel(newXp, level.level);
+      const updatedLevel = { ...level, currentXp: newXp, ...newLevel };
+      localStorage.setItem('pigfarm_userLevel', JSON.stringify(updatedLevel));
+      window.dispatchEvent(new CustomEvent('xp-updated', { detail: updatedLevel }));
     }
 
     if (animationRef.current) {

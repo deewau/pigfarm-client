@@ -31,20 +31,17 @@ export function Profile() {
       }
     };
 
-    const handleStorageChange = () => {
-      const cached = localStorage.getItem('pigfarm_userLevel');
-      if (cached) {
-        const level = JSON.parse(cached);
-        setUserLevel(level);
-      }
+    const handleXpUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setUserLevel(customEvent.detail);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('xp-updated', handleXpUpdate);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('xp-updated', handleXpUpdate);
     };
   }, [refreshXp]);
 
