@@ -4,16 +4,12 @@ import { getUserProfile, getUserBalance, getUserTransactions, spendBalance, getU
 
 const router = Router();
 
-// Публичный роут — должен быть ДО middleware
-router.get('/:id', getUserProfile);
-
-// Все остальные роуты требуют авторизации
 router.use(authenticateTelegram);
 
-router.get('/profile', getUserProfile);
-router.get('/balance', getUserBalance);
 router.get('/xp', getUserXp);
+router.get('/balance', getUserBalance);
 router.get('/transactions', getUserTransactions);
+router.get('/profile', getUserProfile);
 router.post('/spend', spendBalance);
 
 export default router;

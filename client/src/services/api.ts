@@ -35,8 +35,8 @@ export const userApi = {
     const response = await api.get<ApiResponse<{ balance: number }>>('/api/user/balance');
     return response.data;
   },
-  getXp: async (): Promise<ApiResponse<UserLevel>> => {
-    const response = await api.get<ApiResponse<UserLevel>>('/api/user/xp');
+  getXp: async (): Promise<ApiResponse<{ xp: number; level: UserLevel }>> => {
+    const response = await api.get<ApiResponse<{ xp: number; level: UserLevel }>>('/api/user/xp');
     return response.data;
   },
   spend: async (amount: number, description?: string): Promise<ApiResponse<{ balance: number }>> => {

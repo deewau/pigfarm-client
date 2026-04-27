@@ -88,10 +88,6 @@ export function useAuth() {
       }
     } catch (err) {
       console.error('Failed to refresh XP:', err);
-      const cached = localStorage.getItem('pigfarm_userLevel');
-      if (cached) {
-        setUserLevel(JSON.parse(cached));
-      }
     }
   }, []);
 

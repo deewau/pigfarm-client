@@ -56,3 +56,8 @@ export interface UserLevel {
   xpForNextLevel: number;
   progress: number;
 }
+
+export interface XpResponse {
+  xp: number;
+  level: UserLevel;
+}
