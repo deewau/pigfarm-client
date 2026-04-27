@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
 import { GameIcon } from '../components/icons';
 import { CircularAvatar } from '../components/CircularAvatar';
 import { DepositModal } from '../components/DepositModal';
 import { timeAgo } from '../utils/timeAgo';
+import { userApi } from '../services/api';
 import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, addBalance, refreshXp } = useAuth();
+  const { user, loading, error, addBalance } = useAuth();
   const [depositOpen, setDepositOpen] = useState(false);
   const [tab, setTab] = useState<'history'>('history');
 
@@ -22,32 +23,18 @@ export function Profile() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  const loadLevelFromStorage = useCallback(() => {
-    const cached = localStorage.getItem('pigfarm_userLevel');
-    if (cached) {
+  useEffect(() => {
+    async function loadXp() {
       try {
-        setLevelData(JSON.parse(cached));
-      } catch {
-        setLevelData(null);
+        const res = await userApi.getXp();
+        if (res.success && res.data) {
+          setLevelData(res.data.level);
+        }
+      } catch (e) {
+        console.error('Failed to load XP:', e);
       }
     }
-  }, []);
-
-  useEffect(() => {
-    loadLevelFromStorage();
-    refreshXp();
-  }, []);
-
-  useEffect(() => {
-    const handleXpUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      setLevelData(customEvent.detail);
-    };
-
-    window.addEventListener('xp-updated', handleXpUpdate);
-    return () => {
-      window.removeEventListener('xp-updated', handleXpUpdate);
-    };
+    loadXp();
   }, []);
 
   const loadHistory = async () => {
