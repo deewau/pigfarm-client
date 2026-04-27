@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
 import { GameIcon } from '../components/icons';
@@ -9,7 +9,7 @@ import './Profile.css';
 
 export function Profile() {
   const { user: tgUser } = useTelegram();
-  const { user, loading, error, addBalance, refreshXp, userLevel } = useAuth();
+  const { user, loading, error, addBalance, refreshXp, userLevel, setUserLevel } = useAuth();
   const [depositOpen, setDepositOpen] = useState(false);
   const [tab, setTab] = useState<'history'>('history');
 
@@ -23,6 +23,30 @@ export function Profile() {
   useEffect(() => {
     refreshXp();
   }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshXp();
+      }
+    };
+
+    const handleStorageChange = () => {
+      const cached = localStorage.getItem('pigfarm_userLevel');
+      if (cached) {
+        const level = JSON.parse(cached);
+        setUserLevel(level);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [refreshXp]);
 
   const loadHistory = async () => {
     if (transactions.length > 0) return;

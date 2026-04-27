@@ -6,7 +6,10 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(() => {
+    const cached = localStorage.getItem('pigfarm_userLevel');
+    return cached ? JSON.parse(cached) : null;
+  });
 
   const login = useCallback(async () => {
     const tg = (window as any).Telegram?.WebApp;
@@ -67,9 +70,19 @@ export function useAuth() {
       if (response.success && response.data) {
         setUserLevel(response.data);
         setUser((prev) => (prev ? { ...prev, xp: response.data!.currentXp } : null));
+        const levelData = JSON.stringify(response.data);
+        localStorage.setItem('pigfarm_userLevel', levelData);
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'pigfarm_userLevel',
+          newValue: levelData
+        }));
       }
     } catch (err) {
       console.error('Failed to refresh XP:', err);
+      const cached = localStorage.getItem('pigfarm_userLevel');
+      if (cached) {
+        setUserLevel(JSON.parse(cached));
+      }
     }
   }, []);
 
@@ -89,6 +102,7 @@ export function useAuth() {
     refreshBalance,
     refreshXp,
     userLevel,
+    setUserLevel,
     addBalance,
     login,
   };
