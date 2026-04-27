@@ -58,6 +58,12 @@ app.use('/gifts', express.static(giftsPath, {
   }
 }));
 
+// Отдаём SVG превью подарков
+const svgPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '../assets/svg')
+  : path.join(__dirname, '../../assets/svg');
+app.use('/gifts/svg', express.static(svgPath));
+
 // Health check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

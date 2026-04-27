@@ -350,7 +350,7 @@ export function Play() {
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
                 ) : (
-                  item.sticker?.emoji || '🎁'
+                  <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
                 )}
               </div>
               <div className="play__roulette-cost-badge">
@@ -404,7 +404,7 @@ export function Play() {
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
               ) : (
-                gift.sticker?.emoji || '🎁'
+                <GiftImage giftId={gift.id} size={80} fallbackEmoji="🍦" />
               )}
             </div>
             <span className="play__gift-chance">{gift.chance.toFixed(2)}%</span>
