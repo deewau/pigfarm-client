@@ -17,15 +17,42 @@ const GIFT_PROBABILITIES: Record<string, number> = {
   '5170521118301225164': 0.812,
 };
 
-const SPIN_COST = 25;
+const SPIN_COST_LOW = 25;
+const SPIN_COST_HIGH = 50;
 const XP_PER_SPIN = 50;
 
-function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
-  const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
+const PROBABILITIES_LOW: Record<string, number> = {
+  '5170145012310081615': 18.72,
+  '5170233102089322756': 18.72,
+  '5170250947678437525': 30.63,
+  '5168103777563050263': 30.05,
+  '5170144170496491616': 0.406,
+  '5170314324215857265': 0.506,
+  '5170564780938756245': 0.506,
+  '6028601630662853006': 0.506,
+  '5168043875654172773': 0.715,
+  '5170690322832818290': 0.812,
+  '5170521118301225164': 0.812,
+};
+
+const PROBABILITIES_HIGH: Record<string, number> = {
+  '5170250947678437525': 10.16,
+  '5168103777563050263': 10.16,
+  '6028601630662853006': 15.40,
+  '5170564780938756245': 15.40,
+  '5170314324215857265': 15.40,
+  '5170144170496491616': 15.40,
+  '5170690322832818290': 3.50,
+  '5170521118301225164': 3.50,
+  '5168043875654172773': 3.50,
+};
+
+function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
+  const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
   let random = Math.random() * totalWeight;
   
   for (const item of gifts) {
-    const weight = GIFT_PROBABILITIES[item.id] || 0;
+    const weight = probabilities[item.id] || 0;
     random -= weight;
     if (random <= 0) {
       return item;
@@ -35,12 +62,27 @@ function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
   return gifts[gifts.length - 1];
 }
 
+function getGiftsForCost(cost: number): TelegramGift[] {
+  if (cost === SPIN_COST_HIGH) {
+    return GIFTS_DATA.filter(g => [25, 50, 100].includes(g.stars));
+  }
+  return GIFTS_DATA;
+}
+
+function getProbabilitiesForCost(cost: number): Record<string, number> {
+  return cost === SPIN_COST_HIGH ? PROBABILITIES_HIGH : PROBABILITIES_LOW;
+}
+
+function getSpinCost(cost: number): number {
+  return cost === SPIN_COST_HIGH ? SPIN_COST_HIGH : SPIN_COST_LOW;
+}
+
 export async function spinRoulette(req: Request, res: Response) {
   let userId: number | undefined;
   
   try {
     userId = req.user?.id;
-    console.log('🎰 spinRoulette called:', { userId });
+    console.log('🎰 spinRoulette called:', { userId, body: req.body });
 
     if (!userId) {
       res.status(401).json({
@@ -49,6 +91,11 @@ export async function spinRoulette(req: Request, res: Response) {
       });
       return;
     }
+
+    const cost = req.body.cost || SPIN_COST_LOW;
+    const spinCost = getSpinCost(cost);
+    const gifts = getGiftsForCost(cost);
+    const probabilities = getProbabilitiesForCost(cost);
 
     const user = await userRepository.findById(userId);
     if (!user) {
@@ -59,20 +106,20 @@ export async function spinRoulette(req: Request, res: Response) {
       return;
     }
 
-    if (user.balance < SPIN_COST) {
+    if (user.balance < spinCost) {
       res.status(400).json({
         success: false,
         error: 'Insufficient_balance',
-        needed: SPIN_COST,
+        needed: spinCost,
         current: user.balance,
       });
       return;
     }
 
-    const wonGift = weightedRandomSelect(GIFTS_DATA);
+    const wonGift = weightedRandomSelect(gifts, probabilities);
     console.log('🎰 Won gift:', wonGift.name);
 
-    await userRepository.addBalance(userId, -SPIN_COST);
+    await userRepository.addBalance(userId, -spinCost);
 
     const gift = await userGiftRepository.create({
       user_id: userId,
@@ -83,10 +130,10 @@ export async function spinRoulette(req: Request, res: Response) {
 
     await transactionRepository.create({
       user_id: userId,
-      amount: SPIN_COST,
+      amount: spinCost,
       type: 'spend',
       status: 'completed',
-      description: `Крутка рулетки: выигран ${wonGift.name}`,
+      description: `Крутка рулетки (${spinCost}⭐): выигран ${wonGift.name}`,
     });
 
     await userRepository.addXp(userId, XP_PER_SPIN);

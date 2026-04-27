@@ -17,58 +17,29 @@ interface TelegramGift {
   sticker?: any;
 }
 
-function calculateNextLevel(totalXp: number, currentLevel: number): { level: number; currentXp: number; xpForNextLevel: number; progress: number } {
-  const levels = [
-    { level: 1, xpRequired: 0 },
-    { level: 2, xpRequired: 1000 },
-    { level: 3, xpRequired: 2200 },
-    { level: 4, xpRequired: 3600 },
-    { level: 5, xpRequired: 5200 },
-    { level: 6, xpRequired: 7000 },
-    { level: 7, xpRequired: 9000 },
-    { level: 8, xpRequired: 11200 },
-    { level: 9, xpRequired: 13600 },
-    { level: 10, xpRequired: 16200 },
-  ];
+const SPIN_COST_LOW = 25;
+const SPIN_COST_HIGH = 50;
+const ITEM_WIDTH = 97;
+const ITEM_GAP = 12;
+const PATTERN_SIZE = 30;
+const LOOPS = 3;
+const TARGET_POSITION = 10;
 
-  let level = currentLevel;
-  for (let i = levels.length - 1; i >= 0; i--) {
-    if (totalXp >= levels[i].xpRequired) {
-      level = levels[i].level;
-      break;
-    }
-  }
-
-  const levelIndex = level - 1;
-  const previousXp = levelIndex > 0 ? levels[levelIndex - 1].xpRequired : 0;
-  const nextXpThreshold = level < levels.length ? levels[levelIndex].xpRequired : levels[levels.length - 1].xpRequired + 2000;
-  const xpInLevel = totalXp - previousXp;
-  const xpNeeded = nextXpThreshold - previousXp;
-  const progress = Math.min((xpInLevel / xpNeeded) * 100, 100);
-
-  return {
-    level,
-    currentXp: xpInLevel,
-    xpForNextLevel: xpNeeded,
-    progress,
-  };
-}
-
-const DEFAULT_GIFTS: TelegramGift[] = [
-  { id: '5170145012310081615', name: 'Сердце', stars: 15, animationSvg: '' },
-  { id: '5170233102089322756', name: 'Мишка', stars: 15, animationSvg: '' },
-  { id: '5170250947678437525', name: 'Подарок', stars: 25, animationSvg: '' },
-  { id: '5168103777563050263', name: 'Роза', stars: 25, animationSvg: '' },
-  { id: '5170144170496491616', name: 'Торт', stars: 50, animationSvg: '' },
-  { id: '5170314324215857265', name: 'Букет', stars: 50, animationSvg: '' },
-  { id: '5170564780938756245', name: 'Ракета', stars: 50, animationSvg: '' },
-  { id: '6028601630662853006', name: 'Шампанское', stars: 50, animationSvg: '' },
-  { id: '5168043875654172773', name: 'Кубок', stars: 100, animationSvg: '' },
-  { id: '5170690322832818290', name: 'Кольцо', stars: 100, animationSvg: '' },
-  { id: '5170521118301225164', name: 'Алмаз', stars: 100, animationSvg: '' },
+const GIFTS_LOW = [
+  { id: '5170145012310081615', name: 'Сердце', stars: 15 },
+  { id: '5170233102089322756', name: 'Мишка', stars: 15 },
+  { id: '5170250947678437525', name: 'Подарок', stars: 25 },
+  { id: '5168103777563050263', name: 'Роза', stars: 25 },
+  { id: '5170144170496491616', name: 'Торт', stars: 50 },
+  { id: '5170314324215857265', name: 'Букет', stars: 50 },
+  { id: '5170564780938756245', name: 'Ракета', stars: 50 },
+  { id: '6028601630662853006', name: 'Шампанское', stars: 50 },
+  { id: '5168043875654172773', name: 'Кубок', stars: 100 },
+  { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
+  { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
 ];
 
-const GIFT_PROBABILITIES: Record<string, number> = {
+const PROBABILITIES_LOW: Record<string, number> = {
   '5170145012310081615': 18.72,
   '5170233102089322756': 18.72,
   '5170250947678437525': 30.63,
@@ -82,22 +53,38 @@ const GIFT_PROBABILITIES: Record<string, number> = {
   '5170521118301225164': 0.812,
 };
 
-const SPIN_COST = 25;
-const ITEM_WIDTH = 97;
-const ITEM_GAP = 12;
-const PATTERN_SIZE = 30;
-const LOOPS = 3;
-const TOTAL_ITEMS = PATTERN_SIZE * LOOPS;
-const ITEM_FULL_WIDTH = ITEM_WIDTH + ITEM_GAP;
-const TOTAL_WIDTH = TOTAL_ITEMS * ITEM_FULL_WIDTH;
-const TARGET_POSITION = 10;
+const GIFTS_HIGH = [
+  { id: '5170250947678437525', name: 'Подарок', stars: 25 },
+  { id: '5168103777563050263', name: 'Р��за', stars: 25 },
+  { id: '6028601630662853006', name: 'Шампанское', stars: 50 },
+  { id: '5170564780938756245', name: 'Ракета', stars: 50 },
+  { id: '5170314324215857265', name: 'Букет', stars: 50 },
+  { id: '5170144170496491616', name: 'Торт', stars: 50 },
+  { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
+  { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
+  { id: '5168043875654172773', name: 'Кубок', stars: 100 },
+];
 
-function weightedRandomSelect(gifts: TelegramGift[]): TelegramGift {
-  const totalWeight = gifts.reduce((sum, item) => sum + (GIFT_PROBABILITIES[item.id] || 0), 0);
+const PROBABILITIES_HIGH: Record<string, number> = {
+  '5170250947678437525': 10.16,
+  '5168103777563050263': 10.16,
+  '6028601630662853006': 15.40,
+  '5170564780938756245': 15.40,
+  '5170314324215857265': 15.40,
+  '5170144170496491616': 15.40,
+  '5170690322832818290': 3.50,
+  '5170521118301225164': 3.50,
+  '5168043875654172773': 3.50,
+};
+
+type SpinCost = 25 | 50;
+
+function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
+  const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
   let random = Math.random() * totalWeight;
   
   for (const item of gifts) {
-    const weight = GIFT_PROBABILITIES[item.id] || 0;
+    const weight = probabilities[item.id] || 0;
     random -= weight;
     if (random <= 0) {
       return item;
@@ -122,22 +109,21 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
     }
   }
   
-  console.log('🎰 PATTERN: targetGift.id=', targetGift.id, 'position=', (LOOPS-1)*PATTERN_SIZE+TARGET_POSITION, 'itemAtPos70=', items[70]?.id, items[70]?.name);
   return items;
 }
 
-function getPossibleGifts(gifts: TelegramGift[]): (TelegramGift & { chance: number })[] {
+function getPossibleGifts(gifts: TelegramGift[], probabilities: Record<string, number>): (TelegramGift & { chance: number })[] {
   return gifts.map((gift) => ({
     ...gift,
-    chance: GIFT_PROBABILITIES[gift.id] || 0,
+    chance: probabilities[gift.id] || 0,
   }));
 }
 
 export function Play() {
   const { user, addBalance, refreshBalance, refreshXp } = useAuth();
   const [demoMode, setDemoMode] = useState(true);
+  const [spinCost, setSpinCost] = useState<SpinCost>(25);
   const [spinning, setSpinning] = useState(false);
-  const [availableGifts, setAvailableGifts] = useState<TelegramGift[]>(DEFAULT_GIFTS);
   const [rouletteItems, setRouletteItems] = useState<TelegramGift[]>([]);
   const [possibleGifts, setPossibleGifts] = useState<(TelegramGift & { chance: number })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,20 +136,38 @@ export function Play() {
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
-  const offsetRef = useRef(0);
   const spinCancelledRef = useRef(false);
+  const giftsLoadedRef = useRef<TelegramGift[]>([]);
+
+  const getCurrentGifts = useCallback((): TelegramGift[] => {
+    if (giftsLoadedRef.current.length > 0) {
+      const gifts = giftsLoadedRef.current;
+      if (spinCost === 25) {
+        return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
+      } else {
+        return gifts.filter(g => [25, 50, 100].includes(g.stars));
+      }
+    }
+    return spinCost === 25 ? GIFTS_LOW : GIFTS_HIGH;
+  }, [spinCost]);
+
+  const getCurrentProbabilities = useCallback((): Record<string, number> => {
+    return spinCost === 25 ? PROBABILITIES_LOW : PROBABILITIES_HIGH;
+  }, [spinCost]);
 
   const initializeRoulette = useCallback(() => {
+    const gifts = getCurrentGifts();
+    const probabilities = getCurrentProbabilities();
+    
     const items: TelegramGift[] = [];
     for (let loop = 0; loop < LOOPS; loop++) {
       for (let i = 0; i < PATTERN_SIZE; i++) {
-        items.push(weightedRandomSelect(availableGifts));
+        items.push(weightedRandomSelect(gifts, probabilities));
       }
     }
     setRouletteItems(items);
-    setPossibleGifts(getPossibleGifts(availableGifts));
-    offsetRef.current = 0;
-  }, [availableGifts]);
+    setPossibleGifts(getPossibleGifts(gifts, probabilities));
+  }, [getCurrentGifts, getCurrentProbabilities]);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -171,7 +175,7 @@ export function Play() {
         setLoading(true);
         const response = await giftApi.getAll();
         if (response.success && response.data && response.data.length > 0) {
-          setAvailableGifts(response.data);
+          giftsLoadedRef.current = response.data;
         }
       } catch (error) {
         console.warn('Failed to load gifts from API, using defaults:', error);
@@ -183,22 +187,23 @@ export function Play() {
   }, []);
 
   useEffect(() => {
-    if (!loading && availableGifts.length > 0) {
+    if (!loading) {
       initializeRoulette();
     }
-  }, [loading, availableGifts.length]);
+  }, [loading, spinCost]);
 
   useEffect(() => {
-    if (autoSpinAfterDeposit && user && user.balance >= SPIN_COST && !spinning) {
+    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : SPIN_COST_HIGH;
+    if (autoSpinAfterDeposit && user && user.balance >= requiredBalance && !spinning) {
       setAutoSpinAfterDeposit(false);
       handleSpin();
     }
-  }, [autoSpinAfterDeposit, user, spinning]);
+  }, [autoSpinAfterDeposit, user, spinning, spinCost]);
 
   useEffect(() => {
     if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
     
-    const newPattern = generatePatternWithTarget(availableGifts, pendingTargetGift);
+    const newPattern = generatePatternWithTarget(getCurrentGifts(), pendingTargetGift);
     setRouletteItems(newPattern);
     
     setTimeout(() => {
@@ -217,8 +222,6 @@ export function Play() {
           const containerRect = containerEl.getBoundingClientRect();
           const markerCenter = containerRect.width / 2;
           const targetX = markerCenter - winnerCenter;
-          
-          console.log('DOM: winnerCenter=', winnerCenter, 'markerCenter=', markerCenter, 'targetX=', targetX);
           
           offsetRef.current = 0;
           if (rouletteRef.current) {
@@ -251,7 +254,6 @@ export function Play() {
               if (rouletteRef.current) {
                 rouletteRef.current.style.transform = `translateX(${Math.floor(targetX)}px)`;
               }
-              console.log('landed: gift=', pendingTargetGift?.name);
               setSpinning(false);
               setPendingTargetGift(null);
               setWonGift(pendingTargetGift);
@@ -265,19 +267,22 @@ export function Play() {
     }, 100);
   }, [pendingTargetGift?.id]);
 
+  const offsetRef = useRef(0);
+
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
 
+    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : SPIN_COST_HIGH;
     let targetGift: TelegramGift | null = null;
 
     if (!demoMode && user) {
-      if (user.balance < SPIN_COST) {
+      if (user.balance < requiredBalance) {
         setShowDeposit(true);
         return;
       }
 
       try {
-        const response = await winApi.spin();
+        const response = await winApi.spin(spinCost);
         if (!response.success) {
           if (response.error === 'Insufficient_balance') {
             setShowDeposit(true);
@@ -304,14 +309,13 @@ export function Play() {
         return;
       }
     } else {
-      targetGift = weightedRandomSelect(availableGifts);
+      targetGift = weightedRandomSelect(getCurrentGifts(), getCurrentProbabilities());
     }
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
-    console.log('🎰 targetItem from server:', targetGift.id, targetGift.name);
     setPendingTargetGift(targetGift);
   };
 
@@ -330,6 +334,8 @@ export function Play() {
       </div>
     );
   }
+
+  const costLabel = demoMode ? 'Крутить!' : `${spinCost} ⭐`;
 
   return (
     <div className="play">
@@ -355,12 +361,23 @@ export function Play() {
       </div>
 
       <div className="play__controls">
+        <div className="play__cost-selector">
+          <select
+            value={spinCost}
+            onChange={(e) => setSpinCost(Number(e.target.value) as SpinCost)}
+            disabled={spinning}
+            className="play__cost-select"
+          >
+            <option value={25}>25 ⭐</option>
+            <option value={50}>50 ⭐</option>
+          </select>
+        </div>
         <button
           className={`play__play-btn ${spinning ? 'play__play-btn--spinning' : ''}`}
           onClick={handleSpin}
           disabled={spinning}
         >
-          {spinning ? '🎰 Крутится...' : demoMode ? '🎲 Крутить!' : `🎲 Крутить! ${SPIN_COST} ⭐`}
+          {spinning ? '🎰 Крутится...' : `🎲 ${costLabel}`}
         </button>
         <div className="play__demo">
           <span className="play__demo-label">DEMO</span>
@@ -389,7 +406,7 @@ export function Play() {
                 gift.sticker?.emoji || '🎁'
               )}
             </div>
-            <span className="play__gift-chance">{gift.chance.toFixed(3)}%</span>
+            <span className="play__gift-chance">{gift.chance.toFixed(2)}%</span>
             <span className="play__gift-cost">{gift.stars} ⭐</span>
           </div>
         ))}
