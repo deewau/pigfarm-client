@@ -195,25 +195,34 @@ export function Play() {
   const offsetRef = useRef(0);
 
   const getCurrentGifts = useCallback((): TelegramGift[] => {
-    if (giftsLoadedRef.current.length > 0) {
-      const gifts = giftsLoadedRef.current;
-      if (spinCost === 25) {
-        return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
-      } else if (spinCost === 50) {
-        return gifts.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
-      } else {
-        // Для 100-рулетки фильтруем подарки с сервера (включая NFT и VIRT)
-        return gifts.filter(g => 
-          [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
-          g.isSpecial || 
-          g.isVirt
-        );
+    if (spinCost === 25) {
+      if (giftsLoadedRef.current.length > 0) {
+        return giftsLoadedRef.current.filter(g => [15, 25, 50, 100].includes(g.stars));
       }
+      return GIFTS_LOW;
+    } else if (spinCost === 50) {
+      if (giftsLoadedRef.current.length > 0) {
+        return giftsLoadedRef.current.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
+      }
+      return GIFTS_HIGH;
+    } else {
+      // Для 100-рулетки: берем с сервера, добавляем VIRT если их нет
+      let gifts = giftsLoadedRef.current.length > 0 
+        ? giftsLoadedRef.current.filter(g => 
+            [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
+            g.isSpecial || 
+            g.isVirt
+          )
+        : [];
+      
+      // Добавляем VIRT подарки если их нет в списке
+      const hasVirt240 = gifts.some(g => g.id === 'virt240');
+      const hasVirt490 = gifts.some(g => g.id === 'virt490');
+      if (!hasVirt240) gifts.push({ id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
+      if (!hasVirt490) gifts.push({ id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true } as TelegramGift);
+      
+      return gifts.length > 0 ? gifts : GIFTS_VIP;
     }
-    // Если с сервера ничего нет, используем дефолтные массивы
-    if (spinCost === 25) return GIFTS_LOW;
-    if (spinCost === 50) return GIFTS_HIGH;
-    return GIFTS_VIP;
   }, [spinCost]);
 
   const getCurrentProbabilities = useCallback((): Record<string, number> => {
