@@ -157,18 +157,18 @@
 
 .play__roulette-item--virt,
 .play__gift-card--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  border: 2px solid #9B59B6 !important;
+  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3) !important;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%) !important;
   position: relative;
 }
 
 .virt-ribbon span {
   font-family: 'Gilroy', sans-serif;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 

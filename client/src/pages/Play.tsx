@@ -431,7 +431,8 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item, index) => (
-            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}${item.isVirt ? ' play__roulette-item--virt' : ''}`}>
+            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}${item.isVirt ? ' play__roulette-item--virt' : ''}`}
+              style={item.isVirt ? { border: '2px solid #9B59B6', boxShadow: '0 0 12px rgba(155, 89, 182, 0.3)' } : {}}>
               {item.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
               {item.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
               <div className="play__roulette-emoji">
