@@ -20,18 +20,42 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !gift.animationData) return;
+    if (!containerRef.current) return;
 
-    const animation = lottie.loadAnimation({
-      container: containerRef.current,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      animationData: gift.animationData,
-    });
+    // Загружаем анимацию из server/assets/gifts/
+    const loadAnimation = async () => {
+      try {
+        const response = await fetch(`/assets/gifts/${gift.id}.json`);
+        if (response.ok) {
+          const animationData = await response.json();
+          if (containerRef.current) {
+            lottie.loadAnimation({
+              container: containerRef.current,
+              renderer: 'svg',
+              loop: true,
+              autoplay: true,
+              animationData,
+            });
+          }
+        } else {
+          // Если JSON нет, покажем SVG
+          console.log('No JSON animation, will use SVG');
+        }
+      } catch (error) {
+        console.warn('Failed to load animation:', error);
+      }
+    };
 
-    return () => animation.destroy();
-  }, [gift.animationData]);
+    loadAnimation();
+
+    return () => {
+      try {
+        lottie.destroy();
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, [gift.id]);
 
   const isVirt = gift.isVirt;
   const isSpecial = gift.isSpecial;
@@ -43,11 +67,7 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="gift-info__animation">
-          {gift.animationData ? (
-            <div ref={containerRef} />
-          ) : (
-            <GiftImage giftId={gift.id} size={150} />
-          )}
+          <div ref={containerRef} />
         </div>
         <h3 className="gift-info__title">
           {isVirt ? 'VIRT' : (isSpecial ? 'NFT' : 'Подарок')} — {gift.name}

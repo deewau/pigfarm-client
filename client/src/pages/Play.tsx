@@ -526,15 +526,17 @@ export function Play() {
           <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}${gift.isVirt ? ' play__gift-card--virt' : ''}`}>
             {gift.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
             {gift.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
-            <div 
-              className="gift-info-btn" 
-              onClick={(e) => {
-                e.stopPropagation();
-                setInfoGift(gift);
-              }}
-            >
-              i
-            </div>
+            {(gift.isSpecial || gift.isVirt) && (
+              <div 
+                className="gift-info-btn" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInfoGift(gift);
+                }}
+              >
+                i
+              </div>
+            )}
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
