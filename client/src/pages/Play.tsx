@@ -129,7 +129,7 @@ const PROBABILITIES_VIP: Record<string, number> = {
   'poolfloat': 1.24,
   'lolpop': 0.70,
   'snakebox': 0.81,
-  // VIRT подарки (один ID, но разные шансы через два входа)
+  // VIRT подарки (разные ID для вероятностей, но один файл virt.json)
   'virt240': 2.27,
   'virt490': 1.18,
 };
@@ -220,7 +220,7 @@ export function Play() {
             )
         : [];
       
-      // Добавляем VIRT подарки если их нет в списке (разные ID для вероятностей, но один файл SVG)
+      // Добавляем VIRT подарки если их нет в списке (разные ID для вероятностей, но один файл JSON/SVG)
       const hasVirt240 = gifts.some(g => g.id === 'virt240');
       const hasVirt490 = gifts.some(g => g.id === 'virt490');
       if (!hasVirt240) gifts.push({ id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
