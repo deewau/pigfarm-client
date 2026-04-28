@@ -543,7 +543,7 @@ export function Play() {
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
               ) : (
-                <GiftImage giftId={gift.id} size={80} fallbackEmoji="🍦" />
+                <GiftImage giftId={gift.isVirt ? 'virt' : gift.id} size={80} fallbackEmoji="🍦" />
               )}
             </div>
             <span className="play__gift-chance">{gift.chance.toFixed(2)}%</span>
