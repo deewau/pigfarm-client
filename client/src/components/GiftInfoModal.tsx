@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
-import { GiftImage } from './GiftAnimation';
 import './GiftInfoModal.css';
 
 interface GiftInfoModalProps {
@@ -24,7 +23,7 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
 
     let animation: any = null;
 
-    // Загружаем анимацию из server/assets/gifts/
+    // Загружаем анимацию как в ResultModal (для NFT и VIRT)
     const loadAnimation = async () => {
       try {
         const response = await fetch(`/assets/gifts/${gift.id}.json`);
@@ -39,8 +38,6 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
               animationData: data,
             });
           }
-        } else {
-          console.log('No JSON animation for', gift.id, '- using SVG');
         }
       } catch (error) {
         console.warn('Failed to load animation:', error);
@@ -50,9 +47,9 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
     loadAnimation();
 
     return () => {
-      if (animation) {
-        animation.destroy();
-      }
+      try {
+        if (animation) animation.destroy();
+      } catch (e) {}
     };
   }, [gift.id]);
 
@@ -66,10 +63,7 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="gift-info__animation">
-          {!isVirt && <div ref={containerRef} />}
-          {isVirt && (
-            <GiftImage giftId={gift.id} size={150} fallbackEmoji="🎁" />
-          )}
+          <div ref={containerRef} />
         </div>
         <h3 className="gift-info__title">
           {isVirt ? 'VIRT' : (isSpecial ? 'NFT' : 'Подарок')} — {gift.name}
