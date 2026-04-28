@@ -108,8 +108,8 @@ const GIFTS_VIP = [
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
   // VIRT подарки (внутриигровая валюта)
-  { id: 'virt', name: 'Virt 240', stars: 240, isVirt: true },
-  { id: 'virt', name: 'Virt 490', stars: 490, isVirt: true },
+  { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
+  { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
 ];
 
 const PROBABILITIES_VIP: Record<string, number> = {
@@ -431,8 +431,7 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item, index) => (
-            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}${item.isVirt ? ' play__roulette-item--virt' : ''}`}
-              style={item.isVirt ? { border: '2px solid #9B59B6', boxShadow: '0 0 12px rgba(155, 89, 182, 0.3)' } : {}}>
+            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}${item.isVirt ? ' play__roulette-item--virt' : ''}`}>
               {item.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
               {item.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
               <div className="play__roulette-emoji">
