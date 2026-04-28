@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
@@ -28,14 +28,7 @@ function Layout() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
-        <Routes>
-          <Route index element={<Play />} />
-          <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
-          <Route path="play" element={<Play />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
-          <Route path="profile" element={<Profile />} />
-        </Routes>
+        <Outlet />
       </div>
       <BottomBar />
     </div>

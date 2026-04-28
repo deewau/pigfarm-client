@@ -6,23 +6,33 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL environment variable is required');
+function getDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL environment variable is required');
+  }
+  return url;
 }
 
-const pool = new Pool({
-  connectionString: databaseUrl,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-});
+let pool: Pool | null = null;
 
-export function getPool() {
+function getPoolInstance(): Pool {
+  if (!pool) {
+    const databaseUrl = getDatabaseUrl();
+    pool = new Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    });
+  }
   return pool;
 }
 
+export function getPool() {
+  return getPoolInstance();
+}
+
 export async function initializeDatabase(): Promise<void> {
-  const client = await pool.connect();
+  const client = await getPoolInstance().connect();
   try {
     const schemaPath = path.resolve(__dirname, './schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf-8');

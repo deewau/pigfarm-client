@@ -153,6 +153,7 @@ export function Play() {
   const animationRef = useRef<number | null>(null);
   const spinCancelledRef = useRef(false);
   const giftsLoadedRef = useRef<TelegramGift[]>([]);
+  const offsetRef = useRef(0);
 
   const getCurrentGifts = useCallback((): TelegramGift[] => {
     if (giftsLoadedRef.current.length > 0) {
@@ -280,9 +281,7 @@ export function Play() {
         });
       });
     }, 100);
-  }, [pendingTargetGift?.id]);
-
-  const offsetRef = useRef(0);
+  }, [pendingTargetGift]);
 
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
@@ -343,16 +342,6 @@ export function Play() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="play">
-        <div className="play__loading">Загрузка подарков...</div>
-      </div>
-    );
-  }
-
-  const costLabel = demoMode ? 'Крутить!' : `${spinCost} ⭐`;
-
   const costOptions: { value: SpinCost; label: string }[] = [
     { value: 25, label: '25 ⭐' },
     { value: 50, label: '50 ⭐' },
@@ -369,6 +358,24 @@ export function Play() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [costDropdownOpen]);
+
+  if (loading) {
+    return (
+      <div className="play">
+        <div className="play__loading">Загрузка подарков...</div>
+      </div>
+    );
+  }
+
+  if (!user && !demoMode) {
+    return (
+      <div className="play">
+        <div className="play__loading">Необходимо войти через Telegram</div>
+      </div>
+    );
+  }
+
+  const costLabel = demoMode ? 'Крутить!' : `${spinCost} ⭐`;
 
   return (
     <div className="play">
@@ -464,19 +471,19 @@ export function Play() {
         ))}
       </div>
 
-        {showResult && wonGift && (
-          <ResultModal
-            animationData={wonGift.animationData}
-            onClose={() => setShowResult(false)}
-            onDisableDemo={() => {
-              setShowResult(false);
-              setDemoMode(false);
-            }}
-            isDemo={demoMode}
-            onGoToProfile={handleGoToProfile}
-            isSpecial={wonGift.isSpecial}
-          />
-        )}
+      {showResult && wonGift && (
+        <ResultModal
+          animationData={wonGift.animationData}
+          onClose={() => setShowResult(false)}
+          onDisableDemo={() => {
+            setShowResult(false);
+            setDemoMode(false);
+          }}
+          isDemo={demoMode}
+          onGoToProfile={handleGoToProfile}
+          isSpecial={wonGift.isSpecial}
+        />
+      )}
 
       {showDeposit && (
         <DepositModal
