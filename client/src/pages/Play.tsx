@@ -109,8 +109,8 @@ const GIFTS_VIP = [
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
   // VIRT подарки (внутриигровая валюта) - один файл virt.json для обоих
-  { id: 'virt', name: 'Virt', stars: 240, isVirt: true },
-  { id: 'virt', name: 'Virt', stars: 490, isVirt: true },
+  { id: 'virt', name: 'Virt 240', stars: 240, isVirt: true },
+  { id: 'virt', name: 'Virt 490', stars: 490, isVirt: true },
 ];
 
 const PROBABILITIES_VIP: Record<string, number> = {
