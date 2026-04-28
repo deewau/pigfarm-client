@@ -1,21 +1,21 @@
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
+import { CircularAvatar } from './CircularAvatar';
 import './ProfileBar.css';
 
 export function ProfileBar() {
   const { user: tgUser } = useTelegram();
   const { user } = useAuth();
 
-  const avatarContent = tgUser?.photo_url ? (
-    <img src={tgUser.photo_url} alt={tgUser.first_name} />
-  ) : (
-    <span>👤</span>
-  );
-
   return (
     <div className="profile-bar">
       <div className="profile-bar__avatar">
-        {avatarContent}
+        <CircularAvatar 
+          src={tgUser?.photo_url} 
+          alt={tgUser?.first_name || 'User'} 
+          progress={user?.xp ? 50 : 0} // TODO: calculate real progress
+          size={44}
+        />
       </div>
       <div className="profile-bar__info">
         <span className="profile-bar__name">
