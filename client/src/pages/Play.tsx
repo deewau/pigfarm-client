@@ -526,6 +526,7 @@ export function Play() {
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.animationData}
+          giftId={wonGift.id}
           onClose={() => setShowResult(false)}
           onDisableDemo={() => {
             setShowResult(false);
@@ -534,6 +535,7 @@ export function Play() {
           isDemo={demoMode}
           onGoToProfile={handleGoToProfile}
           isSpecial={wonGift.isSpecial}
+          isVirt={wonGift.isVirt}
         />
       )}
 
