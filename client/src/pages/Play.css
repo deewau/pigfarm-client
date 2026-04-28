@@ -122,6 +122,57 @@
   text-transform: uppercase;
 }
 
+/* VIRT бейдж (фиолетовый) — такой же стиль, как NFT, только цвет */
+.virt-ribbon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(155, 89, 182, 0.4);
+}
+
+.virt-ribbon span {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #1a1a1a; /* Такой же цвет текста, как у NFT (тёмный) */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Обводка для NFT-подарков (золотая) */
+.play__roulette-item--special,
+.play__gift-card--special {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
+  position: relative;
+}
+
+/* Обводка для VIRT-подарков (фиолетовая) — такой же стиль, как NFT, только цвет */
+.play__roulette-item--virt,
+.play__gift-card--virt {
+  border: 2px solid #9B59B6;
+  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  position: relative;
+}
+
+.nft-ribbon span {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
 /* VIRT бейдж (фиолетовый) */
 .virt-ribbon {
   position: absolute;
