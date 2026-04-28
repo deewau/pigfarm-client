@@ -22,24 +22,25 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    let animation: any = null;
+
     // Загружаем анимацию из server/assets/gifts/
     const loadAnimation = async () => {
       try {
         const response = await fetch(`/assets/gifts/${gift.id}.json`);
         if (response.ok) {
-          const animationData = await response.json();
+          const data = await response.json();
           if (containerRef.current) {
-            lottie.loadAnimation({
+            animation = lottie.loadAnimation({
               container: containerRef.current,
               renderer: 'svg',
               loop: true,
               autoplay: true,
-              animationData,
+              animationData: data,
             });
           }
         } else {
-          // Если JSON нет, покажем SVG
-          console.log('No JSON animation, will use SVG');
+          console.log('No JSON animation for', gift.id, '- using SVG');
         }
       } catch (error) {
         console.warn('Failed to load animation:', error);
@@ -49,10 +50,8 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
     loadAnimation();
 
     return () => {
-      try {
-        lottie.destroy();
-      } catch (e) {
-        // ignore
+      if (animation) {
+        animation.destroy();
       }
     };
   }, [gift.id]);
@@ -67,7 +66,10 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="gift-info__animation">
-          <div ref={containerRef} />
+          {!isVirt && <div ref={containerRef} />}
+          {isVirt && (
+            <GiftImage giftId={gift.id} size={150} fallbackEmoji="🎁" />
+          )}
         </div>
         <h3 className="gift-info__title">
           {isVirt ? 'VIRT' : (isSpecial ? 'NFT' : 'Подарок')} — {gift.name}
