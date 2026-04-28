@@ -15,6 +15,7 @@ interface TelegramGift {
   animationSvg?: string;
   animationData?: any;
   sticker?: any;
+  isSpecial?: boolean;
 }
 
 const SPIN_COST_LOW = 25;
@@ -61,18 +62,30 @@ const GIFTS_HIGH = [
   { id: '5170314324215857265', name: 'Букет', stars: 50 },
   { id: '5170144170496491616', name: 'Торт', stars: 50 },
   { id: 'vicecream', name: 'Мороженое', stars: 370 },
+  { id: 'chillflame', name: 'Chill Flame', stars: 345, isSpecial: true },
+  { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
+  { id: 'instantramen', name: 'Instant Ramen', stars: 390, isSpecial: true },
+  { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
+  { id: 'lolpop', name: 'Lol Pop', stars: 480, isSpecial: true },
+  { id: 'snakebox', name: 'Snake Box', stars: 350, isSpecial: true },
   { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
   { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
   { id: '5168043875654172773', name: 'Кубок', stars: 100 },
 ];
 
 const PROBABILITIES_HIGH: Record<string, number> = {
-  '5170250947678437525': 10.16,
-  '5168103777563050263': 10.16,
-  '6028601630662853006': 15.40,
-  '5170564780938756245': 15.40,
-  '5170314324215857265': 15.40,
-  '5170144170496491616': 15.40,
+  '5170250947678437525': 9.16,
+  '5168103777563050263': 9.16,
+  '6028601630662853006': 13.40,
+  '5170564780938756245': 13.40,
+  '5170314324215857265': 13.40,
+  '5170144170496491616': 13.40,
+  'chillflame': 0.99,
+  'poolfloat': 0.89,
+  'instantramen': 0.84,
+  'icecream': 0.91,
+  'lolpop': 0.70,
+  'snakebox': 0.81,
   '5170690322832818290': 3.50,
   '5170521118301225164': 3.50,
   '5168043875654172773': 3.50,
@@ -146,7 +159,7 @@ export function Play() {
       if (spinCost === 25) {
         return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
       } else {
-        return gifts.filter(g => [25, 50, 100, 370].includes(g.stars));
+        return gifts.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
       }
     }
     return spinCost === 25 ? GIFTS_LOW : GIFTS_HIGH;
@@ -297,6 +310,7 @@ export function Play() {
           stars: response.data.gift.stars,
           animationSvg: response.data.gift.animationSvg,
           animationData: response.data.gift.animationData,
+          isSpecial: response.data.gift.isSpecial || false,
         };
         refreshBalance();
         refreshXp();
@@ -344,20 +358,20 @@ export function Play() {
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
-          {rouletteItems.map((item, index) => (
-            <div key={index} data-roulette-index={index} className="play__roulette-item">
-              <div className="play__roulette-emoji">
-                {item.animationSvg ? (
-                  <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
-                ) : (
-                  <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
-                )}
-              </div>
-              <div className="play__roulette-cost-badge">
-                {item.stars} ⭐
-              </div>
-            </div>
-          ))}
+      {rouletteItems.map((item, index) => (
+        <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}`}>
+          <div className="play__roulette-emoji">
+            {item.animationSvg ? (
+              <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
+            ) : (
+              <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
+            )}
+          </div>
+          <div className="play__roulette-cost-badge">
+            {item.stars} ⭐
+          </div>
+        </div>
+      ))}
         </div>
       </div>
 
@@ -399,7 +413,7 @@ export function Play() {
       <p className="play__subtitle">Вы можете выиграть...</p>
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
-          <div key={i} className="play__gift-card">
+          <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}`}>
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
@@ -423,6 +437,7 @@ export function Play() {
             }}
             isDemo={demoMode}
             onGoToProfile={handleGoToProfile}
+            isSpecial={wonGift.isSpecial}
           />
         )}
 

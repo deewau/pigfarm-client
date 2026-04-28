@@ -152,6 +152,7 @@ export interface TelegramGift {
   animationSvg?: string;
   animationData?: any;
   sticker?: any;
+  isSpecial?: boolean;
 }
 
 function loadGiftSvg(giftId: string): any {
@@ -263,6 +264,54 @@ export const GIFTS_DATA: TelegramGift[] = [
     stars: 370,
     animationSvg: loadGiftSvg('vicecream'),
     animationData: loadGiftAnimation('vicecream', 'gifts50'),
+  },
+  {
+    id: 'chillflame',
+    name: 'Chill Flame',
+    stars: 345,
+    animationSvg: loadGiftSvg('chillflame'),
+    animationData: loadGiftAnimation('chillflame', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'poolfloat',
+    name: 'Pool Float',
+    stars: 350,
+    animationSvg: loadGiftSvg('poolfloat'),
+    animationData: loadGiftAnimation('poolfloat', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'instantramen',
+    name: 'Instant Ramen',
+    stars: 390,
+    animationSvg: loadGiftSvg('instantramen'),
+    animationData: loadGiftAnimation('instantramen', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'icecream',
+    name: 'Ice Cream',
+    stars: 380,
+    animationSvg: loadGiftSvg('icecream'),
+    animationData: loadGiftAnimation('icecream', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'lolpop',
+    name: 'Lol Pop',
+    stars: 480,
+    animationSvg: loadGiftSvg('lolpop'),
+    animationData: loadGiftAnimation('lolpop', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'snakebox',
+    name: 'Snake Box',
+    stars: 350,
+    animationSvg: loadGiftSvg('snakebox'),
+    animationData: loadGiftAnimation('snakebox', 'gifts'),
+    isSpecial: true,
   },
 ];
 

@@ -36,13 +36,18 @@ const PROBABILITIES_LOW: Record<string, number> = {
 };
 
 const PROBABILITIES_HIGH: Record<string, number> = {
-  '5170250947678437525': 10.16,
-  '5168103777563050263': 10.16,
-  '6028601630662853006': 15.40,
-  '5170564780938756245': 15.40,
-  '5170314324215857265': 15.40,
-  '5170144170496491616': 15.40,
-  'vicecream': 0.99,
+  '5170250947678437525': 9.16,
+  '5168103777563050263': 9.16,
+  '6028601630662853006': 13.40,
+  '5170564780938756245': 13.40,
+  '5170314324215857265': 13.40,
+  '5170144170496491616': 13.40,
+  'chillflame': 0.99,
+  'poolfloat': 0.89,
+  'instantramen': 0.84,
+  'icecream': 0.91,
+  'lolpop': 0.70,
+  'snakebox': 0.81,
   '5170690322832818290': 3.50,
   '5170521118301225164': 3.50,
   '5168043875654172773': 3.50,
@@ -65,7 +70,7 @@ function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<strin
 
 function getGiftsForCost(cost: number): TelegramGift[] {
   if (cost === SPIN_COST_HIGH) {
-    return GIFTS_DATA.filter(g => [25, 50, 100].includes(g.stars));
+    return GIFTS_DATA.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
   }
   return GIFTS_DATA;
 }
@@ -151,6 +156,7 @@ export async function spinRoulette(req: Request, res: Response) {
           stars: wonGift.stars,
           animationSvg: wonGift.animationSvg,
           animationData: wonGift.animationData,
+          isSpecial: wonGift.isSpecial || false,
         },
         balance: updatedUser?.balance,
       },

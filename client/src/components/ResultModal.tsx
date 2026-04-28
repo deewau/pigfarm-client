@@ -8,6 +8,7 @@ interface ResultModalProps {
   onDisableDemo?: () => void;
   isDemo?: boolean;
   onGoToProfile?: () => void;
+  isSpecial?: boolean;
 }
 
 export function ResultModal({ 
@@ -15,7 +16,8 @@ export function ResultModal({
   onClose, 
   onDisableDemo, 
   isDemo = true,
-  onGoToProfile 
+  onGoToProfile,
+  isSpecial = false
 }: ResultModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +37,7 @@ export function ResultModal({
 
   return (
     <div className="result-modal-overlay" onClick={onClose}>
-      <div className="result-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`result-modal${isSpecial ? ' result-modal--special' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="result-modal__gift" ref={containerRef} />
         <h2 className="result-modal__message">
           {isDemo ? 'Вы выиграли подарок!' : '🎉 Поздравляем!'}

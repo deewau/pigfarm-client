@@ -91,6 +91,12 @@
   transition: all 0.2s ease;
 }
 
+.play__roulette-item--special {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
+}
+
 .play__roulette-item:hover {
   background: #222;
   border-color: #3a3a3a;
@@ -294,6 +300,12 @@
   padding: 12px 8px;
   border: 1px solid var(--border);
   transition: all 0.2s ease;
+}
+
+.play__gift-card--special {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
 }
 
 .play__gift-card:hover {
