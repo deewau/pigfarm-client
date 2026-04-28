@@ -146,6 +146,7 @@ export function Play() {
   const [wonGift, setWonGift] = useState<TelegramGift | null>(null);
   const [autoSpinAfterDeposit, setAutoSpinAfterDeposit] = useState(false);
   const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
+  const [costDropdownOpen, setCostDropdownOpen] = useState(false);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -352,40 +353,76 @@ export function Play() {
 
   const costLabel = demoMode ? 'Крутить!' : `${spinCost} ⭐`;
 
+  const costOptions: { value: SpinCost; label: string }[] = [
+    { value: 25, label: '25 ⭐' },
+    { value: 50, label: '50 ⭐' },
+  ];
+
+  const selectedCostLabel = costOptions.find(o => o.value === spinCost)?.label || '';
+
+  useEffect(() => {
+    if (!costDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      const sel = document.querySelector('.play__cost-selector');
+      if (sel && !sel.contains(e.target as Node)) setCostDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [costDropdownOpen]);
+
   return (
     <div className="play">
       <ProfileBar />
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
-      {rouletteItems.map((item, index) => (
-        <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}`}>
-          <div className="play__roulette-emoji">
-            {item.animationSvg ? (
-              <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
-            ) : (
-              <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
-            )}
-          </div>
-          <div className="play__roulette-cost-badge">
-            {item.stars} ⭐
-          </div>
-        </div>
-      ))}
+          {rouletteItems.map((item, index) => (
+            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}`}>
+              <div className="play__roulette-emoji">
+                {item.animationSvg ? (
+                  <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
+                ) : (
+                  <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
+                )}
+              </div>
+              <div className="play__roulette-cost-badge">
+                {item.stars} ⭐
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className="play__controls">
         <div className="play__cost-selector">
-          <select
-            value={spinCost}
-            onChange={(e) => setSpinCost(Number(e.target.value) as SpinCost)}
-            disabled={spinning}
-            className="play__cost-select"
+          <div
+            className={`play__cost-select${costDropdownOpen ? ' play__cost-select--open' : ''}`}
+            onClick={() => !spinning && setCostDropdownOpen(o => !o)}
           >
-            <option value={25}>25 ⭐</option>
-            <option value={50}>50 ⭐</option>
-          </select>
+            <span className="play__cost-select-value">{selectedCostLabel}</span>
+            <span className="play__cost-select-arrow">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            {costDropdownOpen && (
+              <div className="play__cost-dropdown">
+                {costOptions.map(opt => (
+                  <div
+                    key={opt.value}
+                    className={`play__cost-option${spinCost === opt.value ? ' play__cost-option--active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSpinCost(opt.value);
+                      setCostDropdownOpen(false);
+                    }}
+                  >
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <button
           className={`play__play-btn ${spinning ? 'play__play-btn--spinning' : ''}`}
