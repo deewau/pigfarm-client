@@ -196,19 +196,20 @@ export function Play() {
   const offsetRef = useRef(0);
 
   const getCurrentGifts = useCallback((): TelegramGift[] => {
-    if (giftsLoadedRef.current.length > 0) {
-      const gifts = giftsLoadedRef.current;
-      if (spinCost === 25) {
-        return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
-      } else if (spinCost === 50) {
-        return gifts.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
-      } else {
-        return gifts.filter(g => [50, 100].includes(g.stars));
+    if (spinCost === 25) {
+      if (giftsLoadedRef.current.length > 0) {
+        return giftsLoadedRef.current.filter(g => [15, 25, 50, 100].includes(g.stars));
       }
+      return GIFTS_LOW;
+    } else if (spinCost === 50) {
+      if (giftsLoadedRef.current.length > 0) {
+        return giftsLoadedRef.current.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
+      }
+      return GIFTS_HIGH;
+    } else {
+      // Для 100-рулетки всегда используем предустановленный GIFTS_VIP (с NFT и VIRT)
+      return GIFTS_VIP;
     }
-    if (spinCost === 25) return GIFTS_LOW;
-    if (spinCost === 50) return GIFTS_HIGH;
-    return GIFTS_VIP;
   }, [spinCost]);
 
   const getCurrentProbabilities = useCallback((): Record<string, number> => {
@@ -220,6 +221,8 @@ export function Play() {
   const initializeRoulette = useCallback(() => {
     const gifts = getCurrentGifts();
     const probabilities = getCurrentProbabilities();
+    console.log('Current spinCost:', spinCost);
+    console.log('Gifts for roulette:', gifts.map(g => g.name + (g.isVirt ? ' [VIRT]' : '') + (g.isSpecial ? ' [NFT]' : '')));
     
     const items: TelegramGift[] = [];
     for (let loop = 0; loop < LOOPS; loop++) {
@@ -229,7 +232,7 @@ export function Play() {
     }
     setRouletteItems(items);
     setPossibleGifts(getPossibleGifts(gifts, probabilities));
-  }, [getCurrentGifts, getCurrentProbabilities]);
+  }, [getCurrentGifts, getCurrentProbabilities, spinCost]);
 
   useEffect(() => {
     const loadGifts = async () => {
@@ -252,7 +255,7 @@ export function Play() {
     if (!loading) {
       initializeRoulette();
     }
-  }, [loading, spinCost]);
+  }, [loading, spinCost, initializeRoulette]);
 
   useEffect(() => {
     const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : spinCost === 50 ? SPIN_COST_HIGH : SPIN_COST_VIP;
