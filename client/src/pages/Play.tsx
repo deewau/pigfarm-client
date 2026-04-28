@@ -3,7 +3,7 @@ import './Play.css';
 import { giftApi, winApi, userApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
-import { ProfileBar } from '../components/ProfileBar';
+import { GiftInfoModal } from '../components/GiftInfoModal';
 import { DepositModal } from '../components/DepositModal';
 import { useAuth } from '../hooks/useAuth';
 
@@ -126,8 +126,9 @@ const PROBABILITIES_VIP: Record<string, number> = {
   'instantramen': 1.26,
   'icecream': 1.26,
   'poolfloat': 1.24,
-  // VIRT подарки
-  'virt': 3.45, // 2.27 + 1.18
+  // VIRT подарки (отдельные вероятности для каждого)
+  'virt240': 2.27,
+  'virt490': 1.18,
 };
 
 type SpinCost = 25 | 50 | 100;
@@ -186,6 +187,7 @@ export function Play() {
   const [autoSpinAfterDeposit, setAutoSpinAfterDeposit] = useState(false);
   const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
   const [costDropdownOpen, setCostDropdownOpen] = useState(false);
+  const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
 
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -209,18 +211,17 @@ export function Play() {
       // Для 100-рулетки: берем с сервера, добавляем VIRT если их нет
       let gifts = giftsLoadedRef.current.length > 0 
         ? giftsLoadedRef.current.filter(g => 
-            [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
-            g.isSpecial || 
-            g.isVirt
-          )
+              [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
+              g.isSpecial || 
+              g.isVirt
+            )
         : [];
       
-      // Добавляем VIRT подарки если их нет в списке (используем id 'virt' для SVG)
-      const hasVirt = gifts.some(g => g.id === 'virt');
-      if (!hasVirt) {
-        gifts.push({ id: 'virt', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
-        gifts.push({ id: 'virt', name: 'Virt 490', stars: 490, isVirt: true } as TelegramGift);
-      }
+      // Добавляем VIRT подарки если их нет в списке (разные ID для вероятностей, но один файл SVG)
+      const hasVirt240 = gifts.some(g => g.id === 'virt240');
+      const hasVirt490 = gifts.some(g => g.id === 'virt490');
+      if (!hasVirt240) gifts.push({ id: 'virt', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
+      if (!hasVirt490) gifts.push({ id: 'virt', name: 'Virt 490', stars: 490, isVirt: true } as TelegramGift);
       
       return gifts.length > 0 ? gifts : GIFTS_VIP;
     }
@@ -524,6 +525,15 @@ export function Play() {
           <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}${gift.isVirt ? ' play__gift-card--virt' : ''}`}>
             {gift.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
             {gift.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
+            <div 
+              className="gift-info-btn" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setInfoGift(gift);
+              }}
+            >
+              i
+            </div>
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
@@ -550,6 +560,13 @@ export function Play() {
           onGoToProfile={handleGoToProfile}
           isSpecial={wonGift.isSpecial}
           isVirt={wonGift.isVirt}
+        />
+      )}
+
+      {infoGift && (
+        <GiftInfoModal
+          gift={infoGift}
+          onClose={() => setInfoGift(null)}
         />
       )}
 
