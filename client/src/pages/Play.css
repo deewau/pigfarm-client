@@ -101,11 +101,12 @@
 .nft-ribbon {
   position: absolute;
   top: 8px;
-  right: -20px;
-  width: 70px;
-  height: 22px;
+  right: -18px;
+  width: 65px;
+  height: 20px;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   transform: rotate(45deg);
+  transform-origin: right top;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,10 +116,10 @@
 
 .nft-ribbon span {
   font-family: 'Gilroy', sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   color: #1a1a1a;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
 }
 
@@ -140,11 +141,12 @@
 .virt-ribbon {
   position: absolute;
   top: 8px;
-  right: -20px;
-  width: 70px;
-  height: 22px;
+  right: -18px;
+  width: 65px;
+  height: 20px;
   background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
   transform: rotate(45deg);
+  transform-origin: right top;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -154,10 +156,10 @@
 
 .virt-ribbon span {
   font-family: 'Gilroy', sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
 }
 
