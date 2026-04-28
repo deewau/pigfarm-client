@@ -20,6 +20,7 @@ interface TelegramGift {
 
 const SPIN_COST_LOW = 25;
 const SPIN_COST_HIGH = 50;
+const SPIN_COST_VIP = 100;
 const ITEM_WIDTH = 97;
 const ITEM_GAP = 12;
 const PATTERN_SIZE = 30;
@@ -91,7 +92,27 @@ const PROBABILITIES_HIGH: Record<string, number> = {
   '5168043875654172773': 3.50,
 };
 
-type SpinCost = 25 | 50;
+const GIFTS_VIP = [
+  { id: '6028601630662853006', name: 'Шампанское', stars: 50 },
+  { id: '5170564780938756245', name: 'Ракета', stars: 50 },
+  { id: '5170314324215857265', name: 'Букет', stars: 50 },
+  { id: '5170144170496491616', name: 'Торт', stars: 50 },
+  { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
+  { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
+  { id: '5168043875654172773', name: 'Кубок', stars: 100 },
+];
+
+const PROBABILITIES_VIP: Record<string, number> = {
+  '6028601630662853006': 11.35,
+  '5170564780938756245': 11.35,
+  '5170314324215857265': 11.35,
+  '5170144170496491616': 11.35,
+  '5170690322832818290': 7.52,
+  '5170521118301225164': 7.52,
+  '5168043875654172773': 7.52,
+};
+
+type SpinCost = 25 | 50 | 100;
 
 function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
@@ -160,15 +181,21 @@ export function Play() {
       const gifts = giftsLoadedRef.current;
       if (spinCost === 25) {
         return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
-      } else {
+      } else if (spinCost === 50) {
         return gifts.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
+      } else {
+        return gifts.filter(g => [50, 100].includes(g.stars));
       }
     }
-    return spinCost === 25 ? GIFTS_LOW : GIFTS_HIGH;
+    if (spinCost === 25) return GIFTS_LOW;
+    if (spinCost === 50) return GIFTS_HIGH;
+    return GIFTS_VIP;
   }, [spinCost]);
 
   const getCurrentProbabilities = useCallback((): Record<string, number> => {
-    return spinCost === 25 ? PROBABILITIES_LOW : PROBABILITIES_HIGH;
+    if (spinCost === 25) return PROBABILITIES_LOW;
+    if (spinCost === 50) return PROBABILITIES_HIGH;
+    return PROBABILITIES_VIP;
   }, [spinCost]);
 
   const initializeRoulette = useCallback(() => {
@@ -209,7 +236,7 @@ export function Play() {
   }, [loading, spinCost]);
 
   useEffect(() => {
-    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : SPIN_COST_HIGH;
+    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : spinCost === 50 ? SPIN_COST_HIGH : SPIN_COST_VIP;
     if (autoSpinAfterDeposit && user && user.balance >= requiredBalance && !spinning) {
       setAutoSpinAfterDeposit(false);
       handleSpin();
@@ -286,7 +313,7 @@ export function Play() {
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
 
-    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : SPIN_COST_HIGH;
+    const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : spinCost === 50 ? SPIN_COST_HIGH : SPIN_COST_VIP;
     let targetGift: TelegramGift | null = null;
 
     if (!demoMode && user) {
@@ -345,6 +372,7 @@ export function Play() {
   const costOptions: { value: SpinCost; label: string }[] = [
     { value: 25, label: '25 ⭐' },
     { value: 50, label: '50 ⭐' },
+    { value: 100, label: '100 ⭐' },
   ];
 
   const selectedCostLabel = costOptions.find(o => o.value === spinCost)?.label || '';
