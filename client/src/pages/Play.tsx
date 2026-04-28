@@ -109,8 +109,8 @@ const GIFTS_VIP = [
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
   // VIRT подарки (внутриигровая валюта) - один файл virt.json для обоих
-  { id: 'virt', name: 'Virt 240', stars: 240, isVirt: true },
-  { id: 'virt', name: 'Virt 490', stars: 490, isVirt: true },
+  { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
+  { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
 ];
 
 const PROBABILITIES_VIP: Record<string, number> = {
@@ -220,12 +220,11 @@ export function Play() {
             )
         : [];
       
-      // Добавляем VIRT подарки если их нет в списке (один ID 'virt' для SVG и JSON)
-      const hasVirt = gifts.some(g => g.id === 'virt' && g.isVirt);
-      if (!hasVirt) {
-        gifts.push({ id: 'virt', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
-        gifts.push({ id: 'virt', name: 'Virt 490', stars: 490, isVirt: true } as TelegramGift);
-      }
+      // Добавляем VIRT подарки если их нет в списке (разные ID для вероятностей, но один файл SVG)
+      const hasVirt240 = gifts.some(g => g.id === 'virt240');
+      const hasVirt490 = gifts.some(g => g.id === 'virt490');
+      if (!hasVirt240) gifts.push({ id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true } as TelegramGift);
+      if (!hasVirt490) gifts.push({ id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true } as TelegramGift);
       
       return gifts.length > 0 ? gifts : GIFTS_VIP;
     }
