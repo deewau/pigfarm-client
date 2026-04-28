@@ -215,13 +215,11 @@
 
 .virt-ribbon {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 50px;
-  height: 14px;
+  top: 4px;
+  right: 4px;
+  padding: 2px 8px;
   background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
-  transform: rotate(45deg) translate(14px, -8px);
-  transform-origin: top right;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -231,10 +229,10 @@
 
 .virt-ribbon span {
   font-family: 'Gilroy', sans-serif;
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
