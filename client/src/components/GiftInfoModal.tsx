@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
+import { GiftImage } from './GiftAnimation';
 import './GiftInfoModal.css';
 
 interface GiftInfoModalProps {
