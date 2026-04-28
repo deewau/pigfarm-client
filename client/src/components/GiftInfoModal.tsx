@@ -23,10 +23,10 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
 
     let animation: any = null;
 
-    // Загружаем анимацию как в ResultModal (для NFT и VIRT)
+    // Загружаем анимацию (Vite проксирует /gifts на сервер)
     const loadAnimation = async () => {
       try {
-        const response = await fetch(`/assets/gifts/${gift.id}.json`);
+        const response = await fetch(`/gifts/${gift.id}.json`);
         if (response.ok) {
           const data = await response.json();
           if (containerRef.current) {
@@ -38,9 +38,11 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
               animationData: data,
             });
           }
+        } else {
+          console.error(`Failed to load animation: ${response.status} ${response.statusText}`);
         }
       } catch (error) {
-        console.warn('Failed to load animation:', error);
+        console.error('Failed to load animation:', error);
       }
     };
 
