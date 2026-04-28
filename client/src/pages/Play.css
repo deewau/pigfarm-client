@@ -162,16 +162,6 @@
   background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
   position: relative;
 }
-  height: 16px;
-  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
-  transform: rotate(45deg) translate(16px, -8px);
-  transform-origin: top right;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  box-shadow: 0 2px 8px rgba(155, 89, 182, 0.4);
-}
 
 .virt-ribbon span {
   font-family: 'Gilroy', sans-serif;
