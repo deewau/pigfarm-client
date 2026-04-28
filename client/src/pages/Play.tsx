@@ -130,7 +130,7 @@ const PROBABILITIES_VIP: Record<string, number> = {
   'lolpop': 0.70,
   'snakebox': 0.81,
   // VIRT подарки (разные ID для вероятностей, но один файл virt.json)
-  'virt240': 2.27,
+  'virt': 2.27,
   // 'virt490': 1.18,
 };
 
