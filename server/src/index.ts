@@ -46,9 +46,7 @@ app.use('/api/gifts', giftRoutes);
 app.use('/api/win', winRoutes);
 
 // Отдаём анимации подарков (для обоих режимов)
-const giftsPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '../public/gifts')
-  : path.join(__dirname, '../../public/gifts');
+const giftsPath = path.join(__dirname, '../assets/gifts');
 app.use('/gifts', express.static(giftsPath, {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.json')) {
