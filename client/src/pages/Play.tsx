@@ -385,6 +385,7 @@ export function Play() {
         <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item, index) => (
             <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}`}>
+              {item.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
@@ -458,6 +459,7 @@ export function Play() {
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
           <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}`}>
+            {gift.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />

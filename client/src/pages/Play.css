@@ -95,6 +95,32 @@
   border: 2px solid #FFD700;
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.nft-ribbon {
+  position: absolute;
+  top: 8px;
+  right: -20px;
+  width: 70px;
+  height: 22px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.nft-ribbon span {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
 .play__roulette-item:hover {
@@ -361,6 +387,8 @@
   border: 2px solid #FFD700;
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 .play__gift-card:hover {
