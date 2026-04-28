@@ -66,11 +66,7 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="gift-info__animation">
-          {gift.isVirt ? (
-            <GiftImage giftId="virt" size={150} fallbackEmoji="🎁" />
-          ) : (
-            <div ref={containerRef} />
-          )}
+          <div ref={containerRef} />
         </div>
         <h3 className="gift-info__title">
           {isVirt ? 'VIRT' : (isSpecial ? 'NFT' : 'Подарок')} — {gift.name}
