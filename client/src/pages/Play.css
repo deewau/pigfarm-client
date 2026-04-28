@@ -98,6 +98,7 @@
   position: relative;
 }
 
+/* NFT бейдж (золотой) */
 .nft-ribbon {
   position: absolute;
   top: 4px;
@@ -121,34 +122,7 @@
   text-transform: uppercase;
 }
 
-.play__roulette-item--special {
-  border: 2px solid #FFD700;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
-  position: relative;
-}
-
-.play__gift-card--special {
-  border: 2px solid #FFD700;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
-  position: relative;
-}
-
-.play__roulette-item--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-  position: relative;
-}
-
-.play__gift-card--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-  position: relative;
-}
-
+/* VIRT бейдж (фиолетовый) */
 .virt-ribbon {
   position: absolute;
   top: 4px;
@@ -172,104 +146,22 @@
   text-transform: uppercase;
 }
 
-.nft-ribbon span {
-  font-family: 'Gilroy', sans-serif;
-  font-size: 7px;
-  font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
-.play__roulette-item--special {
-  border: 2px solid #FFD700;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
-  position: relative;
-  overflow: visible;
-}
-
-.play__gift-card--special {
-  border: 2px solid #FFD700;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
-  position: relative;
-  overflow: visible;
-}
-
-.play__roulette-item--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-  position: relative;
-  overflow: visible;
-}
-
-.play__gift-card--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-  position: relative;
-  overflow: visible;
-}
-
-.virt-ribbon {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  padding: 2px 8px;
-  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  box-shadow: 0 2px 8px rgba(155, 89, 182, 0.4);
-}
-
-.virt-ribbon span {
-  font-family: 'Gilroy', sans-serif;
-  font-size: 9px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.nft-ribbon span {
-  font-family: 'Gilroy', sans-serif;
-  font-size: 7px;
-  font-weight: 800;
-  color: #1a1a1a;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
+/* Обводка для спец-подарков */
 .play__roulette-item--special,
-.play__gift-card--special,
+.play__gift-card--special {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
+  position: relative;
+}
+
 .play__roulette-item--virt,
 .play__gift-card--virt {
+  border: 2px solid #9B59B6;
+  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
   position: relative;
-  overflow: visible;
 }
-
-.play__roulette-item--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-}
-
-.play__gift-card--virt {
-  border: 2px solid #9B59B6;
-  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-}
-
-.virt-ribbon {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 60px;
   height: 16px;
   background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
   transform: rotate(45deg) translate(16px, -8px);
