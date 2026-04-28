@@ -96,7 +96,6 @@
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
   position: relative;
-  overflow: hidden;
 }
 
 .nft-ribbon {
@@ -388,7 +387,6 @@
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2010 100%);
   position: relative;
-  overflow: hidden;
 }
 
 .play__gift-card:hover {
