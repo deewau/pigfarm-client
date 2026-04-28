@@ -108,8 +108,8 @@ const GIFTS_VIP = [
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
   // VIRT подарки (внутриигровая валюта)
-  { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
-  { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
+  { id: 'virt', name: 'Virt 240', stars: 240, isVirt: true },
+  { id: 'virt', name: 'Virt 490', stars: 490, isVirt: true },
 ];
 
 const PROBABILITIES_VIP: Record<string, number> = {
@@ -127,8 +127,7 @@ const PROBABILITIES_VIP: Record<string, number> = {
   'icecream': 1.26,
   'poolfloat': 1.24,
   // VIRT подарки
-  'virt240': 2.27,
-  'virt490': 1.18,
+  'virt': 3.45, // 2.27 + 1.18
 };
 
 type SpinCost = 25 | 50 | 100;
@@ -221,8 +220,6 @@ export function Play() {
   const initializeRoulette = useCallback(() => {
     const gifts = getCurrentGifts();
     const probabilities = getCurrentProbabilities();
-    console.log('Current spinCost:', spinCost);
-    console.log('Gifts for roulette:', gifts.map(g => g.name + (g.isVirt ? ' [VIRT]' : '') + (g.isSpecial ? ' [NFT]' : '')));
     
     const items: TelegramGift[] = [];
     for (let loop = 0; loop < LOOPS; loop++) {
@@ -232,7 +229,7 @@ export function Play() {
     }
     setRouletteItems(items);
     setPossibleGifts(getPossibleGifts(gifts, probabilities));
-  }, [getCurrentGifts, getCurrentProbabilities, spinCost]);
+  }, [getCurrentGifts, getCurrentProbabilities]);
 
   useEffect(() => {
     const loadGifts = async () => {
