@@ -122,6 +122,45 @@
   text-transform: uppercase;
 }
 
+.play__roulette-item--virt {
+  border: 2px solid #9B59B6;
+  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  position: relative;
+}
+
+.play__gift-card--virt {
+  border: 2px solid #9B59B6;
+  box-shadow: 0 0 12px rgba(155, 89, 182, 0.3);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.virt-ribbon {
+  position: absolute;
+  top: 8px;
+  right: -20px;
+  width: 70px;
+  height: 22px;
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(155, 89, 182, 0.4);
+}
+
+.virt-ribbon span {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
 .play__roulette-item:hover {
   background: #222;
   border-color: #3a3a3a;

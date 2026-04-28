@@ -16,6 +16,7 @@ interface TelegramGift {
   animationData?: any;
   sticker?: any;
   isSpecial?: boolean;
+  isVirt?: boolean;
 }
 
 const SPIN_COST_LOW = 25;
@@ -100,6 +101,15 @@ const GIFTS_VIP = [
   { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
   { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
   { id: '5168043875654172773', name: 'Кубок', stars: 100 },
+  // NFT подарки
+  { id: 'chillflame', name: 'Chill Flame', stars: 345, isSpecial: true },
+  { id: 'vicecream', name: 'Vice Cream', stars: 370, isSpecial: true },
+  { id: 'instantramen', name: 'Instant Ramen', stars: 390, isSpecial: true },
+  { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
+  { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
+  // VIRT подарки (внутриигровая валюта)
+  { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
+  { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
 ];
 
 const PROBABILITIES_VIP: Record<string, number> = {
@@ -110,6 +120,15 @@ const PROBABILITIES_VIP: Record<string, number> = {
   '5170690322832818290': 7.52,
   '5170521118301225164': 7.52,
   '5168043875654172773': 7.52,
+  // NFT подарки
+  'chillflame': 1.31,
+  'vicecream': 1.29,
+  'instantramen': 1.26,
+  'icecream': 1.26,
+  'poolfloat': 1.24,
+  // VIRT подарки
+  'virt240': 2.27,
+  'virt490': 1.18,
 };
 
 type SpinCost = 25 | 50 | 100;
@@ -412,8 +431,9 @@ export function Play() {
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
           {rouletteItems.map((item, index) => (
-            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}`}>
+            <div key={index} data-roulette-index={index} className={`play__roulette-item${item.isSpecial ? ' play__roulette-item--special' : ''}${item.isVirt ? ' play__roulette-item--virt' : ''}`}>
               {item.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
+              {item.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
               <div className="play__roulette-emoji">
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
@@ -486,8 +506,9 @@ export function Play() {
       <p className="play__subtitle">Вы можете выиграть...</p>
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
-          <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}`}>
+          <div key={i} className={`play__gift-card${gift.isSpecial ? ' play__gift-card--special' : ''}${gift.isVirt ? ' play__gift-card--virt' : ''}`}>
             {gift.isSpecial && <div className="nft-ribbon"><span>NFT</span></div>}
+            {gift.isVirt && <div className="virt-ribbon"><span>VIRT</span></div>}
             <div className="play__gift-emoji">
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
