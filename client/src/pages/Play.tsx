@@ -195,20 +195,25 @@ export function Play() {
   const offsetRef = useRef(0);
 
   const getCurrentGifts = useCallback((): TelegramGift[] => {
-    if (spinCost === 25) {
-      if (giftsLoadedRef.current.length > 0) {
-        return giftsLoadedRef.current.filter(g => [15, 25, 50, 100].includes(g.stars));
+    if (giftsLoadedRef.current.length > 0) {
+      const gifts = giftsLoadedRef.current;
+      if (spinCost === 25) {
+        return gifts.filter(g => [15, 25, 50, 100].includes(g.stars));
+      } else if (spinCost === 50) {
+        return gifts.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
+      } else {
+        // Для 100-рулетки фильтруем подарки с сервера (включая NFT и VIRT)
+        return gifts.filter(g => 
+          [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
+          g.isSpecial || 
+          g.isVirt
+        );
       }
-      return GIFTS_LOW;
-    } else if (spinCost === 50) {
-      if (giftsLoadedRef.current.length > 0) {
-        return giftsLoadedRef.current.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
-      }
-      return GIFTS_HIGH;
-    } else {
-      // Для 100-рулетки всегда используем предустановленный GIFTS_VIP (с NFT и VIRT)
-      return GIFTS_VIP;
     }
+    // Если с сервера ничего нет, используем дефолтные массивы
+    if (spinCost === 25) return GIFTS_LOW;
+    if (spinCost === 50) return GIFTS_HIGH;
+    return GIFTS_VIP;
   }, [spinCost]);
 
   const getCurrentProbabilities = useCallback((): Record<string, number> => {
