@@ -9,11 +9,23 @@
 
 /* Карточка профиля */
 .profile__card {
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 50%, #15182A 100%);
   border-radius: 20px;
   padding: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(117, 71, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile__card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(117, 71, 255, 0.3), transparent);
 }
 
 .profile__header {
@@ -125,11 +137,12 @@
 }
 
 .profile__level-bar {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-light);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   border-radius: 14px;
   padding: 14px 16px;
   margin-bottom: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__level-header {
@@ -259,10 +272,11 @@
 /* Вкладки */
 .profile__tabs {
   display: flex;
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(117, 71, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__tab {
@@ -313,9 +327,10 @@
   align-items: center;
   justify-content: center;
   padding: 50px 20px;
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 18px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(117, 71, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__empty-icon {
@@ -372,14 +387,16 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 16px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__history-item:hover {
-  background: var(--bg-surface-hover);
+  background: linear-gradient(135deg, #1A1F35 0%, #15182A 100%);
+  border-color: rgba(117, 71, 255, 0.25);
 }
 
 .profile__history-icon {
@@ -388,10 +405,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 14px;
   font-size: 20px;
   flex-shrink: 0;
+  border: 1px solid rgba(117, 71, 255, 0.2);
 }
 
 .profile__history-info {
@@ -443,17 +461,19 @@
   align-items: center;
   gap: 8px;
   padding: 14px 10px;
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 18px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(117, 71, 255, 0.15);
   transition: all 0.2s ease;
   cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__gift-card:hover {
   transform: translateY(-2px);
-  background: var(--bg-surface-hover);
-  border-color: var(--border);
+  background: linear-gradient(135deg, #1A1F35 0%, #15182A 100%);
+  border-color: rgba(117, 71, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .profile__gift-icon {
@@ -462,9 +482,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, #15182A 0%, #1A1F35 100%);
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(117, 71, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .profile__gift-icon span {
