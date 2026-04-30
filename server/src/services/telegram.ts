@@ -265,7 +265,7 @@ export const GIFTS_DATA: TelegramGift[] = [
     stars: 370,
     animationSvg: loadGiftSvg('vicecream'),
     animationData: loadGiftAnimation('vicecream', 'gifts50'),
-    isVirt: true,
+    isSpecial: true,
   },
   {
     id: 'chillflame',

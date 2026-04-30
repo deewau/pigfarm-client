@@ -63,7 +63,7 @@ const GIFTS_HIGH = [
   { id: '5170564780938756245', name: 'Ракета', stars: 50 },
   { id: '5170314324215857265', name: 'Букет', stars: 50 },
   { id: '5170144170496491616', name: 'Торт', stars: 50 },
-  { id: 'vicecream', name: 'Мороженое', stars: 370 },
+  { id: 'vicecream', name: 'Мороженое', stars: 370, isSpecial: true },
   { id: 'chillflame', name: 'Chill Flame', stars: 345, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
   { id: 'instantramen', name: 'Instant Ramen', stars: 390, isSpecial: true },
