@@ -87,23 +87,3 @@ export function ResultModal({
     </div>
   );
 }
-        </p>
-        <div className="result-modal__actions">
-          {isDemo && onDisableDemo && (
-            <button className="result-modal__btn result-modal__btn--secondary" onClick={onDisableDemo}>
-              Отключить демо-режим
-            </button>
-          )}
-          {!isDemo && onGoToProfile && (
-            <button className="result-modal__btn result-modal__btn--secondary" onClick={onGoToProfile}>
-              Перейти в профиль
-            </button>
-          )}
-          <button className="result-modal__btn result-modal__btn--primary" onClick={onClose}>
-            Закрыть
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
