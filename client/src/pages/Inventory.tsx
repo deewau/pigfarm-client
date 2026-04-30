@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import lottie from 'lottie-web';
 import { winApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { GiftReceiveModal } from '../components/GiftReceiveModal';
@@ -17,6 +18,37 @@ export function Inventory() {
     animationData?: any;
   } | null>(null);
   const navigate = useNavigate();
+  const duckRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (loading || gifts.length > 0) return;
+
+    let animation: any = null;
+
+    const loadDuck = async () => {
+      try {
+        const response = await fetch('/assets/cmn/sadduck.json');
+        if (response.ok && duckRef.current) {
+          const data = await response.json();
+          animation = lottie.loadAnimation({
+            container: duckRef.current,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            animationData: data,
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load sad duck animation:', e);
+      }
+    };
+
+    loadDuck();
+
+    return () => {
+      try { if (animation) animation.destroy(); } catch (e) {}
+    };
+  }, [loading, gifts.length]);
 
   const loadGifts = async () => {
     setLoading(true);
@@ -42,14 +74,14 @@ export function Inventory() {
         </div>
       ) : gifts.length === 0 ? (
         <div className="inventory__empty">
-          <div className="inventory__empty-icon">🎁</div>
+          <div className="inventory__empty-animation" ref={duckRef} />
           <h3 className="inventory__empty-title">Пусто</h3>
           <p className="inventory__empty-text">У тебя пока нет подарков</p>
           <button 
             className="inventory__empty-action"
             onClick={() => navigate('/play')}
           >
-            Крутить рулетку
+            Играть
           </button>
         </div>
       ) : (

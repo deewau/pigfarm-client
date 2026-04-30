@@ -62,6 +62,12 @@ const svgPath = process.env.NODE_ENV === 'production'
   : path.join(__dirname, '../../assets/svg');
 app.use('/gifts/svg', express.static(svgPath));
 
+// Отдаём общие ассеты (например, анимация пустого инвентаря)
+const cmnPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '../assets/cmn')
+  : path.join(__dirname, '../../assets/cmn');
+app.use('/assets/cmn', express.static(cmnPath));
+
 // Health check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
