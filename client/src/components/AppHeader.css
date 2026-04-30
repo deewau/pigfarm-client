@@ -1,0 +1,152 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  z-index: 999;
+  background: linear-gradient(180deg, #0E051A 0%, rgba(14, 5, 26, 0.95) 70%, rgba(14, 5, 26, 0) 100%);
+  pointer-events: none;
+}
+
+.app-header > * {
+  pointer-events: auto;
+}
+
+.app-header__balance-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-header__balance-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.app-header__balance-block::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.app-header__balance-value {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.app-header__balance-icon {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.app-header__deposit-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2A2D3A 0%, #1E2030 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.app-header__deposit-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #1E2030 0%, #2A2D3A 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.app-header__profile-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
+  padding: 6px 10px 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-header__profile-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.app-header__profile-block::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.app-header__user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.app-header__name {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header__level {
+  font-family: 'Gilroy', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+}

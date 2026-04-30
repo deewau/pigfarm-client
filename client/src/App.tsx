@@ -4,6 +4,7 @@ import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
 import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
+import { AppHeader } from './components/AppHeader';
 import { ComingSoon } from './components/ComingSoon';
 import { GiftsIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
 
@@ -27,7 +28,8 @@ function App() {
 function Layout() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--bg)' }}>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <AppHeader />
+      <div style={{ flex: 1, overflow: 'auto', paddingTop: '72px' }}>
         <Outlet />
       </div>
       <BottomBar />
