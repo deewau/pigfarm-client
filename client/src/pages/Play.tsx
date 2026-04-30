@@ -101,13 +101,11 @@ const GIFTS_VIP = [
   { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
   { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
   { id: '5168043875654172773', name: 'Кубок', stars: 100 },
-  // NFT подарки
   { id: 'chillflame', name: 'Chill Flame', stars: 345, isSpecial: true },
   { id: 'vicecream', name: 'Vice Cream', stars: 370, isSpecial: true },
   { id: 'instantramen', name: 'Instant Ramen', stars: 390, isSpecial: true },
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
-  // VIRT подарки (внутриигровая валюта)
   { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
   { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
 ];
@@ -120,7 +118,6 @@ const PROBABILITIES_VIP: Record<string, number> = {
   '5170690322832818290': 7.52,
   '5170521118301225164': 7.52,
   '5168043875654172773': 7.52,
-  // NFT подарки
   'chillflame': 1.31,
   'vicecream': 1.29,
   'instantramen': 1.26,
@@ -128,7 +125,6 @@ const PROBABILITIES_VIP: Record<string, number> = {
   'poolfloat': 1.24,
   'lolpop': 0.70,
   'snakebox': 0.81,
-  // VIRT подарки (разные ID для вероятностей, но один файл virt.json)
   'virt240': 2.27,
   'virt490': 1.18,
 };
@@ -146,7 +142,7 @@ function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<strin
       return item;
     }
   }
-  
+   
   return gifts[gifts.length - 1];
 }
 
@@ -154,7 +150,7 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
   const otherGifts = gifts.filter(g => g.id !== targetGift.id);
   const shuffled = [...otherGifts].sort(() => Math.random() - 0.5);
   const items: TelegramGift[] = [];
-  
+   
   for (let loop = 0; loop < LOOPS; loop++) {
     for (let i = 0; i < PATTERN_SIZE; i++) {
       if (loop === LOOPS - 1 && i === TARGET_POSITION) {
@@ -164,7 +160,7 @@ function generatePatternWithTarget(gifts: TelegramGift[], targetGift: TelegramGi
       }
     }
   }
-  
+   
   return items;
 }
 
@@ -190,14 +186,14 @@ export function Play() {
   const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
   const [costDropdownOpen, setCostDropdownOpen] = useState(false);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
-
+  
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const spinCancelledRef = useRef(false);
   const giftsLoadedRef = useRef<TelegramGift[]>([]);
   const offsetRef = useRef(0);
-
+  
   const getCurrentGifts = useCallback((): TelegramGift[] => {
     if (spinCost === 25) {
       if (giftsLoadedRef.current.length > 0) {
@@ -210,7 +206,6 @@ export function Play() {
       }
       return GIFTS_HIGH;
     } else {
-      // Для 100-рулетки: берем с сервера, добавляем VIRT если их нет
       let gifts = giftsLoadedRef.current.length > 0 
         ? giftsLoadedRef.current.filter(g => 
               [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || 
@@ -218,27 +213,26 @@ export function Play() {
               g.isVirt
             )
         : [];
-      
-      // Добавляем VIRT подарки если их нет в списке (разные ID для вероятностей, но один файл JSON/SVG)
+       
       const hasVirt240 = gifts.some(g => g.id === 'virt240' && g.isVirt);
       const hasVirt490 = gifts.some(g => g.id === 'virt490' && g.isVirt);
       if (!hasVirt240) gifts.push({ id: 'virt240', name: 'Virt', stars: 240, isVirt: true } as TelegramGift);
       if (!hasVirt490) gifts.push({ id: 'virt490', name: 'Virt', stars: 490, isVirt: true } as TelegramGift);
-      
+       
       return gifts.length > 0 ? gifts : GIFTS_VIP;
     }
   }, [spinCost]);
-
+   
   const getCurrentProbabilities = useCallback((): Record<string, number> => {
     if (spinCost === 25) return PROBABILITIES_LOW;
     if (spinCost === 50) return PROBABILITIES_HIGH;
     return PROBABILITIES_VIP;
   }, [spinCost]);
-
+   
   const initializeRoulette = useCallback(() => {
     const gifts = getCurrentGifts();
     const probabilities = getCurrentProbabilities();
-    
+     
     const items: TelegramGift[] = [];
     for (let loop = 0; loop < LOOPS; loop++) {
       for (let i = 0; i < PATTERN_SIZE; i++) {
@@ -248,7 +242,7 @@ export function Play() {
     setRouletteItems(items);
     setPossibleGifts(getPossibleGifts(gifts, probabilities));
   }, [getCurrentGifts, getCurrentProbabilities]);
-
+   
   useEffect(() => {
     const loadGifts = async () => {
       try {
@@ -265,13 +259,13 @@ export function Play() {
     };
     loadGifts();
   }, []);
-
+   
   useEffect(() => {
     if (!loading) {
       initializeRoulette();
     }
   }, [loading, spinCost, initializeRoulette]);
-
+   
   useEffect(() => {
     const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : spinCost === 50 ? SPIN_COST_HIGH : SPIN_COST_VIP;
     if (autoSpinAfterDeposit && user && user.balance >= requiredBalance && !spinning) {
@@ -279,55 +273,55 @@ export function Play() {
       handleSpin();
     }
   }, [autoSpinAfterDeposit, user, spinning, spinCost]);
-
+   
   useEffect(() => {
     if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
-    
+     
     const newPattern = generatePatternWithTarget(getCurrentGifts(), pendingTargetGift);
     setRouletteItems(newPattern);
-    
+     
     setTimeout(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const targetPos = (LOOPS - 1) * PATTERN_SIZE + TARGET_POSITION;
           const targetEl = document.querySelectorAll('.play__roulette-item')[targetPos] as HTMLElement;
           const containerEl = document.querySelector('.play__roulette-container');
-          
+           
           if (!targetEl || !containerEl || !rouletteRef.current) {
             setPendingTargetGift(null);
             return;
           }
-          
+           
           const winnerCenter = targetEl.offsetLeft + targetEl.offsetWidth / 2;
           const containerRect = containerEl.getBoundingClientRect();
           const markerCenter = containerRect.width / 2;
           const targetX = markerCenter - winnerCenter;
-          
+           
           offsetRef.current = 0;
           if (rouletteRef.current) {
             rouletteRef.current.style.transform = `translateX(0px)`;
           }
-          
+           
           const startTime = performance.now();
           const duration = 6000;
           setSpinning(true);
-
+           
           const animate = (timestamp: number) => {
             if (spinCancelledRef.current) {
               setSpinning(false);
               return;
             }
-            
+             
             const elapsed = timestamp - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+             
             const easeOut = 1 - Math.pow(1 - progress, 3);
             const currentX = targetX * easeOut;
-            
+             
             if (rouletteRef.current) {
               rouletteRef.current.style.transform = `translateX(${Math.floor(currentX)}px)`;
             }
-
+             
             if (progress < 1) {
               animationRef.current = requestAnimationFrame(animate);
             } else {
@@ -340,25 +334,25 @@ export function Play() {
               setShowResult(true);
             }
           };
-
+           
           animationRef.current = requestAnimationFrame(animate);
         });
       });
     }, 100);
   }, [pendingTargetGift]);
-
+   
   const handleSpin = async () => {
     if (spinning || rouletteItems.length === 0) return;
-
+     
     const requiredBalance = spinCost === 25 ? SPIN_COST_LOW : spinCost === 50 ? SPIN_COST_HIGH : SPIN_COST_VIP;
     let targetGift: TelegramGift | null = null;
-
+     
     if (!demoMode && user) {
       if (user.balance < requiredBalance) {
         setShowDeposit(true);
         return;
       }
-
+     
       try {
         const response = await winApi.spin(spinCost);
         if (!response.success) {
@@ -390,7 +384,7 @@ export function Play() {
       }
     } else {
       targetGift = weightedRandomSelect(getCurrentGifts(), getCurrentProbabilities());
-      
+       
       // Для VIRT-подарков в демо-режиме нужно загрузить animationData
       if (targetGift.isVirt) {
         try {
@@ -404,46 +398,14 @@ export function Play() {
         }
       }
     }
-
-      try {
-        const response = await winApi.spin(spinCost);
-        if (!response.success) {
-          if (response.error === 'Insufficient_balance') {
-            setShowDeposit(true);
-            return;
-          }
-          return;
-        }
-        targetGift = {
-          id: response.data.gift.id,
-          name: response.data.gift.name,
-          stars: response.data.gift.stars,
-          animationSvg: response.data.gift.animationSvg,
-          animationData: response.data.gift.animationData,
-          isSpecial: response.data.gift.isSpecial || false,
-        };
-        refreshBalance();
-        refreshXp();
-        setTimeout(() => {
-          const cached = localStorage.getItem('pigfarm_userLevel');
-          if (cached) {
-            window.dispatchEvent(new CustomEvent('xp-updated', { detail: JSON.parse(cached) }));
-          }
-        }, 100);
-      } catch (err) {
-        return;
-      }
-    } else {
-      targetGift = weightedRandomSelect(getCurrentGifts(), getCurrentProbabilities());
-    }
-
+     
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
-
+     
     setPendingTargetGift(targetGift);
   };
-
+   
   const handleGoToProfile = () => {
     setShowResult(false);
     const tg = (window as any).Telegram?.WebApp;
@@ -451,15 +413,15 @@ export function Play() {
       tg.BackButton.show();
     }
   };
-
+   
   const costOptions: { value: SpinCost; label: string }[] = [
     { value: 25, label: '25 ⭐' },
     { value: 50, label: '50 ⭐' },
     { value: 100, label: '100 ⭐' },
   ];
-
+   
   const selectedCostLabel = costOptions.find(o => o.value === spinCost)?.label || '';
-
+   
   useEffect(() => {
     if (!costDropdownOpen) return;
     const handler = (e: MouseEvent) => {
@@ -469,7 +431,7 @@ export function Play() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [costDropdownOpen]);
-
+   
   if (loading) {
     return (
       <div className="play">
@@ -477,7 +439,7 @@ export function Play() {
       </div>
     );
   }
-
+   
   if (!user && !demoMode) {
     return (
       <div className="play">
@@ -485,9 +447,9 @@ export function Play() {
       </div>
     );
   }
-
+   
   const costLabel = demoMode ? 'Крутить!' : `${spinCost} ⭐`;
-
+   
   return (
     <div className="play">
       <div className="play__roulette-container" ref={containerRef}>
@@ -501,7 +463,7 @@ export function Play() {
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
                 ) : (
-                  <GiftImage giftId={item.id} size={70} fallbackEmoji="🍦" />
+                  <GiftImage giftId={item.isVirt ? 'virt' : item.id} size={70} fallbackEmoji="🎁" />
                 )}
               </div>
               <div className="play__roulette-cost-badge">
@@ -511,7 +473,7 @@ export function Play() {
           ))}
         </div>
       </div>
-
+       
       <div className="play__controls">
         <div className="play__cost-selector">
           <div
@@ -565,7 +527,7 @@ export function Play() {
           </label>
         </div>
       </div>
-
+       
       <p className="play__subtitle">Вы можете выиграть...</p>
       <div className="play__gifts-grid">
         {possibleGifts.map((gift, i) => (
@@ -587,7 +549,7 @@ export function Play() {
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
               ) : (
-                <GiftImage giftId={gift.isVirt ? 'virt' : gift.id} size={80} fallbackEmoji="🍦" />
+                <GiftImage giftId={gift.isVirt ? 'virt' : gift.id} size={80} fallbackEmoji="🎁" />
               )}
             </div>
             <span className="play__gift-chance">{gift.chance.toFixed(2)}%</span>
@@ -595,7 +557,7 @@ export function Play() {
           </div>
         ))}
       </div>
-
+       
       {showResult && wonGift && (
         <ResultModal
           animationData={wonGift.isVirt ? null : wonGift.animationData}
@@ -611,14 +573,14 @@ export function Play() {
           isVirt={wonGift.isVirt}
         />
       )}
-
+       
       {infoGift && (
         <GiftInfoModal
           gift={infoGift}
           onClose={() => setInfoGift(null)}
         />
       )}
-
+       
       {showDeposit && (
         <DepositModal
           isOpen={showDeposit}
