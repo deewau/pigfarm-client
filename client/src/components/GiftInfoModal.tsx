@@ -24,23 +24,37 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
 
     let animation: any = null;
 
-    // Загружаем анимацию (Vite проксирует /gifts на сервер)
     const loadAnimation = async () => {
+      // Пробуем использовать animationData из пропсов
+      if (gift.animationData) {
+        try {
+          animation = lottie.loadAnimation({
+            container: containerRef.current!,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            animationData: gift.animationData,
+          });
+          return;
+        } catch (e) {
+          console.error('Failed to load from props:', e);
+        }
+      }
+
+      // Пробуем загрузить JSON файл
       try {
         const response = await fetch(`/gifts/${gift.id}.json`);
         if (response.ok) {
           const data = await response.json();
-          if (containerRef.current) {
-            animation = lottie.loadAnimation({
-              container: containerRef.current,
-              renderer: 'svg',
-              loop: true,
-              autoplay: true,
-              animationData: data,
-            });
-          }
+          animation = lottie.loadAnimation({
+            container: containerRef.current!,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            animationData: data,
+          });
         } else {
-          console.error(`Failed to load animation: ${response.status} ${response.statusText}`);
+          console.error(`Failed to load ${gift.id}.json: ${response.status}`);
         }
       } catch (error) {
         console.error('Failed to load animation:', error);
@@ -54,7 +68,7 @@ export function GiftInfoModal({ gift, onClose }: GiftInfoModalProps) {
         if (animation) animation.destroy();
       } catch (e) {}
     };
-  }, [gift.id]);
+  }, [gift.id, gift.animationData]);
 
   const isVirt = gift.isVirt;
   const isSpecial = gift.isSpecial;
