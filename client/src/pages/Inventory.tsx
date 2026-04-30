@@ -34,32 +34,8 @@ export function Inventory() {
     loadGifts();
   }, []);
 
-  const totalStars = gifts.reduce((sum, g) => sum + (g.gift_stars || 0), 0);
-
   return (
     <div className="inventory">
-      <div className="inventory__header">
-        <h1 className="inventory__title">Инвентарь</h1>
-        <p className="inventory__subtitle">Твои выигранные подарки</p>
-      </div>
-
-      <div className="inventory__stats">
-        <div className="inventory__stat">
-          <span className="inventory__stat-icon">🎁</span>
-          <div className="inventory__stat-info">
-            <span className="inventory__stat-value">{gifts.length}</span>
-            <span className="inventory__stat-label">подарков</span>
-          </div>
-        </div>
-        <div className="inventory__stat">
-          <span className="inventory__stat-icon">⭐</span>
-          <div className="inventory__stat-info">
-            <span className="inventory__stat-value">{totalStars.toLocaleString()}</span>
-            <span className="inventory__stat-label">всего Stars</span>
-          </div>
-        </div>
-      </div>
-
       {loading ? (
         <div className="inventory__loading">
           <div className="inventory__loading-spinner" />
@@ -78,7 +54,7 @@ export function Inventory() {
         </div>
       ) : (
         <div className="inventory__section">
-          <h2 className="inventory__section-title">Мои подарки</h2>
+          <h2 className="inventory__section-title">Мои выигрыши</h2>
           <div className="inventory__grid">
             {gifts.map((gift) => (
               <div
