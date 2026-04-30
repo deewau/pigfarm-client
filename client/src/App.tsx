@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
@@ -36,11 +36,23 @@ function Layout() {
 }
 
 function BottomBar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.includes('giveaways')) return 'giveaways';
+    if (path.includes('inventory')) return 'inventory';
+    if (path.includes('profile')) return 'profile';
+    return 'play';
+  };
+
   return (
       <TabBar
-      activeTab="play"
+      activeTab={getActiveTab()}
       onTabChange={(tabId) => {
-        console.log('Active tab:', tabId);
+        const tab = tabs.find(t => t.id === tabId);
+        if (tab) navigate(tab.path);
       }}
       tabs={[
         {
