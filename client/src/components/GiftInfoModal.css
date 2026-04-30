@@ -137,3 +137,9 @@
 .gift-info-modal--virt .gift-info__close-btn:hover {
   box-shadow: 0 6px 28px rgba(155, 89, 182, 0.5);
 }
+
+.gift-info-modal--special .gift-info__description,
+.gift-info-modal--virt .gift-info__description {
+  color: #ffffff;
+  opacity: 1;
+}
