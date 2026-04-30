@@ -5,7 +5,6 @@ import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 import { GiftInfoModal } from '../components/GiftInfoModal';
 import { DepositModal } from '../components/DepositModal';
-import { ProfileBar } from '../components/ProfileBar';
 import { useAuth } from '../hooks/useAuth';
 
 interface TelegramGift {
@@ -445,7 +444,6 @@ export function Play() {
 
   return (
     <div className="play">
-      <ProfileBar />
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>
