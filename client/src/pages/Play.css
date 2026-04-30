@@ -96,6 +96,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
+  filter: brightness(1.2);
 }
 
 .play__roulette-item {
@@ -110,10 +111,10 @@
   border-radius: 16px;
   padding: 8px 4px;
   box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .play__roulette-item::before {
@@ -319,11 +320,12 @@
   font-size: 12px;
   font-weight: 700;
   color: #ffffff;
-  background: var(--accent);
+  background: rgba(255, 69, 58, 0.9);
   padding: 5px 14px;
   border-radius: 20px;
   white-space: nowrap;
-  border: 1px solid var(--accent-border);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Контролы */
@@ -617,31 +619,9 @@
   background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
   border-radius: 14px;
   padding: 12px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.play__gift-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-}
-
-.play__gift-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .play__gift-card--special {
@@ -663,23 +643,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: brightness(1.2);
 }
 
 .play__gift-chance {
   font-family: 'Gilroy', sans-serif;
   font-size: 11px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .play__gift-cost {
   font-family: 'Gilroy', sans-serif;
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-bg);
+  color: #ffffff;
+  background: rgba(255, 69, 58, 0.2);
   padding: 4px 12px;
   border-radius: 10px;
-  border: 1px solid var(--accent-border);
+  border: 1px solid rgba(255, 69, 58, 0.3);
 }
 
 /* Лоадер */
