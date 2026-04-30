@@ -362,6 +362,52 @@ export function Play() {
       try {
         const response = await winApi.spin(spinCost);
         if (!response.success) {
+          if (response.error === 'Insufficient balance') {
+            setShowDeposit(true);
+            return;
+          }
+          return;
+        }
+        targetGift = {
+          id: response.data.gift.id,
+          name: response.data.gift.name,
+          stars: response.data.gift.stars,
+          animationSvg: response.data.gift.animationSvg,
+          animationData: response.data.gift.animationData,
+          isSpecial: response.data.gift.isSpecial || false,
+          isVirt: response.data.gift.isVirt || false,
+        };
+        refreshBalance();
+        refreshXp();
+        setTimeout(() => {
+          const cached = localStorage.getItem('pigfarm_userLevel');
+          if (cached) {
+            window.dispatchEvent(new CustomEvent('xp-updated', { detail: JSON.parse(cached) }));
+          }
+        }, 100);
+      } catch (err) {
+        return;
+      }
+    } else {
+      targetGift = weightedRandomSelect(getCurrentGifts(), getCurrentProbabilities());
+      
+      // Для VIRT-подарков в демо-режиме нужно загрузить animationData
+      if (targetGift.isVirt) {
+        try {
+          const response = await fetch(`/assets/gifts/${targetGift.id}.json`);
+          if (response.ok) {
+            const data = await response.json();
+            targetGift = { ...targetGift, animationData: data };
+          }
+        } catch (e) {
+          console.warn('Failed to load VIRT gift animation:', e);
+        }
+      }
+    }
+
+      try {
+        const response = await winApi.spin(spinCost);
+        if (!response.success) {
           if (response.error === 'Insufficient_balance') {
             setShowDeposit(true);
             return;
@@ -552,8 +598,8 @@ export function Play() {
 
       {showResult && wonGift && (
         <ResultModal
-          animationData={wonGift.animationData}
-          giftId={wonGift.id}
+          animationData={wonGift.isVirt ? null : wonGift.animationData}
+          giftId={wonGift.isVirt ? 'virt' : wonGift.id}
           onClose={() => setShowResult(false)}
           onDisableDemo={() => {
             setShowResult(false);
