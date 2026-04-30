@@ -108,7 +108,7 @@ const GIFTS_VIP = [
   { id: 'instantramen', name: 'Instant Ramen', stars: 390, isSpecial: true },
   { id: 'icecream', name: 'Ice Cream', stars: 380, isSpecial: true },
   { id: 'poolfloat', name: 'Pool Float', stars: 350, isSpecial: true },
-  // VIRT подарки (внутриигровая валюта) - один файл virt.json для обоих
+  // VIRT подарки (внутриигровая валюта)
   { id: 'virt240', name: 'Virt 240', stars: 240, isVirt: true },
   { id: 'virt490', name: 'Virt 490', stars: 490, isVirt: true },
 ];
