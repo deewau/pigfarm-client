@@ -153,6 +153,7 @@ export interface TelegramGift {
   animationData?: any;
   sticker?: any;
   isSpecial?: boolean;
+  isVirt?: boolean;
 }
 
 function loadGiftSvg(giftId: string): any {
@@ -264,6 +265,7 @@ export const GIFTS_DATA: TelegramGift[] = [
     stars: 370,
     animationSvg: loadGiftSvg('vicecream'),
     animationData: loadGiftAnimation('vicecream', 'gifts50'),
+    isVirt: true,
   },
   {
     id: 'chillflame',
@@ -312,6 +314,22 @@ export const GIFTS_DATA: TelegramGift[] = [
     animationSvg: loadGiftSvg('snakebox'),
     animationData: loadGiftAnimation('snakebox', 'gifts'),
     isSpecial: true,
+  },
+  {
+    id: 'virt240',
+    name: 'Virt 240',
+    stars: 240,
+    animationSvg: loadGiftSvg('virt240'),
+    animationData: loadGiftAnimation('virt240'),
+    isVirt: true,
+  },
+  {
+    id: 'virt490',
+    name: 'Virt 490',
+    stars: 490,
+    animationSvg: loadGiftSvg('virt490'),
+    animationData: loadGiftAnimation('virt490'),
+    isVirt: true,
   },
 ];
 

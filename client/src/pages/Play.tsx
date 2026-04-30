@@ -463,7 +463,7 @@ export function Play() {
                 {item.animationSvg ? (
                   <GiftImage svgContent={item.animationSvg} size={70} uniqueId={`roulette-${index}`} />
                 ) : (
-                  <GiftImage giftId={item.isVirt ? 'virt' : item.id} size={70} fallbackEmoji="🎁" />
+                  <GiftImage giftId={item.id} size={70} fallbackEmoji="🎁" />
                 )}
               </div>
               <div className="play__roulette-cost-badge">
@@ -549,7 +549,7 @@ export function Play() {
               {gift.animationSvg ? (
                 <GiftImage svgContent={gift.animationSvg} size={80} uniqueId={`gift-${i}`} />
               ) : (
-                <GiftImage giftId={gift.isVirt ? 'virt' : gift.id} size={80} fallbackEmoji="🎁" />
+                <GiftImage giftId={gift.id} size={80} fallbackEmoji="🎁" />
               )}
             </div>
             <span className="play__gift-chance">{gift.chance.toFixed(2)}%</span>
@@ -560,8 +560,9 @@ export function Play() {
        
       {showResult && wonGift && (
         <ResultModal
-          animationData={wonGift.isVirt ? null : wonGift.animationData}
-          giftId={wonGift.isVirt ? 'virt' : wonGift.id}
+          animationData={wonGift.animationData}
+          animationSvg={wonGift.animationSvg}
+          giftId={wonGift.id}
           onClose={() => setShowResult(false)}
           onDisableDemo={() => {
             setShowResult(false);

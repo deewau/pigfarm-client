@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
+import { GiftImage } from './GiftAnimation';
 import './ResultModal.css';
 
 interface ResultModalProps {
   animationData?: any;
+  animationSvg?: string;
   giftId?: string;
   onClose: () => void;
   onDisableDemo?: () => void;
@@ -15,6 +17,7 @@ interface ResultModalProps {
 
 export function ResultModal({ 
   animationData, 
+  animationSvg,
   giftId,
   onClose, 
   onDisableDemo, 
@@ -28,21 +31,10 @@ export function ResultModal({
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Для VIRT-подарков используем запасной вариант
-    if (isVirt) {
-      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#9B59B6"/><text x="50" y="55" text-anchor="middle" fill="#fff" font-size="20">VIRT</text></svg>`;
-      const animation = lottie.loadAnimation({
-        container: containerRef.current,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        animationData: null,
-      });
-      containerRef.current.innerHTML = svgContent;
-      return () => animation.destroy();
+    if (!animationData) {
+      // Показываем SVG-превью, если нет анимации
+      return;
     }
-    
-    if (!animationData) return;
     
     const animation = lottie.loadAnimation({
       container: containerRef.current,
@@ -53,12 +45,16 @@ export function ResultModal({
     });
     
     return () => animation.destroy();
-  }, [animationData, isVirt]);
+  }, [animationData]);
 
   return (
     <div className="result-modal-overlay" onClick={onClose}>
-      <div className={`result-modal${isSpecial ? ' result-modal--special' : ''}`} onClick={(e) => e.stopPropagation()}>
-        <div className="result-modal__gift" ref={containerRef} />
+      <div className={`result-modal${isSpecial ? ' result-modal--special' : ''}${isVirt ? ' result-modal--virt' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className="result-modal__gift" ref={containerRef}>
+          {!animationData && (animationSvg || giftId) && (
+            <GiftImage svgContent={animationSvg} giftId={giftId} size={200} />
+          )}
+        </div>
         <h2 className="result-modal__message">
           {isDemo ? 'Вы выиграли подарок!' : '🎉 Поздравляем!'}
         </h2>
