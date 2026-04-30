@@ -418,16 +418,25 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-.profile__empty-icon {
-  font-size: 48px;
+.profile__empty-animation {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 14px;
-  opacity: 0.6;
 }
 
-.profile__empty p {
+.profile__empty-animation svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.profile__empty-text {
   font-family: 'Gilroy', sans-serif;
-  font-size: 14px;
-  color: #5936C1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
   margin: 0;
 }
 

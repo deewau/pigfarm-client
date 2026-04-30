@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import lottie from 'lottie-web';
 import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
 import { GameIcon } from '../components/icons';
@@ -22,6 +23,37 @@ export function Profile() {
 
   const [transactions, setTransactions] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const duckRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (historyLoading || transactions.length > 0) return;
+
+    let animation: any = null;
+
+    const loadDuck = async () => {
+      try {
+        const response = await fetch('/assets/cmn/nomoneyduck.json');
+        if (response.ok && duckRef.current) {
+          const data = await response.json();
+          animation = lottie.loadAnimation({
+            container: duckRef.current,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            animationData: data,
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load nomoneyduck animation:', e);
+      }
+    };
+
+    loadDuck();
+
+    return () => {
+      try { if (animation) animation.destroy(); } catch (e) {}
+    };
+  }, [historyLoading, transactions.length]);
 
   useEffect(() => {
     async function loadXp() {
@@ -118,8 +150,8 @@ export function Profile() {
             <div className="profile__loading">Загрузка...</div>
           ) : transactions.length === 0 ? (
             <div className="profile__empty">
-              <div className="profile__empty-icon">📋</div>
-              <p>Нет транзакций</p>
+              <div className="profile__empty-animation" ref={duckRef} />
+              <p className="profile__empty-text">Нет транзакций</p>
             </div>
           ) : (
             <div className="profile__history-list">
