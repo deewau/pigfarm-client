@@ -75,7 +75,6 @@ export function Inventory() {
       ) : gifts.length === 0 ? (
         <div className="inventory__empty">
           <div className="inventory__empty-animation" ref={duckRef} />
-          <h3 className="inventory__empty-title">Пусто</h3>
           <p className="inventory__empty-text">У тебя пока нет подарков</p>
           <button 
             className="inventory__empty-action"
