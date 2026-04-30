@@ -24,16 +24,19 @@ export function Profile() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const duckRef = useRef<HTMLDivElement>(null);
+  const duckLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (historyLoading || transactions.length > 0) return;
+    if (historyLoading || transactions.length > 0 || duckLoadedRef.current) return;
 
     let animation: any = null;
+    let cancelled = false;
 
     const loadDuck = async () => {
       try {
         const response = await fetch('/assets/cmn/nomoneyduck.json');
-        if (response.ok && duckRef.current) {
+        if (response.ok && duckRef.current && !cancelled) {
+          duckRef.current.innerHTML = '';
           const data = await response.json();
           animation = lottie.loadAnimation({
             container: duckRef.current,
@@ -42,6 +45,7 @@ export function Profile() {
             autoplay: true,
             animationData: data,
           });
+          duckLoadedRef.current = true;
         }
       } catch (e) {
         console.error('Failed to load nomoneyduck animation:', e);
@@ -51,7 +55,12 @@ export function Profile() {
     loadDuck();
 
     return () => {
-      try { if (animation) animation.destroy(); } catch (e) {}
+      cancelled = true;
+      try { 
+        if (animation) animation.destroy(); 
+        if (duckRef.current) duckRef.current.innerHTML = '';
+        duckLoadedRef.current = false;
+      } catch (e) {}
     };
   }, [historyLoading, transactions.length]);
 
