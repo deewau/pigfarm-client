@@ -1,7 +1,7 @@
 .gift-receive-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(14, 5, 26, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,14 +10,14 @@
 }
 
 .gift-receive-modal {
-  background: #2A1B63;
+  background: var(--bg-surface);
   border-radius: 24px;
   padding: 32px 24px;
   max-width: 320px;
   width: 100%;
   text-align: center;
-  border: 1px solid rgba(117, 71, 255, 0.2);
-  box-shadow: 0 16px 64px rgba(117, 71, 255, 0.3);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
 }
 
 .gift-receive-modal__gift {
@@ -52,7 +52,8 @@
 .gift-receive-modal__desc {
   font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #5936C1;
+  color: var(--text);
+  opacity: 0.7;
   margin: 0 0 24px;
   line-height: 1.5;
 }
@@ -91,14 +92,14 @@
 }
 
 .gift-receive-modal__btn--secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border);
 }
 
 .gift-receive-modal__btn--secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--bg-surface-hover);
+  border-color: var(--border);
 }
 
 .gift-receive-modal__btn--secondary:disabled {

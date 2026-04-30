@@ -2,14 +2,18 @@
   --text: #e5e5e5;
   --text-h: #ffffff;
   --bg: #0E051A;
-  --border: #2a2a2a;
-  --code-bg: #1a1a1a;
+  --bg-surface: #1A0B2E;
+  --bg-surface-hover: #220F3D;
+  --bg-elevated: #2A1B4A;
+  --border: rgba(117, 71, 255, 0.15);
+  --border-light: rgba(117, 71, 255, 0.1);
+  --code-bg: #1A0B2E;
   --accent: #ff453a;
   --accent-light: #ff453a;
   --accent-bg: rgba(255, 69, 58, 0.12);
   --accent-border: rgba(255, 69, 58, 0.25);
-  --social-bg: #1a1a1a;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --social-bg: #1A0B2E;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
   --sans: 'Gilroy', sans-serif;
   --heading: 'Gilroy', sans-serif;
@@ -36,6 +40,7 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  background: var(--bg);
 }
 
 body {

@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(10, 10, 15, 0.8);
+  background: rgba(14, 5, 26, 0.8);
   backdrop-filter: blur(10px);
   z-index: 1000;
   display: flex;
@@ -21,12 +21,12 @@
   width: 100%;
   max-width: 440px;
   max-height: 85vh;
-  background: #2A1B63;
+  background: var(--bg-surface);
   border-radius: 24px 24px 0 0;
   display: flex;
   flex-direction: column;
   animation: deposit-sheet-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(117, 71, 255, 0.15);
+  border: 1px solid var(--border);
   border-bottom: none;
 }
 
@@ -120,10 +120,10 @@
 /* Табы */
 .deposit-modal__tabs {
   display: flex;
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-surface-hover);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid rgba(117, 71, 255, 0.1);
+  border: 1px solid var(--border-light);
 }
 
 .deposit-modal__tab {
@@ -137,7 +137,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
-  color: #5936C1;
+  color: var(--text);
+  opacity: 0.6;
 }
 
 .deposit-modal__tab--active {
@@ -173,15 +174,20 @@
 }
 
 .deposit-modal__input-wrapper {
-  flex: 1;
+  flex:1;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-surface-hover);
   border-radius: 14px;
   padding: 14px 16px;
-  border: 1px solid rgba(117, 71, 255, 0.15);
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
+}
+
+.deposit-modal__input-wrapper:focus-within {
+  border-color: rgba(117, 71, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(117, 71, 255, 0.1);
 }
 
 .deposit-modal__input-wrapper:focus-within {
@@ -233,7 +239,8 @@
 
 .deposit-modal__hint {
   font-size: 12px;
-  color: #5936C1;
+  color: var(--text);
+  opacity: 0.6;
 }
 
 /* Пресеты */
@@ -252,7 +259,7 @@
 .deposit-modal__preset {
   flex-shrink: 0;
   padding: 14px 20px;
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-surface);
   border: 2px solid transparent;
   border-radius: 14px;
   color: #47FFC2;
@@ -265,7 +272,7 @@
 }
 
 .deposit-modal__preset:hover {
-  background: rgba(117, 71, 255, 0.12);
+  background: var(--bg-surface-hover);
   color: #ffffff;
 }
 
@@ -304,7 +311,8 @@
 
 .deposit-modal__terms {
   font-size: 11px;
-  color: #5936C1;
+  color: var(--text);
+  opacity: 0.6;
   text-align: center;
   margin: 0;
   line-height: 1.4;

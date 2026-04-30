@@ -16,7 +16,7 @@
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 15, 0.9);
+  background: rgba(14, 5, 26, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -81,7 +81,8 @@
 .result-modal__description {
   font-family: 'Gilroy', sans-serif;
   font-size: 14px;
-  color: #5936C1;
+  color: var(--text);
+  opacity: 0.7;
   line-height: 1.5;
   margin: 0 0 40px;
   text-align: center;
@@ -124,12 +125,12 @@
 }
 
 .result-modal__btn--secondary {
-  background: rgba(117, 71, 255, 0.1);
+  background: var(--bg-surface);
   color: #47FFC2;
-  border: 1px solid rgba(117, 71, 255, 0.2);
+  border: 1px solid var(--border);
 }
 
 .result-modal__btn--secondary:hover {
-  background: rgba(117, 71, 255, 0.15);
+  background: var(--bg-surface-hover);
   color: #ffffff;
 }

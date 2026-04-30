@@ -26,7 +26,7 @@ function App() {
 
 function Layout() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--bg)' }}>
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Outlet />
       </div>

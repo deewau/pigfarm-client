@@ -9,11 +9,11 @@
 
 /* Карточка профиля */
 .profile__card {
-  background: #2A1B63;
+  background: var(--bg-surface);
   border-radius: 20px;
   padding: 20px;
-  border: 1px solid rgba(117, 71, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(117, 71, 255, 0.1);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .profile__header {
@@ -125,8 +125,8 @@
 }
 
 .profile__level-bar {
-  background: rgba(71, 255, 194, 0.08);
-  border: 1px solid rgba(71, 255, 194, 0.15);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
   border-radius: 14px;
   padding: 14px 16px;
   margin-bottom: 14px;
@@ -158,7 +158,7 @@
 .profile__progress-track {
   position: relative;
   height: 10px;
-  background: rgba(117, 71, 255, 0.2);
+  background: rgba(117, 71, 255, 0.15);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -187,13 +187,13 @@
 
 /* Реферальный баннер */
 .profile__referral-banner {
-  background: #7547FF;
+  background: linear-gradient(135deg, #7547FF 0%, #9B59B6 100%);
   border-radius: 18px;
   padding: 22px 20px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 8px 24px rgba(117, 71, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(117, 71, 255, 0.4);
   position: relative;
   overflow: hidden;
 }
@@ -259,10 +259,10 @@
 /* Вкладки */
 .profile__tabs {
   display: flex;
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-surface);
   border-radius: 14px;
   padding: 4px;
-  border: 1px solid rgba(117, 71, 255, 0.1);
+  border: 1px solid var(--border-light);
 }
 
 .profile__tab {
@@ -313,9 +313,9 @@
   align-items: center;
   justify-content: center;
   padding: 50px 20px;
-  background: rgba(117, 71, 255, 0.05);
+  background: var(--bg-surface);
   border-radius: 18px;
-  border: 1px solid rgba(117, 71, 255, 0.1);
+  border: 1px solid var(--border-light);
 }
 
 .profile__empty-icon {
@@ -372,14 +372,14 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: rgba(117, 71, 255, 0.05);
+  background: var(--bg-surface);
   border-radius: 16px;
-  border: 1px solid rgba(117, 71, 255, 0.08);
+  border: 1px solid var(--border-light);
   transition: all 0.2s ease;
 }
 
 .profile__history-item:hover {
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-surface-hover);
 }
 
 .profile__history-icon {
@@ -388,7 +388,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(117, 71, 255, 0.2);
+  background: var(--bg-elevated);
   border-radius: 14px;
   font-size: 20px;
   flex-shrink: 0;
@@ -443,17 +443,17 @@
   align-items: center;
   gap: 8px;
   padding: 14px 10px;
-  background: rgba(117, 71, 255, 0.06);
+  background: var(--bg-surface);
   border-radius: 18px;
-  border: 1px solid rgba(117, 71, 255, 0.1);
+  border: 1px solid var(--border-light);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .profile__gift-card:hover {
   transform: translateY(-2px);
-  background: rgba(117, 71, 255, 0.1);
-  border-color: rgba(117, 71, 255, 0.2);
+  background: var(--bg-surface-hover);
+  border-color: var(--border);
 }
 
 .profile__gift-icon {
@@ -462,9 +462,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(117, 71, 255, 0.08);
+  background: var(--bg-elevated);
   border-radius: 50%;
-  border: 1px solid rgba(117, 71, 255, 0.15);
+  border: 1px solid var(--border);
 }
 
 .profile__gift-icon span {
