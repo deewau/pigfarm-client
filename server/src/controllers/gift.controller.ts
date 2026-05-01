@@ -150,16 +150,15 @@ export async function spinRoulette(req: Request, res: Response) {
 
     // Broadcast new win to all live feed clients
     const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === wonGift.id);
-    const user = await userRepository.findById(userId);
-    if (user) {
+    if (updatedUser) {
       broadcastNewWin({
         id: gift.id,
         gift_id: wonGift.id,
         gift_name: wonGift.name,
         gift_stars: wonGift.stars,
         won_at: new Date().toISOString(),
-        first_name: user.first_name,
-        username: user.username,
+        first_name: updatedUser.first_name,
+        username: updatedUser.username ?? null,
         animationSvg: giftData?.animationSvg || null,
       });
     }

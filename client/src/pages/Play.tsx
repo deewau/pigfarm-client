@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import './Play.css';
-import { giftApi, winApi, userApi } from '../services/api';
+import { giftApi, winApi } from '../services/api';
 import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 import { GiftInfoModal } from '../components/GiftInfoModal';
@@ -23,8 +23,6 @@ interface TelegramGift {
 const SPIN_COST_LOW = 25;
 const SPIN_COST_HIGH = 50;
 const SPIN_COST_VIP = 100;
-const ITEM_WIDTH = 97;
-const ITEM_GAP = 12;
 const PATTERN_SIZE = 30;
 const LOOPS = 3;
 const TARGET_POSITION = 10;

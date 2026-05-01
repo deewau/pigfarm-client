@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
 import { Inventory } from './pages/Inventory';
@@ -53,7 +52,12 @@ function BottomBar() {
       <TabBar
       activeTab={getActiveTab()}
       onTabChange={(tabId) => {
-        const tab = tabs.find(t => t.id === tabId);
+        const tab = [
+          { id: 'giveaways', path: '/giveaways' },
+          { id: 'play', path: '/play' },
+          { id: 'inventory', path: '/inventory' },
+          { id: 'profile', path: '/profile' },
+        ].find(t => t.id === tabId);
         if (tab) navigate(tab.path);
       }}
       tabs={[

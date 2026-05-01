@@ -36,6 +36,7 @@ export interface AuthResponse {
     first_name: string;
     username?: string;
     balance: number;
+    xp?: number;
   };
 }
 

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { winApi } from '../services/api';
 import { GiftImage } from './GiftAnimation';
 import './LiveFeed.css';
 
@@ -18,37 +17,40 @@ const MAX_VISIBLE = 5;
 
 export function LiveFeed() {
   const [wins, setWins] = useState<WinItem[]>([]);
-  const [newWinId, setNewWinId] = useState<number | null>(null);
-  const prevWinsRef = useRef<WinItem[]>([]);
-  const isInitialMount = useRef(true);
+  const [sliding, setSliding] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const fetchWins = async () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/live`);
+    wsRef.current = ws;
+
+    ws.onopen = () => console.log('📡 WS connected');
+    ws.onmessage = (event) => {
       try {
-        const response = await winApi.getRecent(MAX_VISIBLE + 5);
-        if (response.success && response.data?.wins) {
-          const newWins = response.data.wins.slice(0, MAX_VISIBLE);
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'new_win') {
+          const newWin = msg.data as WinItem;
 
-          if (!isInitialMount.current) {
-            const prevFirstId = prevWinsRef.current.length > 0 ? prevWinsRef.current[0]?.id : null;
-            if (prevFirstId && newWins.length > 0 && newWins[0].id !== prevFirstId) {
-              setNewWinId(newWins[0].id);
-              setTimeout(() => setNewWinId(null), 500);
-            }
-          }
+          // Start sliding animation
+          setSliding(true);
 
-          prevWinsRef.current = newWins;
-          setWins(newWins);
-          isInitialMount.current = false;
+          // Update list: prepend new win, keep only last MAX_VISIBLE
+          setWins(prev => {
+            const updated = [newWin, ...prev].slice(0, MAX_VISIBLE);
+            return updated;
+          });
+
+          // Remove sliding class after animation
+          setTimeout(() => setSliding(false), 500);
         }
-      } catch (err) {
-        console.warn('Failed to load recent wins:', err);
+      } catch (e) {
+        console.warn('WS message parse error:', e);
       }
     };
+    ws.onclose = () => console.log('📡 WS disconnected');
 
-    fetchWins();
-    const interval = setInterval(fetchWins, 5000);
-    return () => clearInterval(interval);
+    return () => ws.close();
   }, []);
 
   if (wins.length === 0) return null;
@@ -59,11 +61,11 @@ export function LiveFeed() {
         <span className="live-feed__dot" />
         LIVE
       </div>
-      <div className="live-feed__list">
-        {wins.map((win, i) => (
+      <div className={`live-feed__list ${sliding ? 'live-feed__list--sliding' : ''}`}>
+        {wins.map((win, index) => (
           <div
             key={win.id}
-            className={`live-feed__card ${win.id === newWinId ? 'live-feed__card--enter' : ''}`}
+            className={`live-feed__card ${index === 0 && sliding ? 'live-feed__card--new' : ''}`}
           >
             <div className="live-feed__card-gift">
               {win.animationSvg ? (
@@ -72,78 +74,9 @@ export function LiveFeed() {
                 <GiftImage giftId={win.gift_id} size={48} fallbackEmoji="🎁" />
               )}
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function LiveFeed() {
-  const [wins, setWins] = useState<WinItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollPosRef = useRef(0);
-
-  useEffect(() => {
-    const fetchWins = async () => {
-      try {
-        const response = await winApi.getRecent(15);
-        if (response.success && response.data) {
-          setWins(response.data.wins || []);
-        }
-      } catch (err) {
-        console.warn('Failed to load recent wins:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchWins();
-    const interval = setInterval(fetchWins, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (wins.length === 0) return;
-    const container = scrollRef.current;
-    if (!container) return;
-
-    let animId: number;
-    const speed = 0.5;
-
-    const animate = () => {
-      scrollPosRef.current += speed;
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      if (scrollPosRef.current >= maxScroll && maxScroll > 0) {
-        scrollPosRef.current = 0;
-      }
-      container.scrollLeft = scrollPosRef.current;
-      animId = requestAnimationFrame(animate);
-    };
-
-    animId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animId);
-  }, [wins]);
-
-  if (loading || wins.length === 0) return null;
-
-  const displayWins = [...wins, ...wins];
-
-  return (
-    <div className="live-feed">
-      <div className="live-feed__label">
-        <span className="live-feed__dot" />
-        LIVE
-      </div>
-      <div className="live-feed__track" ref={scrollRef}>
-        {displayWins.map((win, i) => (
-          <div key={`${win.id}-${i}`} className="live-feed__card">
-            <div className="live-feed__card-gift">
-              {win.animationSvg ? (
-                <GiftImage svgContent={win.animationSvg} size={40} uniqueId={`feed-${win.id}-${i}`} />
-              ) : (
-                <GiftImage giftId={win.gift_id} size={40} fallbackEmoji="🎁" />
-              )}
+            <div className="live-feed__card-info">
+              <span className="live-feed__card-name">{win.gift_name}</span>
+              <span className="live-feed__card-player">{win.first_name}</span>
             </div>
           </div>
         ))}
