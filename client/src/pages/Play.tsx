@@ -7,6 +7,7 @@ import { GiftInfoModal } from '../components/GiftInfoModal';
 import { DepositModal } from '../components/DepositModal';
 import { LiveFeed } from '../components/LiveFeed';
 import { useAuth } from '../hooks/useAuth';
+import type { WinItem } from '../components/LiveFeed';
 
 interface TelegramGift {
   id: string;
@@ -186,6 +187,11 @@ export function Play() {
   const [costDropdownOpen, setCostDropdownOpen] = useState(false);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
   
+  // Live Feed state
+  const [liveWins, setLiveWins] = useState<WinItem[]>([]);
+  const [sliding, setSliding] = useState(false);
+  const slidingTimeoutRef = useRef<number | null>(null);
+  
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -273,12 +279,82 @@ export function Play() {
     }
   }, [autoSpinAfterDeposit, user, spinning, spinCost]);
    
+  // Load live feed history
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch('/api/win/recent?limit=5');
+        const json = await res.json();
+        if (json.success && json.data?.wins) {
+          setLiveWins(json.data.wins);
+        }
+      } catch (e) {
+        console.warn('Failed to load live feed history:', e);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  // WebSocket for other players' wins
+  useEffect(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/live`);
+    
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'new_win') {
+          const newWin = msg.data as WinItem;
+          
+          // Ignore own wins here (they will be added when modal opens)
+          if (user && newWin.user_id === user.id) {
+            return;
+          }
+
+          setSliding(true);
+          if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
+          slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
+
+          setLiveWins(prev => [newWin].concat(prev).slice(0, 5));
+        }
+      } catch (e) {
+        console.warn('WS error:', e);
+      }
+    };
+
+    return () => ws.close();
+  }, [user]);
+
+  // When result modal opens, add own win to live feed
+  useEffect(() => {
+    if (!showResult || !wonGift || !user) return;
+
+    // Construct WinItem from current win
+    const ownWin: WinItem = {
+      id: Date.now(), // Temporary ID, real one comes from WS but we ignore it
+      user_id: user.id,
+      gift_id: wonGift.id,
+      gift_name: wonGift.name,
+      gift_stars: wonGift.stars,
+      won_at: new Date().toISOString(),
+      first_name: user.first_name,
+      username: user.username || null,
+      animationSvg: wonGift.animationSvg || null,
+    };
+
+    setSliding(true);
+    if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
+    slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
+
+    setLiveWins(prev => [ownWin].concat(prev).slice(0, 5));
+  }, [showResult]);
+
   useEffect(() => {
     if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
-     
+      
     const newPattern = generatePatternWithTarget(getCurrentGifts(), pendingTargetGift);
     setRouletteItems(newPattern);
-     
+      
     setTimeout(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -451,7 +527,7 @@ export function Play() {
    
   return (
     <div className="play">
-      <LiveFeed />
+      <LiveFeed wins={liveWins} sliding={sliding} />
 
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />

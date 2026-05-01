@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
 import { GiftImage } from './GiftAnimation';
 import './LiveFeed.css';
 
-interface WinItem {
+export interface WinItem {
   id: number;
+  user_id: number;
   gift_id: string;
   gift_name: string;
   gift_stars: number;
@@ -13,47 +13,23 @@ interface WinItem {
   animationSvg: string | null;
 }
 
-const MAX_VISIBLE = 5;
+interface LiveFeedProps {
+  wins: WinItem[];
+  sliding: boolean;
+}
 
-export function LiveFeed() {
-  const [wins, setWins] = useState<WinItem[]>([]);
-  const [sliding, setSliding] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-
-  useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/live`);
-    wsRef.current = ws;
-
-    ws.onopen = () => console.log('📡 WS connected');
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'new_win') {
-          const newWin = msg.data as WinItem;
-
-          // Start sliding animation
-          setSliding(true);
-
-          // Update list: prepend new win, keep only last MAX_VISIBLE
-          setWins(prev => {
-            const updated = [newWin, ...prev].slice(0, MAX_VISIBLE);
-            return updated;
-          });
-
-          // Remove sliding class after animation
-          setTimeout(() => setSliding(false), 500);
-        }
-      } catch (e) {
-        console.warn('WS message parse error:', e);
-      }
-    };
-    ws.onclose = () => console.log('📡 WS disconnected');
-
-    return () => ws.close();
-  }, []);
-
-  if (wins.length === 0) return null;
+export function LiveFeed({ wins, sliding }: LiveFeedProps) {
+  if (wins.length === 0) {
+    return (
+      <div className="live-feed">
+        <div className="live-feed__label">
+          <span className="live-feed__dot" />
+          LIVE
+        </div>
+        <div className="live-feed__empty">Пока никто не выигрывал</div>
+      </div>
+    );
+  }
 
   return (
     <div className="live-feed">

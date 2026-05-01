@@ -4,6 +4,7 @@ import type { AddressInfo } from 'net';
 
 interface LiveWin {
   id: number;
+  user_id: number; // ID пользователя, который выиграл
   gift_id: string;
   gift_name: string;
   gift_stars: number;

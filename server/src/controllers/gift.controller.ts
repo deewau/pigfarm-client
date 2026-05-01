@@ -153,6 +153,7 @@ export async function spinRoulette(req: Request, res: Response) {
     if (updatedUser) {
       broadcastNewWin({
         id: gift.id,
+        user_id: userId, // Add user_id to identify if it's the current player
         gift_id: wonGift.id,
         gift_name: wonGift.name,
         gift_stars: wonGift.stars,
