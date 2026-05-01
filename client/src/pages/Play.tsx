@@ -187,11 +187,27 @@ export function Play() {
   const [costDropdownOpen, setCostDropdownOpen] = useState(false);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
   
-  // Live Feed state
-  const [liveWins, setLiveWins] = useState<WinItem[]>([]);
+  // Live Feed state (init from localStorage)
+  const [liveWins, setLiveWins] = useState<WinItem[]>(() => {
+    try {
+      const cached = localStorage.getItem('pigfarm_live_wins');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [sliding, setSliding] = useState(false);
   const slidingTimeoutRef = useRef<number | null>(null);
   
+  // Save to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem('pigfarm_live_wins', JSON.stringify(liveWins));
+    } catch (e) {
+      console.warn('Failed to save live wins to localStorage:', e);
+    }
+  }, [liveWins]);
+   
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
