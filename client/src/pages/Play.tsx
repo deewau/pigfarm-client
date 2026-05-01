@@ -301,8 +301,11 @@ export function Play() {
       try {
         const res = await fetch('/api/win/recent?limit=5');
         const json = await res.json();
-        if (json.success && json.data?.wins) {
+        if (json.success && json.data?.wins && json.data.wins.length > 0) {
+          console.log('Loaded live feed history:', json.data.wins);
           setLiveWins(json.data.wins);
+        } else {
+          console.log('No live feed history from server');
         }
       } catch (e) {
         console.warn('Failed to load live feed history:', e);
