@@ -7,7 +7,66 @@
   padding: 8px 12px;
   margin-bottom: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border:1px solid rgba(255, 255, 255, 0.08);
+}
+
+.live-feed__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2ed573;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  flex-shrink:0;
+}
+
+.live-feed__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ed573;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.live-feed__track {
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+  flex:1;
+  scroll-behavior: auto;
+}
+
+.live-feed__card {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink:0;
+  border:1px solid rgba(255, 255, 255, 0.1);
+}
+
+.live-feed__card-gift {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.live-feed__card-gift > div {
+  width: 40px !important;
+  height: 40px !important;
 }
 
 .live-feed__label {

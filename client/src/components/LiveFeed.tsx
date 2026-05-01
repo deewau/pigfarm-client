@@ -72,16 +72,14 @@ export function LiveFeed() {
       </div>
       <div className="live-feed__track" ref={scrollRef}>
         {displayWins.map((win, i) => (
-          <div key={`${win.id}-${i}`} className="live-feed__item">
-            <div className="live-feed__gift">
+          <div key={`${win.id}-${i}`} className="live-feed__card">
+            <div className="live-feed__card-gift">
               {win.animationSvg ? (
-                <GiftImage svgContent={win.animationSvg} size={28} uniqueId={`feed-${win.id}-${i}`} />
+                <GiftImage svgContent={win.animationSvg} size={40} uniqueId={`feed-${win.id}-${i}`} />
               ) : (
-                <GiftImage giftId={win.gift_id} size={28} fallbackEmoji="🎁" />
+                <GiftImage giftId={win.gift_id} size={40} fallbackEmoji="🎁" />
               )}
             </div>
-            <span className="live-feed__name">{win.first_name}</span>
-            <span className="live-feed__stars">{win.gift_stars}⭐</span>
           </div>
         ))}
       </div>
