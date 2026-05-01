@@ -50,10 +50,6 @@ export function LiveFeed({ wins, sliding }: LiveFeedProps) {
                 <GiftImage giftId={win.gift_id} size={48} fallbackEmoji="🎁" />
               )}
             </div>
-            <div className="live-feed__card-info">
-              <span className="live-feed__card-name">{win.gift_name}</span>
-              <span className="live-feed__card-player">{win.first_name}</span>
-            </div>
           </div>
         ))}
       </div>
