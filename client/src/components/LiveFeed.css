@@ -12,7 +12,7 @@
   gap: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: #2ed573;
+  color: #2ed573 !important;
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
@@ -49,12 +49,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink:0;
-  animation: giftPulse 2s ease-in-out infinite;
-}
-
-@keyframes giftPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.3); }
-  50% { transform: scale(1.08); box-shadow: 0 0 12px 2px rgba(46, 213, 115, 0.3); }
 }
 
 .live-feed__card-gift {
@@ -63,6 +57,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: giftPulse 2s ease-in-out infinite;
+}
+
+@keyframes giftPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(46, 213, 115, 0)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.6)); }
 }
 
 .live-feed__card-gift > div {
