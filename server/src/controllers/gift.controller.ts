@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
 import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
+import { broadcastNewWin } from '../services/websocket.js';
 
 const GIFT_PROBABILITIES: Record<string, number> = {
   '5170145012310081615': 18.72,
@@ -146,6 +147,22 @@ export async function spinRoulette(req: Request, res: Response) {
 
     const updatedUser = await userRepository.findById(userId);
     console.log(`🎰 Spin complete: ${wonGift.name} for user ${userId}. Balance: ${updatedUser?.balance}`);
+
+    // Broadcast new win to all live feed clients
+    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === wonGift.id);
+    const user = await userRepository.findById(userId);
+    if (user) {
+      broadcastNewWin({
+        id: gift.id,
+        gift_id: wonGift.id,
+        gift_name: wonGift.name,
+        gift_stars: wonGift.stars,
+        won_at: new Date().toISOString(),
+        first_name: user.first_name,
+        username: user.username,
+        animationSvg: giftData?.animationSvg || null,
+      });
+    }
 
     res.json({
       success: true,

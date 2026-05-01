@@ -12,6 +12,7 @@ import helmet from 'helmet';
 import { initializeDatabase } from './db/connection.js';
 import { runMigrations } from './db/migrate.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { initWebSocket } from './services/websocket.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import depositRoutes from './routes/deposit.routes.js';
@@ -92,10 +93,12 @@ async function start() {
   await initializeDatabase();
   await runMigrations();
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
+
+  initWebSocket(server);
 }
 
 start();
