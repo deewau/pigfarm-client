@@ -90,8 +90,9 @@ app.use(errorHandler);
 
 // Инициализация БД и запуск сервера
 async function start() {
-  await initializeDatabase();
-  await runMigrations();
+  // Temporarily skip DB for WebSocket testing
+  // await initializeDatabase();
+  // await runMigrations();
 
   const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);

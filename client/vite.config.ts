@@ -8,12 +8,22 @@ export default defineConfig({
     port: 5173,
     host: true,
     strictPort: true,
-    allowedHosts: ['.loca.lt'],
+    allowedHosts: ['.local.lt'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      '/gifts': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://localhost:3000',
+        ws: true,
+      },
+    },
+  },
       '/gifts': {
         target: 'http://localhost:3000',
         changeOrigin: true,

@@ -43,18 +43,23 @@ export function initWebSocket(server: HTTPServer) {
 }
 
 export function broadcastNewWin(win: LiveWin) {
-  if (clients.size === 0) return;
+  if (clients.size === 0) {
+    console.log(`📡 No clients connected, skipping broadcast`);
+    return;
+  }
 
   const message = JSON.stringify({
     type: 'new_win',
     data: win,
   });
 
+  let sent = 0;
   clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
+      sent++;
     }
   });
 
-  console.log(`📡 Broadcasted new win: ${win.gift_name} for ${win.first_name}`);
+  console.log(`📡 Broadcasted new win: ${win.gift_name} for ${win.first_name} to ${sent}/${clients.size} clients`);
 }
