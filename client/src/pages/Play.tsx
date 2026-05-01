@@ -341,9 +341,9 @@ export function Play() {
     return () => ws.close();
   }, [user]);
 
-  // When result modal opens, add own win to live feed
+  // When result modal opens, add own win to live feed (only real wins)
   useEffect(() => {
-    if (!showResult || !wonGift || !user) return;
+    if (!showResult || !wonGift || !user || demoMode) return;
 
     // Construct WinItem from current win
     const ownWin: WinItem = {
