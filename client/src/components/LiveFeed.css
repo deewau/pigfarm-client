@@ -32,12 +32,9 @@
   50% { opacity: 0.5; transform: scale(0.8); }
 }
 
-.live-feed__track {
+.live-feed__list {
   display: flex;
   gap: 8px;
-  overflow: hidden;
-  flex:1;
-  scroll-behavior: auto;
 }
 
 .live-feed__card {
@@ -49,6 +46,22 @@
   align-items: center;
   justify-content: center;
   flex-shrink:0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.live-feed__card--enter {
+  animation: cardSlideIn 0.5s ease-out both;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity:0;
+    transform: translateX(-50px) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .live-feed__card-gift {
@@ -68,6 +81,104 @@
 .live-feed__card-gift > div {
   width: 48px !important;
   height: 48px !important;
+}
+
+.live-feed__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2ed573 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  flex-shrink:0;
+}
+
+.live-feed__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ed573;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.live-feed__container {
+  overflow: hidden;
+  flex:1;
+}
+
+.live-feed__list {
+  display: flex;
+  gap: 8px;
+  position: relative;
+}
+
+.live-feed__card {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink:0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.live-feed__card--entering {
+  animation: cardEnter 0.5s ease-out both;
+}
+
+.live-feed__card--exiting {
+  animation: cardExit 0.4s ease-in both;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-40px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes cardExit {
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.8);
+  }
+}
+
+.live-feed__card-gift {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: giftPulse 2s ease-in-out infinite;
+}
+
+@keyframes giftPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(46, 213, 115, 0)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.6)); }
+}
+
+.live-feed__card-gift > div {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.live-feed__list--updating {
+  position: relative;
 }
 
 .live-feed__label {

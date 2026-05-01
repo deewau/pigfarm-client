@@ -14,6 +14,71 @@ interface WinItem {
   animationSvg: string | null;
 }
 
+const MAX_VISIBLE = 5;
+
+export function LiveFeed() {
+  const [wins, setWins] = useState<WinItem[]>([]);
+  const [newWinId, setNewWinId] = useState<number | null>(null);
+  const prevWinsRef = useRef<WinItem[]>([]);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    const fetchWins = async () => {
+      try {
+        const response = await winApi.getRecent(MAX_VISIBLE + 5);
+        if (response.success && response.data?.wins) {
+          const newWins = response.data.wins.slice(0, MAX_VISIBLE);
+
+          if (!isInitialMount.current) {
+            const prevFirstId = prevWinsRef.current.length > 0 ? prevWinsRef.current[0]?.id : null;
+            if (prevFirstId && newWins.length > 0 && newWins[0].id !== prevFirstId) {
+              setNewWinId(newWins[0].id);
+              setTimeout(() => setNewWinId(null), 500);
+            }
+          }
+
+          prevWinsRef.current = newWins;
+          setWins(newWins);
+          isInitialMount.current = false;
+        }
+      } catch (err) {
+        console.warn('Failed to load recent wins:', err);
+      }
+    };
+
+    fetchWins();
+    const interval = setInterval(fetchWins, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (wins.length === 0) return null;
+
+  return (
+    <div className="live-feed">
+      <div className="live-feed__label">
+        <span className="live-feed__dot" />
+        LIVE
+      </div>
+      <div className="live-feed__list">
+        {wins.map((win, i) => (
+          <div
+            key={win.id}
+            className={`live-feed__card ${win.id === newWinId ? 'live-feed__card--enter' : ''}`}
+          >
+            <div className="live-feed__card-gift">
+              {win.animationSvg ? (
+                <GiftImage svgContent={win.animationSvg} size={48} uniqueId={`feed-${win.id}`} />
+              ) : (
+                <GiftImage giftId={win.gift_id} size={48} fallbackEmoji="🎁" />
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function LiveFeed() {
   const [wins, setWins] = useState<WinItem[]>([]);
   const [loading, setLoading] = useState(true);
