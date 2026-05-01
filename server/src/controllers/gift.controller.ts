@@ -502,6 +502,33 @@ export async function sendGiftToFriendHandler(req: Request, res: Response) {
   }
 }
 
+export async function getRecentWins(req: Request, res: Response) {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const wins = await userGiftRepository.findRecent(limit);
+
+    const winsWithSvg = wins.map(win => {
+      const giftData = GIFTS_DATA.find((g: any) => g.id === win.gift_id);
+      return {
+        ...win,
+        animationSvg: giftData?.animationSvg || null,
+      };
+    });
+
+    res.json({
+      success: true,
+      data: { wins: winsWithSvg },
+    });
+  } catch (error) {
+    console.error('getRecentWins error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch recent wins',
+    });
+  }
+}
+
 export async function createGiftShareLink(req: Request, res: Response) {
   try {
     const userId = req.user?.id;

@@ -187,4 +187,24 @@ export const userGiftRepository = {
     const pool = getPool();
     await pool.query('DELETE FROM user_gifts WHERE id = $1', [id]);
   },
+
+  async findRecent(limit: number = 20): Promise<(UserGift & { first_name: string; username: string | null })[]> {
+    const pool = getPool();
+    const result = await pool.query(
+      `SELECT
+        ug.id,
+        ug.gift_id,
+        ug.gift_name,
+        ug.gift_stars,
+        ug.won_at,
+        u.first_name,
+        u.username
+       FROM user_gifts ug
+       JOIN users u ON u.id = ug.user_id
+       ORDER BY ug.won_at DESC
+       LIMIT $1`,
+      [limit]
+    );
+    return result.rows as (UserGift & { first_name: string; username: string | null })[];
+  },
 };
