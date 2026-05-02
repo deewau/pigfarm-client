@@ -52,9 +52,9 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
   // Global WebSocket
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const isDev = window.location.port === '5173';
-    const host = isDev ? 'localhost:3000' : window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/live`;
+    // Always connect to the same hostname as the client, but port 3000 (server)
+    const wsHost = `${window.location.hostname}:3000`;
+    const wsUrl = `${protocol}//${wsHost}/ws/live`;
     console.log(`📡 Global WS connecting: ${wsUrl}`);
     const ws = new WebSocket(wsUrl);
 
