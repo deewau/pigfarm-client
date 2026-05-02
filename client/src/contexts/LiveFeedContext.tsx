@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 export interface WinItem {
   id: number;
@@ -21,6 +22,7 @@ interface LiveFeedContextType {
 const LiveFeedContext = createContext<LiveFeedContextType | undefined>(undefined);
 
 export function LiveFeedProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [liveWins, setLiveWins] = useState<WinItem[]>(() => {
     try {
       const cached = localStorage.getItem('pigfarm_live_wins');
@@ -31,6 +33,12 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
   });
   const [sliding, setSliding] = useState(false);
   const slidingTimeoutRef = useRef<number | null>(null);
+  const userRef = useRef(user);
+  
+  // Update user ref when user changes
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   // Save to localStorage
   useEffect(() => {
@@ -59,6 +67,14 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
         const msg = JSON.parse(event.data);
         if (msg.type === 'new_win') {
           const newWin = msg.data as WinItem;
+          const currentUser = userRef.current;
+          
+          // Ignore own wins (they will be added via addOwnWin when modal opens)
+          if (currentUser && newWin.user_id === currentUser.id) {
+            console.log('📡 Global WS: ignoring own win');
+            return;
+          }
+
           console.log('📡 Global WS received:', newWin);
           setSliding(true);
           if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
