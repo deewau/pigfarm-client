@@ -7,7 +7,7 @@ import { GiftInfoModal } from '../components/GiftInfoModal';
 import { DepositModal } from '../components/DepositModal';
 import { LiveFeed } from '../components/LiveFeed';
 import { useAuth } from '../hooks/useAuth';
-import type { WinItem } from '../components/LiveFeed';
+import { useLiveFeed, type WinItem } from '../contexts/LiveFeedContext';
 
 interface TelegramGift {
   id: string;
@@ -187,27 +187,9 @@ export function Play() {
   const [costDropdownOpen, setCostDropdownOpen] = useState(false);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
   
-  // Live Feed state (init from localStorage)
-  const [liveWins, setLiveWins] = useState<WinItem[]>(() => {
-    try {
-      const cached = localStorage.getItem('pigfarm_live_wins');
-      return cached ? JSON.parse(cached) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [sliding, setSliding] = useState(false);
-  const slidingTimeoutRef = useRef<number | null>(null);
+  // Use global Live Feed context
+  const { liveWins, sliding, addOwnWin } = useLiveFeed();
   
-  // Save to localStorage on change
-  useEffect(() => {
-    try {
-      localStorage.setItem('pigfarm_live_wins', JSON.stringify(liveWins));
-    } catch (e) {
-      console.warn('Failed to save live wins to localStorage:', e);
-    }
-  }, [liveWins]);
-   
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -295,76 +277,13 @@ export function Play() {
     }
   }, [autoSpinAfterDeposit, user, spinning, spinCost]);
    
-  // Load live feed history
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch('/api/win/recent?limit=5');
-        const json = await res.json();
-        if (json.success && json.data?.wins && json.data.wins.length > 0) {
-          console.log('Loaded live feed history:', json.data.wins);
-          setLiveWins(json.data.wins);
-        } else {
-          console.log('No live feed history from server');
-        }
-      } catch (e) {
-        console.warn('Failed to load live feed history:', e);
-      }
-    };
-    fetchHistory();
-  }, []);
-
-  // WebSocket for other players' wins
-  useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // In dev mode, connect directly to server port to avoid proxy issues
-    const isDev = window.location.port === '5173';
-    const host = isDev ? 'localhost:3000' : window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/live`;
-    console.log(`📡 Connecting to WS: ${wsUrl}`);
-    const ws = new WebSocket(wsUrl);
-    
-    ws.onopen = () => console.log('📡 WS connected successfully');
-    ws.onerror = (e) => console.error('📡 WS error:', e);
-    ws.onclose = (e) => console.log('📡 WS disconnected:', e.code, e.reason);
-
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'new_win') {
-          const newWin = msg.data as WinItem;
-          console.log('📡 Received new win:', newWin);
-          
-          // Ignore own wins here (they will be added when modal opens)
-          if (user && newWin.user_id === user.id) {
-            console.log('📡 Ignoring own win');
-            return;
-          }
-
-          setSliding(true);
-          if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
-          slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
-
-          setLiveWins(prev => [newWin].concat(prev).slice(0, 5));
-        }
-      } catch (e) {
-        console.warn('WS parse error:', e);
-      }
-    };
-
-    return () => {
-      console.log('📡 Closing WS connection');
-      ws.close();
-    };
-  }, [user]);
-
   // When result modal opens, add own win to live feed (only real wins)
   useEffect(() => {
     if (!showResult || !wonGift || !user || demoMode) return;
 
     // Construct WinItem from current win
     const ownWin: WinItem = {
-      id: Date.now(), // Temporary ID, real one comes from WS but we ignore it
+      id: Date.now(), // Temporary ID
       user_id: user.id,
       gift_id: wonGift.id,
       gift_name: wonGift.name,
@@ -375,11 +294,7 @@ export function Play() {
       animationSvg: wonGift.animationSvg || null,
     };
 
-    setSliding(true);
-    if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
-    slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
-
-    setLiveWins(prev => [ownWin].concat(prev).slice(0, 5));
+    addOwnWin(ownWin);
   }, [showResult]);
 
   useEffect(() => {

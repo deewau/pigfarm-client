@@ -6,20 +6,23 @@ import { TabBar } from './components/TabBar';
 import { AppHeader } from './components/AppHeader';
 import { ComingSoon } from './components/ComingSoon';
 import { GiftsIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
+import { LiveFeedProvider } from './contexts/LiveFeedContext';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Play />} />
-          <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
-          <Route path="play" element={<Play />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
-      </Routes>
+      <LiveFeedProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Play />} />
+            <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
+            <Route path="play" element={<Play />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </LiveFeedProvider>
     </BrowserRouter>
   );
 }
