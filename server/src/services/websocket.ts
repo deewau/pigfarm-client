@@ -29,13 +29,18 @@ export function initWebSocket(server: HTTPServer) {
     }
   });
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, req) => {
     clients.add(ws);
-    console.log(`📡 WebSocket connected. Total clients: ${clients.size}`);
+    const clientIp = req.socket.remoteAddress;
+    console.log(`📡 WebSocket connected from ${clientIp}. Total clients: ${clients.size}`);
 
     ws.on('close', () => {
       clients.delete(ws);
       console.log(`📡 WebSocket disconnected. Total clients: ${clients.size}`);
+    });
+
+    ws.on('error', (error) => {
+      console.error(`📡 WebSocket error:`, error);
     });
   });
 

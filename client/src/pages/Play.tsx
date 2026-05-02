@@ -317,16 +317,27 @@ export function Play() {
   // WebSocket for other players' wins
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/live`);
+    // In dev mode, connect directly to server port to avoid proxy issues
+    const isDev = window.location.port === '5173';
+    const host = isDev ? 'localhost:3000' : window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/live`;
+    console.log(`📡 Connecting to WS: ${wsUrl}`);
+    const ws = new WebSocket(wsUrl);
     
+    ws.onopen = () => console.log('📡 WS connected successfully');
+    ws.onerror = (e) => console.error('📡 WS error:', e);
+    ws.onclose = (e) => console.log('📡 WS disconnected:', e.code, e.reason);
+
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type === 'new_win') {
           const newWin = msg.data as WinItem;
+          console.log('📡 Received new win:', newWin);
           
           // Ignore own wins here (they will be added when modal opens)
           if (user && newWin.user_id === user.id) {
+            console.log('📡 Ignoring own win');
             return;
           }
 
@@ -337,11 +348,14 @@ export function Play() {
           setLiveWins(prev => [newWin].concat(prev).slice(0, 5));
         }
       } catch (e) {
-        console.warn('WS error:', e);
+        console.warn('WS parse error:', e);
       }
     };
 
-    return () => ws.close();
+    return () => {
+      console.log('📡 Closing WS connection');
+      ws.close();
+    };
   }, [user]);
 
   // When result modal opens, add own win to live feed (only real wins)
