@@ -378,7 +378,7 @@ export function Play() {
           isVirt: response.data.gift.isVirt || false,
         };
         // Update balance from server response (reactive update)
-        if (response.data.balance !== undefined) {
+        if (response.data?.balance !== undefined) {
           setBalanceValue(response.data.balance);
         } else {
           refreshBalance();
