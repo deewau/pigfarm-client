@@ -277,25 +277,8 @@ export function Play() {
     }
   }, [autoSpinAfterDeposit, user, spinning, spinCost]);
    
-  // When result modal opens, add own win to live feed (only real wins)
-  useEffect(() => {
-    if (!showResult || !wonGift || !user || demoMode) return;
-
-    // Construct WinItem from current win
-    const ownWin: WinItem = {
-      id: Date.now(), // Temporary ID
-      user_id: user.id,
-      gift_id: wonGift.id,
-      gift_name: wonGift.name,
-      gift_stars: wonGift.stars,
-      won_at: new Date().toISOString(),
-      first_name: user.first_name,
-      username: user.username || null,
-      animationSvg: wonGift.animationSvg || null,
-    };
-
-    addOwnWin(ownWin);
-  }, [showResult]);
+  // When result modal opens, add own win to live feed via WebSocket (server broadcasts)
+  // No need to manually add - server handles it via broadcastNewWin
 
   useEffect(() => {
     if (!pendingTargetGift || spinning || rouletteItems.length === 0) return;
@@ -402,6 +385,8 @@ export function Play() {
             window.dispatchEvent(new CustomEvent('xp-updated', { detail: JSON.parse(cached) }));
           }
         }, 100);
+
+        // Live feed is updated via WebSocket from server (broadcastNewWin is called before response)
       } catch (err) {
         return;
       }

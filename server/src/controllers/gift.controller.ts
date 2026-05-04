@@ -148,12 +148,13 @@ export async function spinRoulette(req: Request, res: Response) {
     const updatedUser = await userRepository.findById(userId);
     console.log(`🎰 Spin complete: ${wonGift.name} for user ${userId}. Balance: ${updatedUser?.balance}`);
 
-    // Broadcast new win to all live feed clients
+    // Broadcast new win to all live feed clients BEFORE sending response
+    // This way the WS message arrives before client processes HTTP response
     const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === wonGift.id);
     if (updatedUser) {
-      broadcastNewWin({
+      const liveWinData = {
         id: gift.id,
-        user_id: userId, // Add user_id to identify if it's the current player
+        user_id: userId,
         gift_id: wonGift.id,
         gift_name: wonGift.name,
         gift_stars: wonGift.stars,
@@ -161,7 +162,8 @@ export async function spinRoulette(req: Request, res: Response) {
         first_name: updatedUser.first_name,
         username: updatedUser.username ?? null,
         animationSvg: giftData?.animationSvg || null,
-      });
+      };
+      broadcastNewWin(liveWinData);
     }
 
     res.json({

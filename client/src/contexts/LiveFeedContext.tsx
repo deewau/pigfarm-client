@@ -29,6 +29,8 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
   const slidingTimeoutRef = useRef<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
+  // Dedup: track recent win IDs (from DB) to prevent duplicates from WS + optimistic update
+  const recentWinIdsRef = useRef(new Set<number>());
 
   // Build WebSocket URL based on environment
   const getWsUrl = () => {
@@ -88,6 +90,18 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
           const msg = JSON.parse(event.data);
           if (msg.type === 'new_win') {
             console.log('📡 WS: New win received!', msg.data);
+            // Dedup by win ID (from DB)
+            if (recentWinIdsRef.current.has(msg.data.id)) {
+              console.log('📡 WS: Duplicate win, skipping', msg.data.id);
+              return;
+            }
+            recentWinIdsRef.current.add(msg.data.id);
+            // Keep only last 20 IDs to avoid memory leak
+            if (recentWinIdsRef.current.size > 20) {
+              const ids = Array.from(recentWinIdsRef.current);
+              ids.slice(0, ids.length - 20).forEach(id => recentWinIdsRef.current.delete(id));
+            }
+
             setSliding(true);
             if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
             slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
@@ -114,6 +128,13 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
 
   const addOwnWin = useCallback((win: WinItem) => {
     console.log('📡 Adding own win:', win);
+    // Dedup: track by win ID (from DB) to sync with WS handler
+    if (recentWinIdsRef.current.has(win.id)) {
+      console.log('📡 addOwnWin: Duplicate, skipping', win.id);
+      return;
+    }
+    recentWinIdsRef.current.add(win.id);
+
     setSliding(true);
     if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
     slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
