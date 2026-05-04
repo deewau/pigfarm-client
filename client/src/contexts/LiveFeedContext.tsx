@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { winApi } from '../services/api';
 
 export interface WinItem {
   id: number;
@@ -22,41 +23,92 @@ const LiveFeedContext = createContext<LiveFeedContextType | undefined>(undefined
 
 export function LiveFeedProvider({ children }: { children: ReactNode }) {
   console.log('📡 LiveFeedProvider: MOUNTED');
-  
+
   const [liveWins, setLiveWins] = useState<WinItem[]>([]);
   const [sliding, setSliding] = useState(false);
   const slidingTimeoutRef = useRef<number | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
 
-  // Global WebSocket
+  // Build WebSocket URL based on environment
+  const getWsUrl = () => {
+    const isDev = window.location.port === '5173';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = isDev ? 'localhost:3000' : window.location.host;
+    return `${protocol}//${host}/ws/live`;
+  };
+
+  // Fetch initial recent wins from API
   useEffect(() => {
-    const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:3000/ws/live`;
-    console.log('📡 WS: Connecting to', wsUrl);
-    
-    const ws = new WebSocket(wsUrl);
-    
-    ws.onopen = () => console.log('📡 WS: CONNECTED SUCCESSFULLY!');
-    ws.onerror = (e) => console.error('📡 WS: ERROR', e);
-    ws.onclose = () => console.log('📡 WS: disconnected');
-    
-    ws.onmessage = (event) => {
-      console.log('📡 WS: RAW MESSAGE RECEIVED', event.data);
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'new_win') {
-          console.log('📡 WS: New win received!', msg.data);
-          setSliding(true);
-          if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
-          slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
-          setLiveWins(prev => [msg.data].concat(prev).slice(0, 5));
-        }
-      } catch (e) {
-        console.warn('📡 WS: Parse error', e);
+    winApi.recent(5).then(res => {
+      if (res.data?.success && res.data.data?.wins) {
+        setLiveWins(res.data.data.wins.map((w: any) => ({
+          ...w,
+          user_id: w.user_id ?? 0,
+          gift_id: w.gift_id ?? '',
+          gift_name: w.gift_name ?? '',
+          gift_stars: w.gift_stars ?? 0,
+          won_at: w.won_at ?? '',
+          first_name: w.first_name ?? '',
+          username: w.username ?? null,
+          animationSvg: w.animationSvg ?? null,
+        })));
       }
+    }).catch(err => console.warn('📡 Failed to load initial wins', err));
+  }, []);
+
+  // Global WebSocket with auto-reconnect
+  useEffect(() => {
+    let cancelled = false;
+
+    const connect = () => {
+      if (cancelled) return;
+      const wsUrl = getWsUrl();
+      console.log('📡 WS: Connecting to', wsUrl);
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => console.log('📡 WS: CONNECTED SUCCESSFULLY!');
+
+      ws.onerror = (e) => console.error('📡 WS: ERROR', e);
+
+      ws.onclose = (e) => {
+        console.log('📡 WS: disconnected', e.code, e.reason);
+        wsRef.current = null;
+        // Auto-reconnect after 3 seconds
+        if (!cancelled) {
+          reconnectTimeoutRef.current = window.setTimeout(connect, 3000);
+        }
+      };
+
+      ws.onmessage = (event) => {
+        console.log('📡 WS: RAW MESSAGE RECEIVED', event.data);
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'new_win') {
+            console.log('📡 WS: New win received!', msg.data);
+            setSliding(true);
+            if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
+            slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
+            setLiveWins(prev => [msg.data].concat(prev).slice(0, 5));
+          }
+        } catch (e) {
+          console.warn('📡 WS: Parse error', e);
+        }
+      };
     };
-    
+
+    connect();
+
     return () => {
-      console.log('📡 WS: Closing');
-      ws.close();
+      cancelled = true;
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+      if (wsRef.current) {
+        console.log('📡 WS: Closing');
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, []);
 
