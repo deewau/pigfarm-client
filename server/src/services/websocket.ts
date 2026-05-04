@@ -68,3 +68,26 @@ export function broadcastNewWin(win: LiveWin) {
 
   console.log(`📡 Broadcasted new win: ${win.gift_name} for ${win.first_name} to ${sent}/${clients.size} clients`);
 }
+
+export function sendBalanceUpdate(userId: number, newBalance: number) {
+  if (clients.size === 0) {
+    return;
+  }
+
+  const message = JSON.stringify({
+    type: 'balance_update',
+    data: { user_id: userId, balance: newBalance },
+  });
+
+  let sent = 0;
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      // In a real app you'd want to track which WS belongs to which user
+      // For now, broadcast to all (client will filter by user_id)
+      client.send(message);
+      sent++;
+    }
+  });
+
+  console.log(`📡 Sent balance update: ${newBalance} for user ${userId} to ${sent} clients`);
+}

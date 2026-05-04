@@ -361,6 +361,7 @@ export function Play() {
      
       try {
         const response = await winApi.spin(spinCost);
+        console.log('🎰 Spin response:', response);
         if (!response.success) {
           if (response.error === 'Insufficient balance') {
             setShowDeposit(true);
@@ -378,8 +379,8 @@ export function Play() {
           isVirt: response.data.gift.isVirt || false,
         };
         // Update balance from server response (reactive update)
-        if (response.data?.balance !== undefined) {
-          setBalanceValue(response.data.balance);
+        if (response.data?.data?.balance !== undefined) {
+          setBalanceValue(response.data.data.balance);
         } else {
           refreshBalance();
         }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { authApi, userApi } from '../services/api';
 import type { User, UserLevel } from '../types';
 
@@ -17,6 +17,7 @@ export function useAuth() {
     }
     return null;
   });
+  const wsRef = useRef<WebSocket | null>(null);
 
   const login = useCallback(async () => {
     const tg = (window as any).Telegram?.WebApp;
@@ -100,6 +101,32 @@ export function useAuth() {
   const setBalanceValue = useCallback((newBalance: number) => {
     setUser((prev) => (prev ? { ...prev, balance: newBalance } : null));
   }, []);
+
+  // WebSocket listener for real-time balance updates
+  useEffect(() => {
+    const isDev = window.location.port === '5173';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = isDev ? 'localhost:3000' : window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/live`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'balance_update' && user && msg.data.user_id === user.id) {
+          console.log('💰 WS: Balance update received:', msg.data.balance);
+          setBalanceValue(msg.data.balance);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [user, setBalanceValue]);
 
   useEffect(() => {
     login();

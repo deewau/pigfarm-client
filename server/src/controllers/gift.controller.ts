@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
 import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
-import { broadcastNewWin } from '../services/websocket.js';
+import { broadcastNewWin, sendBalanceUpdate } from '../services/websocket.js';
 
 const GIFT_PROBABILITIES: Record<string, number> = {
   '5170145012310081615': 18.72,
@@ -164,6 +164,8 @@ export async function spinRoulette(req: Request, res: Response) {
         animationSvg: giftData?.animationSvg || null,
       };
       broadcastNewWin(liveWinData);
+      // Send balance update via WebSocket
+      sendBalanceUpdate(userId, updatedUser.balance);
     }
 
     res.json({
