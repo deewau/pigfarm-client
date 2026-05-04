@@ -172,7 +172,7 @@ function getPossibleGifts(gifts: TelegramGift[], probabilities: Record<string, n
 }
 
 export function Play() {
-  const { user, addBalance, refreshBalance, refreshXp } = useAuth();
+  const { user, addBalance, refreshBalance, refreshXp, setBalanceValue } = useAuth();
   const [demoMode, setDemoMode] = useState(true);
   const [spinCost, setSpinCost] = useState<SpinCost>(25);
   const [spinning, setSpinning] = useState(false);
@@ -377,7 +377,12 @@ export function Play() {
           isSpecial: response.data.gift.isSpecial || false,
           isVirt: response.data.gift.isVirt || false,
         };
-        refreshBalance();
+        // Update balance from server response (reactive update)
+        if (response.data.balance !== undefined) {
+          setBalanceValue(response.data.balance);
+        } else {
+          refreshBalance();
+        }
         refreshXp();
         setTimeout(() => {
           const cached = localStorage.getItem('pigfarm_userLevel');

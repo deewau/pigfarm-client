@@ -91,9 +91,14 @@ export function useAuth() {
     }
   }, []);
 
-  // Мгновенное обновление баланса на клиенте
+  // Мгновенное обновление баланса на клиенте (добавление/вычитание)
   const addBalance = useCallback((amount: number) => {
     setUser((prev) => (prev ? { ...prev, balance: prev.balance + amount } : null));
+  }, []);
+
+  // Установка точного значения баланса (из ответа сервера)
+  const setBalanceValue = useCallback((newBalance: number) => {
+    setUser((prev) => (prev ? { ...prev, balance: newBalance } : null));
   }, []);
 
   useEffect(() => {
@@ -109,6 +114,7 @@ export function useAuth() {
     userLevel,
     setUserLevel,
     addBalance,
+    setBalanceValue,
     login,
   };
 }
