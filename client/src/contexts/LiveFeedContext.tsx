@@ -40,7 +40,7 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
 
   // Fetch initial recent wins from API
   useEffect(() => {
-    winApi.recent(5).then(res => {
+    winApi.getRecent(5).then(res => {
       if (res.data?.success && res.data.data?.wins) {
         setLiveWins(res.data.data.wins.map((w: any) => ({
           ...w,
