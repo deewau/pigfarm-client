@@ -9,7 +9,18 @@ import { DepositModal } from '../components/DepositModal';
 import { LiveFeed } from '../components/LiveFeed';
 import { useAuth } from '../hooks/useAuth';
 import { useLiveFeed, type WinItem } from '../contexts/LiveFeedContext';
-import type { TelegramGift } from './Play';
+
+interface TelegramGift {
+  id: string;
+  name: string;
+  description?: string;
+  stars: number;
+  animationSvg?: string;
+  animationData?: any;
+  sticker?: any;
+  isSpecial?: boolean;
+  isVirt?: boolean;
+}
 
 const PATTERN_SIZE = 30;
 const LOOPS = 3;
