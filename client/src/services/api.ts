@@ -89,7 +89,7 @@ export const giftApi = {
 
 // Win
 export const winApi = {
-  spin: async (cost: number = 25) => {
+  spin: async (cost: number = 29) => {
     const response = await api.post('/api/win/spin', { cost });
     return response.data;
   },
