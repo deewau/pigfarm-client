@@ -3,43 +3,30 @@ import { LiveFeed } from '../components/LiveFeed';
 import { useLiveFeed } from '../contexts/LiveFeedContext';
 import './Play.css';
 
-interface CaseCard {
-  cost: number;
-  label: string;
-  emoji: string;
-  gradient: string;
-}
-
-const cases: CaseCard[] = [
-  { cost: 29, label: 'Бронзовый', emoji: '🥉', gradient: 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)' },
-  { cost: 49, label: 'Серебряный', emoji: '🥈', gradient: 'linear-gradient(135deg, #c0c0c0 0%, #808080 100%)' },
-  { cost: 99, label: 'Золотой', emoji: '🥇', gradient: 'linear-gradient(135deg, #ffd700 0%, #daa520 100%)' },
-];
-
 export function Play() {
   const navigate = useNavigate();
   const { liveWins, sliding } = useLiveFeed();
 
   return (
-    <div className="play play--select">
+    <div className="play play--lobby">
       <LiveFeed wins={liveWins} sliding={sliding} />
 
-      <h2 className="play__title">Рулетка</h2>
-      <p className="play__subtitle">Выберите кейс</p>
+      <h2 className="play__lobby-title">Игры</h2>
+      <p className="play__lobby-subtitle">Выберите развлечение</p>
 
-      <div className="play__cases-grid">
-        {cases.map(c => (
-          <div
-            key={c.cost}
-            className="play__case-card"
-            style={{ background: c.gradient }}
-            onClick={() => navigate(`/play/${c.cost}`)}
-          >
-            <span className="play__case-emoji">{c.emoji}</span>
-            <span className="play__case-name">{c.label}</span>
-            <span className="play__case-cost">{c.cost} ⭐</span>
-          </div>
-        ))}
+      <div className="play__lobby-grid">
+        <div className="play__lobby-card" onClick={() => navigate('/play/cases')}>
+          <span className="play__lobby-card-emoji">🎰</span>
+          <span className="play__lobby-card-title">Кейсы</span>
+          <span className="play__lobby-card-desc">Рулетка с подарками</span>
+        </div>
+        
+        {/* Сюда в будущем добавим Авиатор и другие игры */}
+        <div className="play__lobby-card play__lobby-card--disabled">
+          <span className="play__lobby-card-emoji">✈️</span>
+          <span className="play__lobby-card-title">Авиатор</span>
+          <span className="play__lobby-card-desc">Скоро...</span>
+        </div>
       </div>
     </div>
   );

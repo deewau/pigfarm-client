@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Profile } from './pages/Profile';
 import { Play } from './pages/Play';
+import { CasesPage } from './pages/CasesPage';
 import { CasePage } from './pages/CasePage';
 import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
@@ -18,6 +19,7 @@ function App() {
             <Route index element={<Play />} />
             <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
             <Route path="play" element={<Play />} />
+            <Route path="play/cases" element={<CasesPage />} />
             <Route path="play/:cost" element={<CasePage />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="tasks" element={<ComingSoon title="Задания" subtitle="Выполняй задания и зарабатывай звёзды!" icon="✅" />} />
