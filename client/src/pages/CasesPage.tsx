@@ -13,9 +13,6 @@ export function CasesPage() {
   return (
     <div className="play play--select">
       <button className="back-btn" onClick={() => navigate('/play')}>← Назад</button>
-      
-      <h2 className="play__title">Рулетка</h2>
-      <p className="play__subtitle">Выберите кейс</p>
 
       <div className="play__cases-grid">
         {cases.map(c => (

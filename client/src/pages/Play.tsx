@@ -11,9 +11,6 @@ export function Play() {
     <div className="play play--lobby">
       <LiveFeed wins={liveWins} sliding={sliding} />
 
-      <h2 className="play__lobby-title">Игры</h2>
-      <p className="play__lobby-subtitle">Выберите развлечение</p>
-
       <div className="play__lobby-grid">
         <div className="play__lobby-card" onClick={() => navigate('/play/cases')}>
           <span className="play__lobby-card-emoji">🎰</span>
