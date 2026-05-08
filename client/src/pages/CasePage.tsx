@@ -193,9 +193,9 @@ export function CasePage() {
   
   const getCurrentGifts = useCallback((): TelegramGift[] => {
     if (spinCost === 29) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [15, 25, 50, 100].includes(g.stars)) : GIFTS_LOW;
-    if (spinCost === 49) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) : GIFTS_HIGH;
+    if (spinCost === 49) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle'].includes(g.id)) : GIFTS_HIGH;
     if (spinCost === 249) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial) : GIFTS_BDC;
-    let gifts = giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || g.isSpecial || g.isVirt) : [];
+    let gifts = giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || g.isSpecial || g.isVirt) && !['freshsocks', 'b-daycandle'].includes(g.id)) : [];
     if (!gifts.some(g => g.id === 'virt240' && g.isVirt)) gifts.push({ id: 'virt240', name: 'Virt', stars: 240, isVirt: true } as TelegramGift);
     if (!gifts.some(g => g.id === 'virt490' && g.isVirt)) gifts.push({ id: 'virt490', name: 'Virt', stars: 490, isVirt: true } as TelegramGift);
     return gifts.length > 0 ? gifts : GIFTS_VIP;

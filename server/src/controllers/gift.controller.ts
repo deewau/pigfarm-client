@@ -92,9 +92,9 @@ function getGiftsForCost(cost: number): TelegramGift[] {
     return GIFTS_DATA.filter(g => [50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial);
   }
   if (cost === SPIN_COST_HIGH) {
-    return GIFTS_DATA.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
+    return GIFTS_DATA.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle'].includes(g.id));
   }
-  return GIFTS_DATA;
+  return GIFTS_DATA.filter(g => !['freshsocks', 'b-daycandle'].includes(g.id));
 }
 
 function getProbabilitiesForCost(cost: number): Record<string, number> {
