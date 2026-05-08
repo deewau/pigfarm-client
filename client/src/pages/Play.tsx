@@ -21,7 +21,6 @@ export function Play() {
         </div>
 
         <div className="play__crash-block">
-          <img src="/gifts/svg/rocketbg.svg" alt="Crash" className="play__crash-block-img" />
           <div className="play__cases-block-content">
             <span className="play__cases-block-title">Crash</span>
             <button className="play__cases-block-btn">Скоро</button>
