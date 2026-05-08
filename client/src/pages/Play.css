@@ -688,10 +688,12 @@
 
 /* Блок Кейсов */
 .play__cases-block {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 24px 16px;
+  min-height: 120px;
   border-radius: 16px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -699,6 +701,7 @@
   border: 2px solid #90EE90;
   color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 .play__cases-block:hover {
@@ -707,11 +710,13 @@
 }
 
 .play__cases-block-img {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 192px;
   height: 192px;
   object-fit: contain;
-  flex-shrink: 0;
-  margin-left: -20px;
 }
 
 .play__cases-block-content {
@@ -720,6 +725,8 @@
   align-items: flex-end;
   gap: 8px;
   padding-right: 10px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .play__cases-block-title {
@@ -728,6 +735,7 @@
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
   margin-top: -15px;
+  white-space: nowrap;
 }
 
 .play__cases-block-btn {
