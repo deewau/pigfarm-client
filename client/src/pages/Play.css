@@ -707,8 +707,8 @@
 }
 
 .play__cases-block-img {
-  width: 128px;
-  height: 128px;
+  width: 192px;
+  height: 192px;
   object-fit: contain;
   flex-shrink: 0;
   margin-left: -20px;
@@ -723,10 +723,11 @@
 }
 
 .play__cases-block-title {
-  font-size: 60px;
+  font-size: 45px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  margin-top: -15px;
 }
 
 .play__cases-block-btn {
@@ -766,7 +767,7 @@
 
 .play__lobby-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
   width: 100%;
   margin-top: 16px;
