@@ -13,7 +13,6 @@ export function Play() {
 
       <div className="play__lobby-grid">
         <div className="play__cases-block" onClick={() => navigate('/play/cases')}>
-          <img src="/gifts/svg/pepecase.svg" alt="Кейсы" className="play__cases-block-img" />
           <div className="play__cases-block-content">
             <span className="play__cases-block-title">Кейсы</span>
             <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/cases'); }}>Играть →</button>
