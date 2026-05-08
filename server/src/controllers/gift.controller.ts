@@ -107,7 +107,7 @@ function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<strin
 
 function getGiftsForCost(cost: number): TelegramGift[] {
   if (cost === SPIN_COST_LB) {
-    return GIFTS_DATA.filter(g => [15, 50, 100, 510, 561, 590, 640, 649, 665].includes(g.stars) || g.isSpecial);
+    return GIFTS_DATA.filter(g => ([15, 50, 100, 510, 561, 590, 640, 649, 665].includes(g.stars) || g.isSpecial) && !['chillflame', 'vicecream', 'poolfloat', 'instantramen', 'icecream', 'lolpop', 'snakebox'].includes(g.id));
   }
   if (cost === SPIN_COST_BDC) {
     return GIFTS_DATA.filter(g => ([50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial) && !['timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id));
