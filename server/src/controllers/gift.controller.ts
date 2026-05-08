@@ -21,6 +21,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 const SPIN_COST_LOW = 25;
 const SPIN_COST_HIGH = 50;
 const SPIN_COST_BDC = 249;
+const SPIN_COST_LB = 349;
 const XP_PER_SPIN = 50;
 
 const PROBABILITIES_LOW: Record<string, number> = {
@@ -72,6 +73,23 @@ const PROBABILITIES_BDC: Record<string, number> = {
   '5170144170496491616': 12.34,
 };
 
+const PROBABILITIES_LB: Record<string, number> = {
+  '5170145012310081615': 20.72,
+  '5170233102089322756': 20.72,
+  '5170690322832818290': 9.70,
+  '5170521118301225164': 9.70,
+  'freshsocks': 4.50,
+  'b-daycandle': 4.35,
+  'timelessbook': 3.18,
+  'inputkey': 2.18,
+  'moonpendant': 2.11,
+  'lushbouquet': 1.99,
+  '6028601630662853006': 5.21,
+  '5170564780938756245': 5.21,
+  '5170314324215857265': 5.22,
+  '5170144170496491616': 5.21,
+};
+
 function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
   let random = Math.random() * totalWeight;
@@ -88,21 +106,26 @@ function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<strin
 }
 
 function getGiftsForCost(cost: number): TelegramGift[] {
+  if (cost === SPIN_COST_LB) {
+    return GIFTS_DATA.filter(g => [15, 50, 100, 510, 561, 590, 640, 649, 665].includes(g.stars) || g.isSpecial);
+  }
   if (cost === SPIN_COST_BDC) {
-    return GIFTS_DATA.filter(g => [50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial);
+    return GIFTS_DATA.filter(g => ([50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial) && !['timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id));
   }
   if (cost === SPIN_COST_HIGH) {
-    return GIFTS_DATA.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle'].includes(g.id));
+    return GIFTS_DATA.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle', 'timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id));
   }
-  return GIFTS_DATA.filter(g => !['freshsocks', 'b-daycandle'].includes(g.id));
+  return GIFTS_DATA.filter(g => !['freshsocks', 'b-daycandle', 'timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id));
 }
 
 function getProbabilitiesForCost(cost: number): Record<string, number> {
+  if (cost === SPIN_COST_LB) return PROBABILITIES_LB;
   if (cost === SPIN_COST_BDC) return PROBABILITIES_BDC;
   return cost === SPIN_COST_HIGH ? PROBABILITIES_HIGH : PROBABILITIES_LOW;
 }
 
 function getSpinCost(cost: number): number {
+  if (cost === SPIN_COST_LB) return SPIN_COST_LB;
   if (cost === SPIN_COST_BDC) return SPIN_COST_BDC;
   return cost === SPIN_COST_HIGH ? SPIN_COST_HIGH : SPIN_COST_LOW;
 }

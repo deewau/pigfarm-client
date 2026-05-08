@@ -347,6 +347,38 @@ export const GIFTS_DATA: TelegramGift[] = [
     animationData: loadGiftAnimation('b-daycandle', 'gifts'),
     isSpecial: true,
   },
+  {
+    id: 'timelessbook',
+    name: 'Timeless Book',
+    stars: 561,
+    animationSvg: loadGiftSvg('timelessbook'),
+    animationData: loadGiftAnimation('timelessbook', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'inputkey',
+    name: 'Input Key',
+    stars: 640,
+    animationSvg: loadGiftSvg('inputkey'),
+    animationData: loadGiftAnimation('inputkey', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'moonpendant',
+    name: 'Moon Pendant',
+    stars: 649,
+    animationSvg: loadGiftSvg('moonpendant'),
+    animationData: loadGiftAnimation('moonpendant', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'lushbouquet',
+    name: 'Lush Bouquet',
+    stars: 665,
+    animationSvg: loadGiftSvg('lushbouquet'),
+    animationData: loadGiftAnimation('lushbouquet', 'gifts'),
+    isSpecial: true,
+  },
 ];
 
 export async function getGiftById(giftId: string): Promise<TelegramGift | null> {

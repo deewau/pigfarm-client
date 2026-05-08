@@ -132,7 +132,34 @@ const PROBABILITIES_BDC: Record<string, number> = {
   '5170314324215857265': 12.33, '5170144170496491616': 12.34,
 };
 
-type SpinCost = 29 | 49 | 99 | 249;
+const GIFTS_LB = [
+  { id: '5170145012310081615', name: 'Сердце', stars: 15 },
+  { id: '5170233102089322756', name: 'Мишка', stars: 15 },
+  { id: '5170690322832818290', name: 'Кольцо', stars: 100 },
+  { id: '5170521118301225164', name: 'Алмаз', stars: 100 },
+  { id: 'freshsocks', name: 'Fresh Socks', stars: 510, isSpecial: true },
+  { id: 'b-daycandle', name: 'B-Day Candle', stars: 590, isSpecial: true },
+  { id: 'timelessbook', name: 'Timeless Book', stars: 561, isSpecial: true },
+  { id: 'inputkey', name: 'Input Key', stars: 640, isSpecial: true },
+  { id: 'moonpendant', name: 'Moon Pendant', stars: 649, isSpecial: true },
+  { id: 'lushbouquet', name: 'Lush Bouquet', stars: 665, isSpecial: true },
+  { id: '6028601630662853006', name: 'Шампанское', stars: 50 },
+  { id: '5170564780938756245', name: 'Ракета', stars: 50 },
+  { id: '5170314324215857265', name: 'Букет', stars: 50 },
+  { id: '5170144170496491616', name: 'Торт', stars: 50 },
+];
+
+const PROBABILITIES_LB: Record<string, number> = {
+  '5170145012310081615': 20.72, '5170233102089322756': 20.72,
+  '5170690322832818290': 9.70, '5170521118301225164': 9.70,
+  'freshsocks': 4.50, 'b-daycandle': 4.35,
+  'timelessbook': 3.18, 'inputkey': 2.18,
+  'moonpendant': 2.11, 'lushbouquet': 1.99,
+  '6028601630662853006': 5.21, '5170564780938756245': 5.21,
+  '5170314324215857265': 5.22, '5170144170496491616': 5.21,
+};
+
+type SpinCost = 29 | 49 | 99 | 249 | 349;
 
 function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
@@ -167,7 +194,7 @@ function getPossibleGifts(gifts: TelegramGift[], probabilities: Record<string, n
 export function CasePage() {
   const { cost } = useParams<{ cost: string }>();
   const navigate = useNavigate();
-  const spinCost: SpinCost = [29, 49, 99, 249].includes(Number(cost)) ? (Number(cost) as SpinCost) : 29;
+  const spinCost: SpinCost = [29, 49, 99, 249, 349].includes(Number(cost)) ? (Number(cost) as SpinCost) : 29;
   
   const { user, addBalance, refreshBalance, refreshXp, setBalanceValue } = useAuth();
   const [demoMode, setDemoMode] = useState(true);
@@ -193,9 +220,10 @@ export function CasePage() {
   
   const getCurrentGifts = useCallback((): TelegramGift[] => {
     if (spinCost === 29) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [15, 25, 50, 100].includes(g.stars)) : GIFTS_LOW;
-    if (spinCost === 49) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle'].includes(g.id)) : GIFTS_HIGH;
-    if (spinCost === 249) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial) : GIFTS_BDC;
-    let gifts = giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || g.isSpecial || g.isVirt) && !['freshsocks', 'b-daycandle'].includes(g.id)) : [];
+    if (spinCost === 49) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial) && !['freshsocks', 'b-daycandle', 'timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id)) : GIFTS_HIGH;
+    if (spinCost === 249) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial) && !['timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id)) : GIFTS_BDC;
+    if (spinCost === 349) return giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => [15, 50, 100, 510, 561, 590, 640, 649, 665].includes(g.stars) || g.isSpecial) : GIFTS_LB;
+    let gifts = giftsLoadedRef.current.length > 0 ? giftsLoadedRef.current.filter(g => ([50, 100, 240, 345, 350, 370, 380, 390, 480, 490].includes(g.stars) || g.isSpecial || g.isVirt) && !['freshsocks', 'b-daycandle', 'timelessbook', 'inputkey', 'moonpendant', 'lushbouquet'].includes(g.id)) : [];
     if (!gifts.some(g => g.id === 'virt240' && g.isVirt)) gifts.push({ id: 'virt240', name: 'Virt', stars: 240, isVirt: true } as TelegramGift);
     if (!gifts.some(g => g.id === 'virt490' && g.isVirt)) gifts.push({ id: 'virt490', name: 'Virt', stars: 490, isVirt: true } as TelegramGift);
     return gifts.length > 0 ? gifts : GIFTS_VIP;
@@ -205,6 +233,7 @@ export function CasePage() {
     if (spinCost === 29) return PROBABILITIES_LOW;
     if (spinCost === 49) return PROBABILITIES_HIGH;
     if (spinCost === 249) return PROBABILITIES_BDC;
+    if (spinCost === 349) return PROBABILITIES_LB;
     return PROBABILITIES_VIP;
   }, [spinCost]);
 

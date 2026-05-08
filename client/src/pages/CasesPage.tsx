@@ -6,6 +6,7 @@ const cases = [
   { cost: 49, label: 'Snake Box', img: '/gifts/svg/snakebox.svg', gradient: 'linear-gradient(135deg, #c0c0c0 0%, #808080 100%)' },
   { cost: 99, label: 'Lol Pop', img: '/gifts/svg/lolpop.svg', gradient: 'linear-gradient(135deg, #ffd700 0%, #daa520 100%)' },
   { cost: 249, label: 'B-Day Candle', img: '/gifts/svg/b-daycandle.svg', gradient: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)' },
+  { cost: 349, label: 'Lush Bouquet', img: '/gifts/svg/lushbouquet.svg', gradient: 'linear-gradient(135deg, #e84393 0%, #6c5ce7 100%)' },
 ];
 
 export function CasesPage() {
