@@ -331,6 +331,22 @@ export const GIFTS_DATA: TelegramGift[] = [
     animationData: loadGiftAnimation('virt490'),
     isVirt: true,
   },
+  {
+    id: 'freshsocks',
+    name: 'Fresh Socks',
+    stars: 510,
+    animationSvg: loadGiftSvg('freshsocks'),
+    animationData: loadGiftAnimation('freshsocks', 'gifts'),
+    isSpecial: true,
+  },
+  {
+    id: 'b-daycandle',
+    name: 'B-Day Candle',
+    stars: 590,
+    animationSvg: loadGiftSvg('b-daycandle'),
+    animationData: loadGiftAnimation('b-daycandle', 'gifts'),
+    isSpecial: true,
+  },
 ];
 
 export async function getGiftById(giftId: string): Promise<TelegramGift | null> {

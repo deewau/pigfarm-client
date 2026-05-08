@@ -20,6 +20,7 @@ const GIFT_PROBABILITIES: Record<string, number> = {
 
 const SPIN_COST_LOW = 25;
 const SPIN_COST_HIGH = 50;
+const SPIN_COST_BDC = 249;
 const XP_PER_SPIN = 50;
 
 const PROBABILITIES_LOW: Record<string, number> = {
@@ -54,6 +55,23 @@ const PROBABILITIES_HIGH: Record<string, number> = {
   '5168043875654172773': 3.50,
 };
 
+const PROBABILITIES_BDC: Record<string, number> = {
+  '5170690322832818290': 9.80,
+  '5170521118301225164': 9.70,
+  '5168043875654172773': 9.70,
+  'chillflame': 4.17,
+  'vicecream': 3.85,
+  'icecream': 3.22,
+  'instantramen': 2.94,
+  'poolfloat': 2.44,
+  'freshsocks': 2.50,
+  'b-daycandle': 2.35,
+  '6028601630662853006': 12.33,
+  '5170564780938756245': 12.33,
+  '5170314324215857265': 12.33,
+  '5170144170496491616': 12.34,
+};
+
 function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<string, number>): TelegramGift {
   const totalWeight = gifts.reduce((sum, item) => sum + (probabilities[item.id] || 0), 0);
   let random = Math.random() * totalWeight;
@@ -70,6 +88,9 @@ function weightedRandomSelect(gifts: TelegramGift[], probabilities: Record<strin
 }
 
 function getGiftsForCost(cost: number): TelegramGift[] {
+  if (cost === SPIN_COST_BDC) {
+    return GIFTS_DATA.filter(g => [50, 100, 345, 350, 370, 380, 390, 480, 510, 590].includes(g.stars) || g.isSpecial);
+  }
   if (cost === SPIN_COST_HIGH) {
     return GIFTS_DATA.filter(g => [25, 50, 100, 345, 350, 370, 380, 390, 480].includes(g.stars) || g.isSpecial);
   }
@@ -77,10 +98,12 @@ function getGiftsForCost(cost: number): TelegramGift[] {
 }
 
 function getProbabilitiesForCost(cost: number): Record<string, number> {
+  if (cost === SPIN_COST_BDC) return PROBABILITIES_BDC;
   return cost === SPIN_COST_HIGH ? PROBABILITIES_HIGH : PROBABILITIES_LOW;
 }
 
 function getSpinCost(cost: number): number {
+  if (cost === SPIN_COST_BDC) return SPIN_COST_BDC;
   return cost === SPIN_COST_HIGH ? SPIN_COST_HIGH : SPIN_COST_LOW;
 }
 
