@@ -690,13 +690,14 @@
 .play__cases-block {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  justify-content: space-between;
+  padding: 24px 16px;
   border-radius: 16px;
-  background: linear-gradient(90deg, #2e7d32 0%, #1F4F23 100%);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  width: 100%;
+  background: url('/assets/cmn/casebg.jpg') center/cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -706,8 +707,8 @@
 }
 
 .play__cases-block-img {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -715,12 +716,13 @@
 .play__cases-block-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 8px;
+  padding-right: 10px;
 }
 
 .play__cases-block-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
@@ -728,15 +730,15 @@
 
 .play__cases-block-btn {
   background: #fff;
-  border: 2px solid #000;
+  border: none;
   color: #000;
-  padding: 8px 24px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: inherit;
+  font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .play__cases-block-btn:hover {
