@@ -696,7 +696,7 @@
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   background: url('/assets/cmn/casebg.jpg') center/cover no-repeat;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid #90EE90;
   color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
@@ -707,10 +707,11 @@
 }
 
 .play__cases-block-img {
-  width: 64px;
-  height: 64px;
+  width: 128px;
+  height: 128px;
   object-fit: contain;
   flex-shrink: 0;
+  margin-left: -20px;
 }
 
 .play__cases-block-content {
@@ -722,7 +723,7 @@
 }
 
 .play__cases-block-title {
-  font-size: 20px;
+  font-size: 60px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
