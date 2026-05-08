@@ -13,16 +13,19 @@ export function Play() {
 
       <div className="play__lobby-grid">
         <div className="play__cases-block" onClick={() => navigate('/play/cases')}>
+          <img src="/gifts/svg/pepecase.svg" alt="Кейсы" className="play__cases-block-img" />
           <div className="play__cases-block-content">
             <span className="play__cases-block-title">Кейсы</span>
             <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/cases'); }}>Играть →</button>
           </div>
         </div>
 
-        <div className="play__lobby-card play__lobby-card--disabled">
-          <span className="play__lobby-card-emoji">✈️</span>
-          <span className="play__lobby-card-title">Авиатор</span>
-          <span className="play__lobby-card-desc">Скоро...</span>
+        <div className="play__crash-block">
+          <img src="/gifts/svg/rocketbg.svg" alt="Crash" className="play__crash-block-img" />
+          <div className="play__cases-block-content">
+            <span className="play__cases-block-title">Crash</span>
+            <button className="play__cases-block-btn">Скоро</button>
+          </div>
         </div>
       </div>
     </div>
