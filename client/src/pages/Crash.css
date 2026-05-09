@@ -142,6 +142,7 @@
   z-index: 5;
   padding: 0 16px;
   gap: 12px;
+  margin-top: -30px;
 }
 
 /* ---- Rocket ---- */
