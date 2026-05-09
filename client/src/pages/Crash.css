@@ -111,6 +111,10 @@
   flex-shrink: 0;
 }
 
+.crash__rocket-wrap--hidden {
+  display: none;
+}
+
 .crash__rocket {
   width: 100%;
   height: 100%;

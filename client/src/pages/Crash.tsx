@@ -163,11 +163,9 @@ export function Crash() {
       <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
 
       <div className="crash__center">
-        {gameState === 'flying' && (
-          <div className="crash__rocket-wrap">
-            <div className="crash__rocket" ref={rocketRef} />
-          </div>
-        )}
+        <div className={`crash__rocket-wrap${gameState !== 'flying' ? ' crash__rocket-wrap--hidden' : ''}`}>
+          <div className="crash__rocket" ref={rocketRef} />
+        </div>
 
         {gameState === 'waiting' && (
           <div className="crash__countdown-num">{countdown}</div>
