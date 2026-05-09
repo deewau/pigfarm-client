@@ -37,151 +37,6 @@
   height: 100%;
 }
 
-.crash__multiplier {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 56px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
-  z-index: 5;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  font-family: 'Gilroy', sans-serif;
-  letter-spacing: -1px;
-}
-
-.crash__multiplier--crashed {
-  color: #ff453a;
-  text-shadow: 0 0 40px rgba(255, 69, 58, 0.5);
-}
-
-.crash__rocket-container {
-  position: absolute;
-  z-index: 15;
-  pointer-events: none;
-  width: 80px;
-  height: 80px;
-  transform: translate(-50%, -50%);
-  transition: none;
-}
-
-.crash__rocket-container > div {
-  width: 100%;
-  height: 100%;
-}
-
-.crash__status {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.crash__status--crashed {
-  color: #ff453a;
-}
-
-.crash__controls {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: auto;
-}
-
-.crash__bet-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.crash__bet-input-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.crash__bet-input-wrap:focus-within {
-  border-color: var(--accent);
-  background: rgba(255, 69, 58, 0.08);
-}
-
-.crash__bet-input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  font-family: 'Gilroy', sans-serif;
-  min-width: 0;
-}
-
-.crash__bet-input::-webkit-inner-spin-button,
-.crash__bet-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.crash__bet-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-.crash__bet-input:disabled {
-  opacity: 0.5;
-}
-
-.crash__bet-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  white-space: nowrap;
-}
-
-.crash__bet-currency {
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.crash__presets {
-  display: flex;
-  gap: 8px;
-}
-
-.crash__preset-btn {
-  padding: 8px 16px;
-  background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: 'Gilroy', sans-serif;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.crash__preset-btn:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
 .crash__bet-btn {
   width: 100%;
   padding: 18px;
@@ -193,49 +48,16 @@
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: 0.3px;
-}
-
-.crash__bet-btn--idle {
-  background: linear-gradient(135deg, #ff453a 0%, #d63031 100%);
+  background: #4A90D9;
   color: #fff;
-  box-shadow: 0 4px 20px rgba(255, 69, 58, 0.4);
+  box-shadow: 0 4px 20px rgba(74, 144, 217, 0.4);
 }
 
-.crash__bet-btn--idle:hover {
+.crash__bet-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 69, 58, 0.5);
+  box-shadow: 0 6px 24px rgba(74, 144, 217, 0.5);
 }
 
-.crash__bet-btn--flying {
-  background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(0, 184, 148, 0.4);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.crash__bet-btn--flying:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(0, 184, 148, 0.5);
-}
-
-.crash__bet-btn--disabled {
-  background: linear-gradient(145deg, #15182A 0%, #1A2035 50%, #15182A 100%);
-  color: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.crash__bet-btn--disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.crash__bet-btn:active:not(.crash__bet-btn--disabled) {
+.crash__bet-btn:active {
   transform: translateY(0);
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(0, 184, 148, 0.4); }
-  50% { box-shadow: 0 4px 30px rgba(0, 184, 148, 0.7); }
 }
