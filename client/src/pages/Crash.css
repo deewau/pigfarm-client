@@ -45,6 +45,25 @@
   75% { transform: translate(20px,10px); }
 }
 
+@keyframes drift-fast {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(50px,-35px); }
+  50% { transform: translate(-35px,50px); }
+  75% { transform: translate(35px,20px); }
+}
+
+.crash--flying .crash__nebula--purple {
+  animation: drift-fast 8s ease-in-out infinite;
+}
+
+.crash--flying .crash__nebula--blue {
+  animation: drift-fast 10s ease-in-out infinite reverse;
+}
+
+.crash--flying .crash__nebula--pink {
+  animation: drift-fast 6s ease-in-out infinite;
+}
+
 /* ---- Stars ---- */
 .crash__stars-layer {
   position: absolute;
@@ -68,6 +87,27 @@
 @keyframes twinkle {
   0%,100% { opacity: var(--min-opacity,0.3); transform: scale(0.8); }
   50% { opacity: var(--max-opacity,1); transform: scale(1.2); }
+}
+
+/* ---- Speed particles (flying effect) ---- */
+.crash__speed-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.crash__speed-particle {
+  position: absolute;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.5), transparent);
+  border-radius: 2px;
+  animation: speed-fall linear infinite;
+}
+
+@keyframes speed-fall {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
 }
 
 /* ---- Back button ---- */

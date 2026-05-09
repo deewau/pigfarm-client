@@ -26,6 +26,21 @@ function generateStars(count: number, big: boolean) {
 const smallStars = generateStars(120, false);
 const bigStars = generateStars(40, true);
 
+function generateSpeedParticles(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    key: `sp-${i}`,
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 3}s`,
+    dur: `${1 + Math.random() * 0.8}s`,
+    w: `${1 + Math.random() * 2}px`,
+    h: `${15 + Math.random() * 35}px`,
+    op: `${0.3 + Math.random() * 0.5}`,
+  }));
+}
+
+const speedParticles = generateSpeedParticles(25);
+
 export function Crash() {
   const navigate = useNavigate();
   const animRef = useRef<number | null>(null);
@@ -62,7 +77,7 @@ export function Crash() {
       if (gameStateRef.current !== 'flying') return;
       elapsedRef.current += 50;
       const t = elapsedRef.current / 1000;
-      const m = Math.pow(1.6, t / 3);
+      const m = Math.pow(1.6, t / 9);
 
       if (m >= crashPointRef.current) {
         gameStateRef.current = 'crashed';
@@ -142,7 +157,7 @@ export function Crash() {
   }, []);
 
   return (
-    <div className="crash">
+    <div className={`crash${gameState === 'flying' ? ' crash--flying' : ''}`}>
       <div className="crash__nebula crash__nebula--purple" />
       <div className="crash__nebula crash__nebula--blue" />
       <div className="crash__nebula crash__nebula--pink" />
@@ -159,6 +174,26 @@ export function Crash() {
           />
         ))}
       </div>
+
+      {gameState === 'flying' && (
+        <div className="crash__speed-layer">
+          {speedParticles.map(p => (
+            <div
+              key={p.key}
+              className="crash__speed-particle"
+              style={{
+                left: p.left,
+                top: p.top,
+                width: p.w,
+                height: p.h,
+                animationDelay: p.delay,
+                animationDuration: p.dur,
+                opacity: p.op,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
 
