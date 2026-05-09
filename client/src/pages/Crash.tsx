@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import lottie from 'lottie-web';
 import './Crash.css';
 
 function generateCrashPoint(): number {
@@ -28,82 +29,126 @@ const bigStars = generateStars(40, true);
 export function Crash() {
   const navigate = useNavigate();
   const animRef = useRef<number | null>(null);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const elapsedRef = useRef(0);
   const crashPointRef = useRef(2.0);
-  const gameStateRef = useRef<'idle' | 'flying' | 'crashed'>('idle');
+  const gameStateRef = useRef<'waiting' | 'flying' | 'crashed'>('waiting');
+  const rocketRef = useRef<HTMLDivElement>(null);
+  const lottieRef = useRef<any>(null);
+  const waitingStartRef = useRef(0);
 
   const [betAmount, setBetAmount] = useState(10);
-  const [gameState, setGameState] = useState<'idle' | 'flying' | 'crashed'>('idle');
+  const [gameState, setGameState] = useState<'waiting' | 'flying' | 'crashed'>('waiting');
   const [multiplier, setMultiplier] = useState(1.00);
-  const [countdown, setCountdown] = useState(0);
+  const [waitingCountdown, setWaitingCountdown] = useState(5);
   const [crashHistory, setCrashHistory] = useState<number[]>([]);
 
-  const startNewRound = useCallback(() => {
-    setGameState('idle');
-    gameStateRef.current = 'idle';
-    setMultiplier(1.00);
+  const cancelAll = useCallback(() => {
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
   }, []);
 
-  const onCrash = useCallback((cp: number) => {
-    gameStateRef.current = 'crashed';
-    setGameState('crashed');
-    setMultiplier(cp);
-    setCrashHistory(prev => [cp, ...prev].slice(0, 20));
-
-    setCountdown(5);
-    let remaining = 5;
-    countdownRef.current = setInterval(() => {
-      remaining -= 1;
-      if (remaining <= 0) {
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        countdownRef.current = null;
-        startNewRound();
-        return;
-      }
-      setCountdown(remaining);
-    }, 1000);
-  }, [startNewRound]);
-
-  const tick = useCallback(() => {
-    if (gameStateRef.current !== 'flying') return;
-    const cp = crashPointRef.current;
-    elapsedRef.current += 50;
-    const t = elapsedRef.current / 1000;
-    const m = Math.pow(1.6, t);
-
-    if (m >= cp) {
-      onCrash(cp);
-      return;
-    }
-
-    setMultiplier(m);
-    animRef.current = requestAnimationFrame(tick);
-  }, [onCrash]);
-
-  const startGame = useCallback(() => {
-    if (gameStateRef.current !== 'idle') return;
+  const startFlying = useCallback(() => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     const cp = generateCrashPoint();
     crashPointRef.current = cp;
     elapsedRef.current = 0;
     setMultiplier(1.00);
     gameStateRef.current = 'flying';
     setGameState('flying');
-    animRef.current = requestAnimationFrame(tick);
-  }, [tick]);
 
-  const cancelAll = useCallback(() => {
-    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
-    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    if (lottieRef.current) lottieRef.current.play();
+
+    const tick = () => {
+      if (gameStateRef.current !== 'flying') return;
+      elapsedRef.current += 50;
+      const t = elapsedRef.current / 1000;
+      const m = Math.pow(1.6, t);
+
+      if (m >= crashPointRef.current) {
+        gameStateRef.current = 'crashed';
+        setGameState('crashed');
+        const cp = crashPointRef.current;
+        setMultiplier(cp);
+        setCrashHistory(prev => [cp, ...prev].slice(0, 20));
+        if (lottieRef.current) lottieRef.current.stop();
+        timerRef.current = setTimeout(() => startWaiting(), 1500);
+        return;
+      }
+
+      setMultiplier(m);
+      animRef.current = requestAnimationFrame(tick);
+    };
+
+    animRef.current = requestAnimationFrame(tick);
   }, []);
 
-  useEffect(() => {
-    return () => cancelAll();
-  }, [cancelAll]);
+  const startWaiting = useCallback(() => {
+    gameStateRef.current = 'waiting';
+    setGameState('waiting');
+    setMultiplier(1.00);
+    setWaitingCountdown(5);
+    waitingStartRef.current = Date.now();
 
-  const handleBet = () => {
-    if (gameState === 'idle') startGame();
-  };
+    if (lottieRef.current) {
+      lottieRef.current.goToAndStop(0);
+    }
+
+    const tickWaiting = () => {
+      if (gameStateRef.current !== 'waiting') return;
+      const elapsed = (Date.now() - waitingStartRef.current) / 1000;
+      const remaining = Math.max(0, 5 - elapsed);
+      setWaitingCountdown(Math.ceil(remaining));
+
+      if (remaining <= 0) {
+        startFlying();
+        return;
+      }
+
+      timerRef.current = setTimeout(tickWaiting, 200);
+    };
+
+    timerRef.current = setTimeout(tickWaiting, 200);
+  }, [startFlying]);
+
+  const handleBet = useCallback(() => {
+    if (gameState !== 'waiting') return;
+    startFlying();
+  }, [gameState, startFlying]);
+
+  useEffect(() => {
+    startWaiting();
+    return () => cancelAll();
+  }, [startWaiting, cancelAll]);
+
+  useEffect(() => {
+    if (!rocketRef.current) return;
+    fetch('/assets/cmn/crashrocket.json')
+      .then(r => r.json())
+      .then(data => {
+        if (rocketRef.current) {
+          lottieRef.current = lottie.loadAnimation({
+            container: rocketRef.current,
+            renderer: 'svg',
+            loop: true,
+            autoplay: false,
+            animationData: data,
+          });
+          lottieRef.current.goToAndStop(0);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      if (lottieRef.current) lottieRef.current.destroy();
+    };
+  }, []);
+
+  const btnText = gameState === 'waiting'
+    ? 'Сделать ставку'
+    : gameState === 'flying'
+    ? `x${multiplier.toFixed(2)}`
+    : `x${multiplier.toFixed(2)}`;
 
   return (
     <div className="crash">
@@ -116,14 +161,9 @@ export function Crash() {
             key={s.key}
             className={s.cls}
             style={{
-              left: s.left,
-              top: s.top,
-              width: s.w,
-              height: s.h,
-              animationDelay: s.delay,
-              animationDuration: s.dur,
-              '--min-opacity': s.minOp,
-              '--max-opacity': s.maxOp,
+              left: s.left, top: s.top, width: s.w, height: s.h,
+              animationDelay: s.delay, animationDuration: s.dur,
+              '--min-opacity': s.minOp, '--max-opacity': s.maxOp,
             } as React.CSSProperties}
           />
         ))}
@@ -132,11 +172,25 @@ export function Crash() {
       <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
 
       <div className="crash__center">
-        <div className={`crash__multiplier${gameState === 'crashed' ? ' crash__multiplier--crashed' : ''}${gameState === 'flying' ? ' crash__multiplier--flying' : ''}`}>
-          {gameState === 'idle' ? '1.00x' : `${multiplier.toFixed(2)}x`}
+        <div className="crash__rocket-wrap">
+          <div className="crash__rocket" ref={rocketRef} />
         </div>
+
+        <div className={`crash__multiplier${gameState === 'crashed' ? ' crash__multiplier--crashed' : ''}${gameState === 'flying' ? ' crash__multiplier--flying' : ''}`}>
+          {gameState === 'waiting' ? '1.00x' : `${multiplier.toFixed(2)}x`}
+        </div>
+
+        {gameState === 'waiting' && (
+          <div className="crash__waiting-timer">
+            <button className="crash__bet-btn" onClick={handleBet}>
+              Сделать ставку
+            </button>
+            <div className="crash__waiting-label">Старт через {waitingCountdown}с</div>
+          </div>
+        )}
+
         {gameState === 'crashed' && (
-          <div className="crash__countdown">{countdown}</div>
+          <div className="crash__crashed-label">КРАХ</div>
         )}
       </div>
 
@@ -146,13 +200,6 @@ export function Crash() {
             <div key={i} className="crash__history-item">{cp.toFixed(2)}x</div>
           ))}
         </div>
-        <button
-          className={`crash__bet-btn${gameState !== 'idle' ? ' crash__bet-btn--disabled' : ''}`}
-          onClick={handleBet}
-          disabled={gameState !== 'idle'}
-        >
-          {gameState === 'idle' ? 'Сделать ставку' : gameState === 'flying' ? 'Взлетает...' : `Перезапуск через ${countdown}...`}
-        </button>
       </div>
     </div>
   );
