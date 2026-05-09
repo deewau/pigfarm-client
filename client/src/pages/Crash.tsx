@@ -37,10 +37,9 @@ export function Crash() {
   const lottieRef = useRef<any>(null);
   const waitingStartRef = useRef(0);
 
-  const [betAmount, setBetAmount] = useState(10);
   const [gameState, setGameState] = useState<'waiting' | 'flying' | 'crashed'>('waiting');
   const [multiplier, setMultiplier] = useState(1.00);
-  const [waitingCountdown, setWaitingCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(5);
   const [crashHistory, setCrashHistory] = useState<number[]>([]);
 
   const cancelAll = useCallback(() => {
@@ -63,7 +62,7 @@ export function Crash() {
       if (gameStateRef.current !== 'flying') return;
       elapsedRef.current += 50;
       const t = elapsedRef.current / 1000;
-      const m = Math.pow(1.6, t);
+      const m = Math.pow(1.6, t / 3);
 
       if (m >= crashPointRef.current) {
         gameStateRef.current = 'crashed';
@@ -87,18 +86,16 @@ export function Crash() {
     gameStateRef.current = 'waiting';
     setGameState('waiting');
     setMultiplier(1.00);
-    setWaitingCountdown(5);
+    setCountdown(5);
     waitingStartRef.current = Date.now();
 
-    if (lottieRef.current) {
-      lottieRef.current.goToAndStop(0);
-    }
+    if (lottieRef.current) lottieRef.current.goToAndStop(0);
 
     const tickWaiting = () => {
       if (gameStateRef.current !== 'waiting') return;
       const elapsed = (Date.now() - waitingStartRef.current) / 1000;
       const remaining = Math.max(0, 5 - elapsed);
-      setWaitingCountdown(Math.ceil(remaining));
+      setCountdown(Math.ceil(remaining));
 
       if (remaining <= 0) {
         startFlying();
@@ -144,12 +141,6 @@ export function Crash() {
     };
   }, []);
 
-  const btnText = gameState === 'waiting'
-    ? 'Сделать ставку'
-    : gameState === 'flying'
-    ? `x${multiplier.toFixed(2)}`
-    : `x${multiplier.toFixed(2)}`;
-
   return (
     <div className="crash">
       <div className="crash__nebula crash__nebula--purple" />
@@ -172,35 +163,44 @@ export function Crash() {
       <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
 
       <div className="crash__center">
-        <div className="crash__rocket-wrap">
-          <div className="crash__rocket" ref={rocketRef} />
-        </div>
-
-        <div className={`crash__multiplier${gameState === 'crashed' ? ' crash__multiplier--crashed' : ''}${gameState === 'flying' ? ' crash__multiplier--flying' : ''}`}>
-          {gameState === 'waiting' ? '1.00x' : `${multiplier.toFixed(2)}x`}
-        </div>
+        {gameState === 'flying' && (
+          <div className="crash__rocket-wrap">
+            <div className="crash__rocket" ref={rocketRef} />
+          </div>
+        )}
 
         {gameState === 'waiting' && (
-          <div className="crash__waiting-timer">
-            <button className="crash__bet-btn" onClick={handleBet}>
-              Сделать ставку
-            </button>
-            <div className="crash__waiting-label">Старт через {waitingCountdown}с</div>
+          <div className="crash__countdown-num">{countdown}</div>
+        )}
+
+        {gameState === 'flying' && (
+          <div className="crash__multiplier crash__multiplier--flying">
+            {multiplier.toFixed(2)}x
           </div>
         )}
 
         {gameState === 'crashed' && (
-          <div className="crash__crashed-label">КРАХ</div>
+          <div className="crash__multiplier crash__multiplier--crashed">
+            {multiplier.toFixed(2)}x
+          </div>
         )}
-      </div>
 
-      <div className="crash__bottom">
         <div className="crash__history">
           {crashHistory.map((cp, i) => (
             <div key={i} className="crash__history-item">{cp.toFixed(2)}x</div>
           ))}
         </div>
+
+        {gameState === 'waiting' && (
+          <button className="crash__bet-btn" onClick={handleBet}>
+            Сделать ставку
+          </button>
+        )}
       </div>
+
+      {gameState === 'crashed' && (
+        <div className="crash__crashed-label">КРАХ</div>
+      )}
     </div>
   );
 }
