@@ -20,11 +20,11 @@ export function Play() {
           </div>
         </div>
 
-        <div className="play__crash-block">
+        <div className="play__crash-block" onClick={() => navigate('/play/crash')}>
           <img src="/gifts/svg/rocketbg.svg" alt="Crash" className="play__crash-block-img" />
           <div className="play__cases-block-content">
             <span className="play__cases-block-title">Crash</span>
-            <button className="play__cases-block-btn">Скоро</button>
+            <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/crash'); }}>Играть →</button>
           </div>
         </div>
       </div>
