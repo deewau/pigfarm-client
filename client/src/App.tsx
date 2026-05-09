@@ -34,13 +34,16 @@ function App() {
 }
 
 function Layout() {
+  const location = useLocation();
+  const isCrash = location.pathname === '/play/crash';
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--bg)' }}>
-      <AppHeader />
-      <div style={{ flex: 1, overflow: 'auto', paddingTop: '72px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', background: 'var(--bg)' }}>
+      {!isCrash && <AppHeader />}
+      <div style={{ flex: 1, overflow: isCrash ? 'hidden' : 'auto', paddingTop: isCrash ? '0' : '72px' }}>
         <Outlet />
       </div>
-      <BottomBar />
+      {!isCrash && <BottomBar />}
     </div>
   );
 }
