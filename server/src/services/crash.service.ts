@@ -216,6 +216,7 @@ export class CrashGameService {
     this.broadcast({
       type: 'state', state: 'crashed', round_id: this.currentRound.id,
       crash_point: parseFloat(cp.toFixed(2)), results,
+      history: this.history,
       server_time: now,
       phase_ends_at: now + CRASH_SHOW_DURATION,
     });
