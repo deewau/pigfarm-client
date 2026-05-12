@@ -15,12 +15,6 @@ interface LiveBetsProps {
   currentMultiplier: number;
 }
 
-const PRIZE_ICONS = ['🎁', '🍀', '🎯', '💎', '🔥', '👑', '🏆', '💫', '🌟', '♠️', '🎰', '💎'];
-
-function getPrizeIcon(userId: number): string {
-  return PRIZE_ICONS[Math.abs(userId) % PRIZE_ICONS.length];
-}
-
 function getInitials(name: string): string {
   return name.charAt(0).toUpperCase();
 }
@@ -93,7 +87,6 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
                   <span className="live-bets__checkmark">✓</span>
                 )}
               </div>
-              <span className="live-bets__prize-icon">{getPrizeIcon(bet.userId)}</span>
             </div>
           </div>
         ))}

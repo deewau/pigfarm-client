@@ -418,15 +418,6 @@
   50% { box-shadow: 0 4px 35px rgba(52,199,89,0.7); }
 }
 
-.crash__cashout-done {
-  font-size: 18px;
-  font-weight: 700;
-  color: #34C759;
-  font-family: 'Gilroy', sans-serif;
-  flex-shrink: 0;
-  text-shadow: 0 0 20px rgba(52,199,89,0.3);
-}
-
 /* ---- Crash history ---- */
 .crash__history {
   display: flex;

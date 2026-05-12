@@ -386,12 +386,6 @@ export function Crash() {
           </button>
         )}
 
-        {gameState === 'flying' && yourBet !== null && yourCashOut !== null && (
-          <div className="crash__cashout-done">
-            x{yourCashOut.toFixed(2)} = {Math.floor(yourBet * yourCashOut)}⭐
-          </div>
-        )}
-
         <LiveBets
           bets={bets}
           gameState={gameState}

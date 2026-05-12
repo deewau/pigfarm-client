@@ -160,22 +160,6 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-.live-bets__prize-icon {
-  font-size: 28px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  animation: live-bets-icon-glow 3s ease-in-out infinite;
-}
-
-@keyframes live-bets-icon-glow {
-  0%, 100% { filter: brightness(1); transform: scale(1); }
-  50% { filter: brightness(1.15); transform: scale(1.05); }
-}
-
 /* ---- Footer ---- */
 .live-bets__footer {
   padding: 10px;
