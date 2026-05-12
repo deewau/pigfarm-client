@@ -81,6 +81,7 @@ export function Crash() {
   const [resultMsg, setResultMsg] = useState<string | null>(null);
   const [lastCashOut, setLastCashOut] = useState<{ multiplier: number; won: number } | null>(null);
   const [ping, setPing] = useState(0);
+  const hasSyncedRef = useRef(false);
 
   const getServerTime = () => Date.now() + serverTimeOffsetRef.current;
 
@@ -102,6 +103,11 @@ export function Crash() {
   const handleMessage = useCallback((msg: any) => {
     if (msg.server_time) {
       serverTimeOffsetRef.current = msg.server_time - Date.now();
+    }
+
+    if (!hasSyncedRef.current) {
+      hasSyncedRef.current = true;
+      send({ type: 'ping', t: Date.now() });
     }
 
     switch (msg.type) {
@@ -184,7 +190,6 @@ export function Crash() {
     ws.onopen = () => {
       console.log('🚀 Crash WS: connected');
       setGameState('waiting');
-      send({ type: 'ping', t: Date.now() });
     };
     ws.onmessage = (event) => {
       try { handleMessage(JSON.parse(event.data)); } catch { return; }
@@ -229,18 +234,8 @@ export function Crash() {
   }, [gameState]);
 
   useEffect(() => {
-    let pingTimer: ReturnType<typeof setInterval>;
-    let firstPingTimer: ReturnType<typeof setTimeout>;
-
-    firstPingTimer = setTimeout(() => {
-      send({ type: 'ping', t: Date.now() });
-      pingTimer = setInterval(() => send({ type: 'ping', t: Date.now() }), 10000);
-    }, 2000);
-
-    return () => {
-      clearTimeout(firstPingTimer);
-      clearInterval(pingTimer);
-    };
+    const pingTimer = setInterval(() => send({ type: 'ping', t: Date.now() }), 10000);
+    return () => clearInterval(pingTimer);
   }, [send]);
 
   useEffect(() => {
