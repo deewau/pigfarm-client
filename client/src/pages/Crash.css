@@ -455,52 +455,95 @@
 /* ---- Bets panel ---- */
 .crash__bets-panel {
   position: absolute;
-  right: 12px;
-  top: 80px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 12px 12px;
+  max-height: 30vh;
+}
+
+.crash__bets-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Gilroy', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.crash__bets-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-height: 50%;
+  gap: 6px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.crash__bets-panel::-webkit-scrollbar {
+.crash__bets-list::-webkit-scrollbar {
   display: none;
 }
 
 .crash__bets-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: rgba(0,0,0,0.4);
+  gap: 10px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.04);
   border-radius: 10px;
-  backdrop-filter: blur(10px);
   font-family: 'Gilroy', sans-serif;
-  font-size: 13px;
   flex-shrink: 0;
 }
 
+.crash__bets-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A90D9, #7B5EA7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.crash__bets-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
 .crash__bets-name {
-  color: rgba(255,255,255,0.7);
-  font-weight: 500;
-  max-width: 80px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .crash__bets-amount {
-  color: rgba(255,255,255,0.9);
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
 }
 
-.crash__bets-cashout {
-  color: #34C759;
+.crash__bets-multiplier {
+  font-size: 15px;
   font-weight: 700;
+  color: #34C759;
+  flex-shrink: 0;
+  min-width: 50px;
+  text-align: right;
 }
 
 /* ---- Crash history ---- */

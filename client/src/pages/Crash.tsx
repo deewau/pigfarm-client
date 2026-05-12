@@ -343,7 +343,7 @@ export function Crash() {
 
         {lastCashOut && gameState !== 'crashed' && (
           <div className="crash__cashout-msg">
-            Забрал x{lastCashOut.multiplier.toFixed(2)} = +{lastCashOut.won}⭐
+            x{lastCashOut.multiplier.toFixed(2)} = +{lastCashOut.won}⭐
           </div>
         )}
 
@@ -376,26 +376,34 @@ export function Crash() {
 
         {gameState === 'flying' && yourBet !== null && yourCashOut === null && (
           <button className="crash__cashout-btn" onClick={handleCashOut}>
-            Забрать {Math.floor(yourBet * displayMultiplier)}⭐
+            {Math.floor(yourBet * displayMultiplier)}⭐
           </button>
         )}
 
         {gameState === 'flying' && yourBet !== null && yourCashOut !== null && (
           <div className="crash__cashout-done">
-            Забрал x{yourCashOut.toFixed(2)} = {Math.floor(yourBet * yourCashOut)}⭐
+            x{yourCashOut.toFixed(2)} = {Math.floor(yourBet * yourCashOut)}⭐
           </div>
         )}
       </div>
 
       {(gameState === 'waiting' || gameState === 'flying') && bets.length > 0 && (
         <div className="crash__bets-panel">
-          {bets.slice(0, 10).map(b => (
-            <div key={b.userId} className="crash__bets-item">
-              <span className="crash__bets-name">{b.firstName}</span>
-              <span className="crash__bets-amount">{b.amount}⭐</span>
-              {b.cashOutAt && <span className="crash__bets-cashout">x{b.cashOutAt.toFixed(2)}</span>}
-            </div>
-          ))}
+          <div className="crash__bets-panel-title">Ставки</div>
+          <div className="crash__bets-list">
+            {bets.slice(0, 10).map(b => (
+              <div key={b.userId} className="crash__bets-item">
+                <div className="crash__bets-avatar">{b.firstName.charAt(0).toUpperCase()}</div>
+                <div className="crash__bets-info">
+                  <span className="crash__bets-name">{b.firstName}</span>
+                  <span className="crash__bets-amount">{b.amount}⭐</span>
+                </div>
+                <div className="crash__bets-multiplier">
+                  {b.cashOutAt ? `x${b.cashOutAt.toFixed(2)}` : '—'}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
