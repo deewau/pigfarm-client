@@ -82,6 +82,7 @@ export function Crash() {
   const [lastCashOut, setLastCashOut] = useState<{ multiplier: number; won: number } | null>(null);
   const [ping, setPing] = useState(0);
   const hasSyncedRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   const getServerTime = () => Date.now() + serverTimeOffsetRef.current;
 
@@ -197,6 +198,7 @@ export function Crash() {
     ws.onclose = () => {
       console.log('🚀 Crash WS: disconnected');
       wsRef.current = null;
+      if (!isMountedRef.current) return;
       setGameState('loading');
       reconnectTimerRef.current = setTimeout(connect, 3000);
     };
@@ -204,8 +206,10 @@ export function Crash() {
   }, [getWsUrl, handleMessage, send]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     connect();
     return () => {
+      isMountedRef.current = false;
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       if (wsRef.current) { wsRef.current.close(); wsRef.current = null; }
     };
