@@ -10,6 +10,7 @@ interface BetInfo {
   firstName: string;
   amount: number;
   cashOutAt: number | null;
+  photoUrl?: string | null;
 }
 
 const PRESETS = [10, 25, 50, 100, 250];
@@ -387,25 +388,31 @@ export function Crash() {
         )}
       </div>
 
-      {(gameState === 'waiting' || gameState === 'flying') && bets.length > 0 && (
-        <div className="crash__bets-panel">
-          <div className="crash__bets-panel-title">Ставки</div>
+      <div className="crash__bets-panel">
+        <div className="crash__bets-panel-title">Ставки</div>
+        {bets.length === 0 ? (
+          <div className="crash__bets-empty">Ставок пока что нет</div>
+        ) : (
           <div className="crash__bets-list">
             {bets.slice(0, 10).map(b => (
               <div key={b.userId} className="crash__bets-item">
-                <div className="crash__bets-avatar">{b.firstName.charAt(0).toUpperCase()}</div>
+                {b.photoUrl ? (
+                  <img className="crash__bets-avatar" src={b.photoUrl} alt="" />
+                ) : (
+                  <div className="crash__bets-avatar">{b.firstName.charAt(0).toUpperCase()}</div>
+                )}
                 <div className="crash__bets-info">
                   <span className="crash__bets-name">{b.firstName}</span>
                   <span className="crash__bets-amount">{b.amount}⭐</span>
                 </div>
                 <div className="crash__bets-multiplier">
-                  {b.cashOutAt ? `x${b.cashOutAt.toFixed(2)}` : '—'}
+                  {b.cashOutAt ? `x${b.cashOutAt.toFixed(2)}` : `x${displayMultiplier.toFixed(2)}`}
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {gameState === 'crashed' && (
         <div className="crash__crashed-label">КРАХ</div>

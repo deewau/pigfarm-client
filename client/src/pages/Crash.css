@@ -454,16 +454,15 @@
 
 /* ---- Bets panel ---- */
 .crash__bets-panel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 8px 12px 12px;
+  width: 100%;
+  background: rgba(0,0,0,0.35);
+  border-radius: 5px;
+  padding: 8px 10px;
+  flex-shrink: 0;
   max-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .crash__bets-panel-title {
@@ -474,15 +473,25 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.crash__bets-empty {
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
+  font-family: 'Gilroy', sans-serif;
+  text-align: center;
+  padding: 12px 0;
 }
 
 .crash__bets-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  flex: 1;
 }
 
 .crash__bets-list::-webkit-scrollbar {
@@ -493,9 +502,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
+  padding: 5px 6px;
   font-family: 'Gilroy', sans-serif;
   flex-shrink: 0;
 }
@@ -512,6 +519,7 @@
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
+  object-fit: cover;
 }
 
 .crash__bets-info {

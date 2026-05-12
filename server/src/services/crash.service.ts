@@ -16,6 +16,7 @@ interface CrashBet {
   firstName: string;
   amount: number;
   cashOutAt: number | null;
+  photoUrl?: string | null;
 }
 
 interface CrashRound {
@@ -31,7 +32,7 @@ interface CrashRound {
 }
 
 export class CrashGameService {
-  private clients = new Map<number, { ws: WebSocket; userId: number; firstName: string }>();
+  private clients = new Map<number, { ws: WebSocket; userId: number; firstName: string; photoUrl?: string | null }>();
   private wsToUser = new Map<WebSocket, number>();
   private currentRound: CrashRound | null = null;
   private roundCounter = 0;
@@ -61,10 +62,10 @@ export class CrashGameService {
     return Math.max(1.01, (1 - HOUSE_EDGE) / (1 - r));
   }
 
-  addClient(ws: WebSocket, userId: number, firstName: string, balance: number = 0) {
+  addClient(ws: WebSocket, userId: number, firstName: string, balance: number = 0, photoUrl?: string | null) {
     const existing = this.clients.get(userId);
     if (existing) this.wsToUser.delete(existing.ws);
-    this.clients.set(userId, { ws, userId, firstName });
+    this.clients.set(userId, { ws, userId, firstName, photoUrl });
     this.wsToUser.set(ws, userId);
     this.sendState(userId, balance);
   }
@@ -111,7 +112,7 @@ export class CrashGameService {
     });
     const updated = await userRepository.findById(userId);
     if (updated) sendBalanceUpdate(userId, updated.balance);
-    this.currentRound.bets.set(userId, { userId, firstName: client.firstName, amount, cashOutAt: null });
+    this.currentRound.bets.set(userId, { userId, firstName: client.firstName, amount, cashOutAt: null, photoUrl: client.photoUrl });
     this.sendTo(client.ws, { type: 'bet_result', accepted: true, amount, balance: updated?.balance ?? 0 });
     this.broadcastBets();
   }
@@ -211,6 +212,7 @@ export class CrashGameService {
       cashOutAt: b.cashOutAt ? parseFloat(b.cashOutAt.toFixed(2)) : null,
       won: b.cashOutAt !== null ? Math.floor(b.amount * b.cashOutAt) : 0,
       crashed: b.cashOutAt === null,
+      photoUrl: b.photoUrl || null,
     }));
 
     this.broadcast({
@@ -300,6 +302,7 @@ export class CrashGameService {
     return Array.from(this.currentRound.bets.values()).map(b => ({
       userId: b.userId, firstName: b.firstName, amount: b.amount,
       cashOutAt: b.cashOutAt ? parseFloat(b.cashOutAt.toFixed(2)) : null,
+      photoUrl: b.photoUrl || null,
     }));
   }
 
