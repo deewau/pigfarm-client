@@ -114,6 +114,7 @@ export class CrashGameService {
     if (updated) sendBalanceUpdate(userId, updated.balance);
     this.currentRound.bets.set(userId, { userId, firstName: client.firstName, amount, cashOutAt: null, photoUrl: client.photoUrl });
     this.sendTo(client.ws, { type: 'bet_result', accepted: true, amount, balance: updated?.balance ?? 0 });
+    this.broadcastNewBet(userId);
     this.broadcastBets();
   }
 
@@ -139,6 +140,7 @@ export class CrashGameService {
         server_time: Date.now(),
       });
     }
+    this.broadcastPlayerCashout(userId, multiplier);
     this.broadcastBets();
   }
 
@@ -281,6 +283,35 @@ export class CrashGameService {
 
     this.sendTo(client.ws, msg);
     if (r.bets.size > 0) this.sendBetsTo(client.ws);
+  }
+
+  private broadcastNewBet(userId: number) {
+    const bet = this.currentRound?.bets.get(userId);
+    if (!bet) return;
+    this.broadcast({
+      type: 'new_bet',
+      data: {
+        userId: bet.userId,
+        firstName: bet.firstName,
+        amount: bet.amount,
+        photoUrl: bet.photoUrl || null,
+      },
+      server_time: Date.now(),
+    });
+  }
+
+  private broadcastPlayerCashout(userId: number, cashOutAt: number) {
+    const bet = this.currentRound?.bets.get(userId);
+    if (!bet) return;
+    this.broadcast({
+      type: 'player_cashout',
+      data: {
+        userId: bet.userId,
+        cashOutAt: parseFloat(cashOutAt.toFixed(2)),
+        won: Math.floor(bet.amount * cashOutAt),
+      },
+      server_time: Date.now(),
+    });
   }
 
   private broadcastBets() {

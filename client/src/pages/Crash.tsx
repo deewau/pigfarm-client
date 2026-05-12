@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import lottie from 'lottie-web';
+import { LiveBets } from '../components/LiveBets';
 import './Crash.css';
 
 type CrashState = 'waiting' | 'flying' | 'crashed' | 'pause' | 'loading';
@@ -166,6 +167,22 @@ export function Crash() {
       case 'bets':
         betsRef.current = msg.bets; setBets(msg.bets);
         break;
+      case 'new_bet': {
+        const nb = msg.data;
+        if (!betsRef.current.some(b => b.userId === nb.userId)) {
+          betsRef.current = [nb, ...betsRef.current];
+          setBets([...betsRef.current]);
+        }
+        break;
+      }
+      case 'player_cashout': {
+        const { userId, cashOutAt } = msg.data;
+        betsRef.current = betsRef.current.map(b =>
+          b.userId === userId ? { ...b, cashOutAt } : b
+        );
+        setBets([...betsRef.current]);
+        break;
+      }
       case 'bet_result':
         if (msg.accepted) { yourBetRef.current = msg.amount; setYourBet(msg.amount); balanceRef.current = msg.balance; setBalance(msg.balance); }
         break;
@@ -386,32 +403,12 @@ export function Crash() {
             x{yourCashOut.toFixed(2)} = {Math.floor(yourBet * yourCashOut)}⭐
           </div>
         )}
-      </div>
 
-      <div className="crash__bets-panel">
-        <div className="crash__bets-panel-title">Ставки</div>
-        {bets.length === 0 ? (
-          <div className="crash__bets-empty">Ставок пока что нет</div>
-        ) : (
-          <div className="crash__bets-list">
-            {bets.slice(0, 10).map(b => (
-              <div key={b.userId} className="crash__bets-item">
-                {b.photoUrl ? (
-                  <img className="crash__bets-avatar" src={b.photoUrl} alt="" />
-                ) : (
-                  <div className="crash__bets-avatar">{b.firstName.charAt(0).toUpperCase()}</div>
-                )}
-                <div className="crash__bets-info">
-                  <span className="crash__bets-name">{b.firstName}</span>
-                  <span className="crash__bets-amount">{b.amount}⭐</span>
-                </div>
-                <div className="crash__bets-multiplier">
-                  {b.cashOutAt ? `x${b.cashOutAt.toFixed(2)}` : `x${displayMultiplier.toFixed(2)}`}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <LiveBets
+          bets={bets}
+          gameState={gameState}
+          currentMultiplier={displayMultiplier}
+        />
       </div>
 
       {gameState === 'crashed' && (
