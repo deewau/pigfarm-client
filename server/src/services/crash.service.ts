@@ -5,7 +5,7 @@ import { sendBalanceUpdate } from './websocket.js';
 
 const WAITING_DURATION = 8000;
 const PAUSE_DURATION = 3000;
-const TICK_INTERVAL = 50;
+const TICK_INTERVAL = 100;
 const HOUSE_EDGE = 0.03;
 
 export type CrashGameState = 'waiting' | 'flying' | 'crashed' | 'pause';

@@ -53,9 +53,11 @@ export function Crash() {
   const rocketRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const multiplierRef = useRef(1.0);
+  const rafRef = useRef<number>(0);
 
   const [gameState, setGameState] = useState<CrashState>('loading');
-  const [multiplier, setMultiplier] = useState(1.0);
+  const [displayMultiplier, setDisplayMultiplier] = useState(1.0);
   const [crashPoint, setCrashPoint] = useState(0);
   const [countdown, setCountdown] = useState(0);
   const [history, setHistory] = useState<number[]>([]);
@@ -76,6 +78,68 @@ export function Crash() {
     return `${protocol}//${host}/ws/crash?initData=${initData}`;
   }, []);
 
+  const send = useCallback((data: any) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(data));
+    }
+  }, []);
+
+  const handleMessage = useCallback((msg: any) => {
+    switch (msg.type) {
+      case 'state':
+        setGameState(msg.state);
+        if (msg.history) setHistory(msg.history);
+        if (msg.balance !== undefined) setBalance(msg.balance);
+        if (msg.state === 'waiting') {
+          setCountdown(msg.countdown);
+          multiplierRef.current = 1.0;
+          setCrashPoint(0);
+          setYourBet(null);
+          setYourCashOut(null);
+          setLastCashOut(null);
+          setBets([]);
+          setResultMsg(null);
+        }
+        if (msg.state === 'flying' && msg.multiplier) {
+          multiplierRef.current = msg.multiplier;
+        }
+        if (msg.state === 'crashed') {
+          setCrashPoint(msg.crash_point);
+          multiplierRef.current = msg.crash_point;
+          if (msg.results) {
+            const tg = (window as any).Telegram?.WebApp;
+            const myResult = msg.results.find((r: any) => tg?.initDataUnsafe?.user?.id === r.userId);
+            if (myResult) {
+              setResultMsg(myResult.crashed
+                ? `Проиграно ${myResult.amount}⭐`
+                : `Выиграно ${myResult.won}⭐ (x${myResult.cashOutAt})`);
+            }
+          }
+        }
+        if (msg.state === 'pause') setCountdown(msg.countdown);
+        if (msg.your_bet !== undefined) setYourBet(msg.your_bet);
+        if (msg.your_cash_out !== undefined) setYourCashOut(msg.your_cash_out);
+        break;
+
+      case 'tick':
+        multiplierRef.current = msg.multiplier;
+        break;
+
+      case 'bets':
+        setBets(msg.bets);
+        break;
+
+      case 'bet_result':
+        if (msg.accepted) { setYourBet(msg.amount); setBalance(msg.balance); }
+        break;
+
+      case 'cash_out_result':
+        setYourCashOut(msg.multiplier);
+        setLastCashOut({ multiplier: msg.multiplier, won: msg.won });
+        break;
+    }
+  }, []);
+
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
@@ -88,10 +152,7 @@ export function Crash() {
     };
 
     ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        handleMessage(msg);
-      } catch { return; }
+      try { handleMessage(JSON.parse(event.data)); } catch { return; }
     };
 
     ws.onclose = () => {
@@ -102,7 +163,7 @@ export function Crash() {
     };
 
     ws.onerror = () => {};
-  }, [getWsUrl]);
+  }, [getWsUrl, handleMessage]);
 
   useEffect(() => {
     connect();
@@ -137,72 +198,13 @@ export function Crash() {
     else if (lottieRef.current) lottieRef.current.goToAndStop(0);
   }, [gameState]);
 
-  const handleMessage = useCallback((msg: any) => {
-    switch (msg.type) {
-      case 'state':
-        setGameState(msg.state);
-        if (msg.history) setHistory(msg.history);
-        if (msg.balance !== undefined) setBalance(msg.balance);
-        if (msg.state === 'waiting') {
-          setCountdown(msg.countdown);
-          setMultiplier(1.0);
-          setCrashPoint(0);
-          setYourBet(null);
-          setYourCashOut(null);
-          setLastCashOut(null);
-          setBets([]);
-          setResultMsg(null);
-        }
-        if (msg.state === 'flying') {
-          if (msg.multiplier) setMultiplier(msg.multiplier);
-        }
-        if (msg.state === 'crashed') {
-          setCrashPoint(msg.crash_point);
-          setMultiplier(msg.crash_point);
-          if (msg.results) {
-            const myResult = msg.results.find((r: any) => {
-              const tg = (window as any).Telegram?.WebApp;
-              return tg?.initDataUnsafe?.user?.id === r.userId;
-            });
-            if (myResult) {
-              if (myResult.crashed) setResultMsg(`Проиграно ${myResult.amount}⭐`);
-              else setResultMsg(`Выиграно ${myResult.won}⭐ (x${myResult.cashOutAt})`);
-            }
-          }
-        }
-        if (msg.state === 'pause') {
-          setCountdown(msg.countdown);
-        }
-        if (msg.your_bet !== undefined) setYourBet(msg.your_bet);
-        if (msg.your_cash_out !== undefined) setYourCashOut(msg.your_cash_out);
-        break;
-
-      case 'tick':
-        setMultiplier(msg.multiplier);
-        break;
-
-      case 'bets':
-        setBets(msg.bets);
-        break;
-
-      case 'bet_result':
-        if (msg.accepted) {
-          setYourBet(msg.amount);
-          setBalance(msg.balance);
-        }
-        break;
-
-      case 'cash_out_result':
-        setYourCashOut(msg.multiplier);
-        setLastCashOut({ multiplier: msg.multiplier, won: msg.won });
-        break;
-    }
-  }, []);
-
-  const send = useCallback((data: any) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
-    }
+  useEffect(() => {
+    const loop = () => {
+      setDisplayMultiplier(multiplierRef.current);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   const handleBet = useCallback(() => {
@@ -261,7 +263,7 @@ export function Crash() {
 
         {(gameState === 'flying' || gameState === 'crashed') && (
           <div className={`crash__multiplier ${gameState === 'crashed' ? 'crash__multiplier--crashed' : 'crash__multiplier--flying'}`}>
-            {multiplier.toFixed(2)}x
+            {displayMultiplier.toFixed(2)}x
           </div>
         )}
 
@@ -283,7 +285,6 @@ export function Crash() {
           ))}
         </div>
 
-        {/* Bet controls - only show during waiting if we haven't bet yet */}
         {gameState === 'waiting' && yourBet === null && (
           <div className="crash__bet-controls">
             <div className="crash__presets">
@@ -305,10 +306,9 @@ export function Crash() {
           </div>
         )}
 
-        {/* Cash out button - only if we have a bet and haven't cashed out yet */}
         {gameState === 'flying' && yourBet !== null && yourCashOut === null && (
           <button className="crash__cashout-btn" onClick={handleCashOut}>
-            Забрать {Math.floor(yourBet * multiplier)}⭐
+            Забрать {Math.floor(yourBet * displayMultiplier)}⭐
           </button>
         )}
 
@@ -319,7 +319,6 @@ export function Crash() {
         )}
       </div>
 
-      {/* Bets panel */}
       {(gameState === 'waiting' || gameState === 'flying') && bets.length > 0 && (
         <div className="crash__bets-panel">
           {bets.slice(0, 10).map(b => (
