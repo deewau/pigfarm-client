@@ -157,7 +157,7 @@ export class CrashGameService {
 
     this.broadcast({
       type: 'state', state: 'waiting', round_id: this.roundCounter,
-      server_time: now,
+      server_time: now, history: this.history,
       phase_ends_at: now + WAITING_DURATION,
       server_seed_hash: serverSeedHash,
     });
@@ -174,7 +174,7 @@ export class CrashGameService {
 
     this.broadcast({
       type: 'state', state: 'flying', round_id: this.currentRound.id,
-      server_time: now, multiplier: 1.0,
+      server_time: now, history: this.history, multiplier: 1.0,
     });
 
     this.tickTimer = setInterval(() => this.tick(), TICK_INTERVAL);
@@ -229,7 +229,7 @@ export class CrashGameService {
     this.currentRound = null;
     this.broadcast({
       type: 'state', state: 'pause',
-      server_time: now,
+      server_time: now, history: this.history,
       phase_ends_at: now + PAUSE_DURATION,
     });
     this.stateTimer = setTimeout(() => this.startWaiting(), PAUSE_DURATION);
