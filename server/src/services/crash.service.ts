@@ -3,9 +3,9 @@ import { WebSocket } from 'ws';
 import { userRepository, transactionRepository } from '../db/repository.js';
 import { sendBalanceUpdate } from './websocket.js';
 
-const WAITING_DURATION = 8000;
-const PAUSE_DURATION = 3000;
-const TICK_INTERVAL = 100;
+const WAITING_DURATION = 5000;
+const PAUSE_DURATION = 2000;
+const TICK_INTERVAL = 50;
 const HOUSE_EDGE = 0.03;
 
 export type CrashGameState = 'waiting' | 'flying' | 'crashed' | 'pause';
@@ -60,12 +60,12 @@ export class CrashGameService {
     return Math.max(1.01, (1 - HOUSE_EDGE) / (1 - r));
   }
 
-  addClient(ws: WebSocket, userId: number, firstName: string) {
+  addClient(ws: WebSocket, userId: number, firstName: string, balance: number = 0) {
     const existing = this.clients.get(userId);
     if (existing) this.wsToUser.delete(existing.ws);
     this.clients.set(userId, { ws, userId, firstName });
     this.wsToUser.set(ws, userId);
-    this.sendState(userId);
+    this.sendState(userId, balance);
   }
 
   removeClient(ws: WebSocket) {
@@ -231,7 +231,7 @@ export class CrashGameService {
     if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(data));
   }
 
-  private sendState(userId: number) {
+  private sendState(userId: number, balance?: number) {
     const client = this.clients.get(userId);
     if (!client || !this.currentRound) return;
 
@@ -245,20 +245,16 @@ export class CrashGameService {
     if (r.state === 'flying') msg.multiplier = parseFloat(this.currentMultiplier.toFixed(2));
     if (r.state === 'crashed' || r.state === 'pause') msg.crash_point = parseFloat(r.crashPoint.toFixed(2));
 
+    if (balance !== undefined) msg.balance = balance;
+
     const userBet = r.bets.get(userId);
     if (userBet) {
       msg.your_bet = userBet.amount;
       msg.your_cash_out = userBet.cashOutAt ? parseFloat(userBet.cashOutAt.toFixed(2)) : null;
     }
 
-    userRepository.findById(userId).then(u => {
-      if (u) msg.balance = u.balance;
-      this.sendTo(client.ws, msg);
-      if (r.bets.size > 0) this.sendBetsTo(client.ws);
-    }).catch(() => {
-      this.sendTo(client.ws, msg);
-      if (r.bets.size > 0) this.sendBetsTo(client.ws);
-    });
+    this.sendTo(client.ws, msg);
+    if (r.bets.size > 0) this.sendBetsTo(client.ws);
   }
 
   private broadcastBets() {

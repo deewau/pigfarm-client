@@ -68,7 +68,7 @@ export function initWebSocket(server: HTTPServer) {
 
       userRepository.findByTelegramId(telegramUser.id).then(user => {
         if (!user) { ws.close(4001, 'User not found'); return; }
-        crashGameService.addClient(ws, user.id, user.first_name);
+        crashGameService.addClient(ws, user.id, user.first_name, user.balance);
         ws.on('message', (data) => crashGameService.handleMessage(ws, data.toString()));
         ws.on('close', () => crashGameService.removeClient(ws));
         ws.on('error', () => crashGameService.removeClient(ws));
