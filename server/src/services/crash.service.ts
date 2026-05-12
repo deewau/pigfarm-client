@@ -4,6 +4,7 @@ import { userRepository, transactionRepository } from '../db/repository.js';
 import { sendBalanceUpdate } from './websocket.js';
 
 const WAITING_DURATION = 5000;
+const CRASH_SHOW_DURATION = 1500;
 const PAUSE_DURATION = 2000;
 const TICK_INTERVAL = 50;
 const HOUSE_EDGE = 0.03;
@@ -26,7 +27,7 @@ interface CrashRound {
   crashPoint: number;
   state: CrashGameState;
   bets: Map<number, CrashBet>;
-  startTime: number;
+  phaseStartedAt: number;
 }
 
 export class CrashGameService {
@@ -35,8 +36,8 @@ export class CrashGameService {
   private currentRound: CrashRound | null = null;
   private roundCounter = 0;
   private currentMultiplier = 1.0;
-  private stateTimer: ReturnType<typeof setTimeout> | null = null;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
+  private stateTimer: ReturnType<typeof setTimeout> | null = null;
   private history: number[] = [];
 
   constructor() {
@@ -86,6 +87,9 @@ export class CrashGameService {
       case 'cash_out':
         this.cashOut(userId);
         break;
+      case 'ping':
+        this.sendTo(ws, { type: 'pong', t: data.t, server_time: Date.now() });
+        break;
     }
   }
 
@@ -93,27 +97,21 @@ export class CrashGameService {
     if (!this.currentRound || this.currentRound.state !== 'waiting') return;
     if (this.currentRound.bets.has(userId)) return;
     if (amount < 1 || !Number.isInteger(amount) || amount > 10000) return;
-
     const client = this.clients.get(userId);
     if (!client) return;
-
     const user = await userRepository.findById(userId);
     if (!user || user.balance < amount) {
       this.sendTo(client.ws, { type: 'bet_result', accepted: false, error: 'Недостаточно средств' });
       return;
     }
-
     await userRepository.addBalance(userId, -amount);
     await transactionRepository.create({
       user_id: userId, amount, type: 'spend', status: 'completed',
       description: `Crash: ставка ${amount}⭐`,
     });
-
     const updated = await userRepository.findById(userId);
     if (updated) sendBalanceUpdate(userId, updated.balance);
-
     this.currentRound.bets.set(userId, { userId, firstName: client.firstName, amount, cashOutAt: null });
-
     this.sendTo(client.ws, { type: 'bet_result', accepted: true, amount, balance: updated?.balance ?? 0 });
     this.broadcastBets();
   }
@@ -122,11 +120,9 @@ export class CrashGameService {
     if (!this.currentRound || this.currentRound.state !== 'flying') return;
     const bet = this.currentRound.bets.get(userId);
     if (!bet || bet.cashOutAt !== null) return;
-
     const multiplier = this.currentMultiplier;
     bet.cashOutAt = multiplier;
     const won = Math.floor(bet.amount * multiplier);
-
     userRepository.addBalance(userId, won).then(u => {
       transactionRepository.create({
         user_id: userId, amount: won, type: 'deposit', status: 'completed',
@@ -134,12 +130,12 @@ export class CrashGameService {
       });
       sendBalanceUpdate(userId, u.balance);
     }).catch(console.error);
-
     const client = this.clients.get(userId);
     if (client) {
       this.sendTo(client.ws, {
         type: 'cash_out_result', round_id: this.currentRound!.id,
         multiplier: parseFloat(multiplier.toFixed(2)), won, amount: bet.amount,
+        server_time: Date.now(),
       });
     }
     this.broadcastBets();
@@ -151,16 +147,19 @@ export class CrashGameService {
     const serverSeedHash = this.hashSeed(serverSeed);
     const clientSeed = this.generateSeed();
     const crashPoint = this.generateCrashPoint(serverSeed, clientSeed, 0);
+    const now = Date.now();
 
     this.currentRound = {
       id: this.roundCounter, serverSeed, serverSeedHash, clientSeed, nonce: 0,
-      crashPoint, state: 'waiting', bets: new Map(), startTime: Date.now(),
+      crashPoint, state: 'waiting', bets: new Map(), phaseStartedAt: now,
     };
     this.currentMultiplier = 1.0;
 
     this.broadcast({
       type: 'state', state: 'waiting', round_id: this.roundCounter,
-      countdown: WAITING_DURATION / 1000, server_seed_hash: serverSeedHash,
+      server_time: now,
+      phase_ends_at: now + WAITING_DURATION,
+      server_seed_hash: serverSeedHash,
     });
 
     this.stateTimer = setTimeout(() => this.startFlying(), WAITING_DURATION);
@@ -168,17 +167,22 @@ export class CrashGameService {
 
   private startFlying() {
     if (!this.currentRound) return;
+    const now = Date.now();
     this.currentRound.state = 'flying';
-    this.currentRound.startTime = Date.now();
+    this.currentRound.phaseStartedAt = now;
     this.currentMultiplier = 1.0;
 
-    this.broadcast({ type: 'state', state: 'flying', round_id: this.currentRound.id });
+    this.broadcast({
+      type: 'state', state: 'flying', round_id: this.currentRound.id,
+      server_time: now, multiplier: 1.0,
+    });
+
     this.tickTimer = setInterval(() => this.tick(), TICK_INTERVAL);
   }
 
   private tick() {
     if (!this.currentRound || this.currentRound.state !== 'flying') return;
-    const t = (Date.now() - this.currentRound.startTime) / 1000;
+    const t = (Date.now() - this.currentRound.phaseStartedAt) / 1000;
     this.currentMultiplier = Math.pow(1.6, t / 9);
 
     if (this.currentMultiplier >= this.currentRound.crashPoint) {
@@ -187,8 +191,8 @@ export class CrashGameService {
     }
 
     this.broadcast({
-      type: 'tick', multiplier: parseFloat(this.currentMultiplier.toFixed(2)),
-      round_id: this.currentRound.id,
+      type: 'tick', multiplier: parseFloat(this.currentMultiplier.toFixed(4)),
+      round_id: this.currentRound.id, server_time: Date.now(),
     });
   }
 
@@ -196,7 +200,9 @@ export class CrashGameService {
     if (this.tickTimer) { clearInterval(this.tickTimer); this.tickTimer = null; }
     if (!this.currentRound) return;
 
+    const now = Date.now();
     this.currentRound.state = 'crashed';
+    this.currentRound.phaseStartedAt = now;
     const cp = this.currentRound.crashPoint;
     this.history = [cp, ...this.history].slice(0, 50);
 
@@ -210,16 +216,22 @@ export class CrashGameService {
     this.broadcast({
       type: 'state', state: 'crashed', round_id: this.currentRound.id,
       crash_point: parseFloat(cp.toFixed(2)), results,
+      server_time: now,
+      phase_ends_at: now + CRASH_SHOW_DURATION,
     });
 
-    this.stateTimer = setTimeout(() => {
-      this.currentRound = null;
-      this.broadcast({
-        type: 'state', state: 'pause', round_id: this.roundCounter,
-        countdown: Math.ceil(PAUSE_DURATION / 1000),
-      });
-      this.stateTimer = setTimeout(() => this.startWaiting(), PAUSE_DURATION);
-    }, 1500);
+    this.stateTimer = setTimeout(() => this.startPause(), CRASH_SHOW_DURATION);
+  }
+
+  private startPause() {
+    const now = Date.now();
+    this.currentRound = null;
+    this.broadcast({
+      type: 'state', state: 'pause',
+      server_time: now,
+      phase_ends_at: now + PAUSE_DURATION,
+    });
+    this.stateTimer = setTimeout(() => this.startWaiting(), PAUSE_DURATION);
   }
 
   private broadcast(data: any) {
@@ -236,14 +248,25 @@ export class CrashGameService {
     if (!client || !this.currentRound) return;
 
     const r = this.currentRound;
-    const msg: any = { type: 'state', state: r.state, round_id: r.id, history: this.history };
+    const now = Date.now();
+    const msg: any = { type: 'state', state: r.state, round_id: r.id, history: this.history, server_time: now };
 
-    if (r.state === 'waiting') {
-      msg.server_seed_hash = r.serverSeedHash;
-      msg.countdown = Math.max(0, Math.ceil((WAITING_DURATION - (Date.now() - r.startTime)) / 1000));
+    switch (r.state) {
+      case 'waiting':
+        msg.server_seed_hash = r.serverSeedHash;
+        msg.phase_ends_at = r.phaseStartedAt + WAITING_DURATION;
+        break;
+      case 'flying':
+        msg.multiplier = parseFloat(this.currentMultiplier.toFixed(4));
+        break;
+      case 'crashed':
+        msg.crash_point = parseFloat(r.crashPoint.toFixed(2));
+        msg.phase_ends_at = r.phaseStartedAt + CRASH_SHOW_DURATION;
+        break;
+      case 'pause':
+        msg.phase_ends_at = r.phaseStartedAt + PAUSE_DURATION;
+        break;
     }
-    if (r.state === 'flying') msg.multiplier = parseFloat(this.currentMultiplier.toFixed(2));
-    if (r.state === 'crashed' || r.state === 'pause') msg.crash_point = parseFloat(r.crashPoint.toFixed(2));
 
     if (balance !== undefined) msg.balance = balance;
 
@@ -259,12 +282,16 @@ export class CrashGameService {
 
   private broadcastBets() {
     if (!this.currentRound) return;
-    this.broadcast({ type: 'bets', round_id: this.currentRound.id, bets: this.getBetsData() });
+    this.broadcast({
+      type: 'bets', round_id: this.currentRound.id, bets: this.getBetsData(), server_time: Date.now(),
+    });
   }
 
   private sendBetsTo(ws: WebSocket) {
     if (!this.currentRound) return;
-    this.sendTo(ws, { type: 'bets', round_id: this.currentRound.id, bets: this.getBetsData() });
+    this.sendTo(ws, {
+      type: 'bets', round_id: this.currentRound.id, bets: this.getBetsData(), server_time: Date.now(),
+    });
   }
 
   private getBetsData() {
@@ -282,8 +309,7 @@ export class CrashGameService {
   getCurrentRoundInfo() {
     if (!this.currentRound) return null;
     return {
-      id: this.currentRound.id,
-      state: this.currentRound.state,
+      id: this.currentRound.id, state: this.currentRound.state,
       serverSeedHash: this.currentRound.serverSeedHash,
       crashPoint: this.currentRound.state === 'crashed' || this.currentRound.state === 'pause'
         ? parseFloat(this.currentRound.crashPoint.toFixed(2)) : null,

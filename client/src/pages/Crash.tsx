@@ -53,13 +53,25 @@ export function Crash() {
   const rocketRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const serverTimeOffsetRef = useRef(0);
+  const gameStateRef = useRef<CrashState>('loading');
   const multiplierRef = useRef(1.0);
-  const rafRef = useRef<number>(0);
+  const lastTickRef = useRef<{ serverTime: number; multiplier: number } | null>(null);
+  const phaseEndsAtRef = useRef<number | null>(null);
+  const crashPointRef = useRef(0);
+  const betsRef = useRef<BetInfo[]>([]);
+  const yourBetRef = useRef<number | null>(null);
+  const yourCashOutRef = useRef<number | null>(null);
+  const resultMsgRef = useRef<string | null>(null);
+  const lastCashOutRef = useRef<{ multiplier: number; won: number } | null>(null);
+  const balanceRef = useRef(0);
+  const rafRef = useRef(0);
 
   const [gameState, setGameState] = useState<CrashState>('loading');
   const [displayMultiplier, setDisplayMultiplier] = useState(1.0);
+  const [displayCountdown, setDisplayCountdown] = useState(0);
   const [crashPoint, setCrashPoint] = useState(0);
-  const [countdown, setCountdown] = useState(0);
   const [history, setHistory] = useState<number[]>([]);
   const [bets, setBets] = useState<BetInfo[]>([]);
   const [yourBet, setYourBet] = useState<number | null>(null);
@@ -68,6 +80,9 @@ export function Crash() {
   const [balance, setBalance] = useState(0);
   const [resultMsg, setResultMsg] = useState<string | null>(null);
   const [lastCashOut, setLastCashOut] = useState<{ multiplier: number; won: number } | null>(null);
+  const [ping, setPing] = useState(0);
+
+  const getServerTime = () => Date.now() + serverTimeOffsetRef.current;
 
   const getWsUrl = useCallback(() => {
     const isDev = window.location.port === '5173';
@@ -85,85 +100,103 @@ export function Crash() {
   }, []);
 
   const handleMessage = useCallback((msg: any) => {
+    if (msg.server_time) {
+      serverTimeOffsetRef.current = msg.server_time - Date.now();
+    }
+
     switch (msg.type) {
-      case 'state':
-        setGameState(msg.state);
+      case 'state': {
+        const state = msg.state as CrashState;
+        gameStateRef.current = state;
+        setGameState(state);
+
         if (msg.history) setHistory(msg.history);
-        if (msg.balance !== undefined) setBalance(msg.balance);
-        if (msg.state === 'waiting') {
-          setCountdown(msg.countdown);
+        if (msg.balance !== undefined) { balanceRef.current = msg.balance; setBalance(msg.balance); }
+
+        if (msg.phase_ends_at !== undefined) phaseEndsAtRef.current = msg.phase_ends_at;
+
+        if (state === 'waiting') {
           multiplierRef.current = 1.0;
+          lastTickRef.current = null;
+          crashPointRef.current = 0;
           setCrashPoint(0);
-          setYourBet(null);
-          setYourCashOut(null);
-          setLastCashOut(null);
-          setBets([]);
-          setResultMsg(null);
+          yourBetRef.current = null; setYourBet(null);
+          yourCashOutRef.current = null; setYourCashOut(null);
+          lastCashOutRef.current = null; setLastCashOut(null);
+          betsRef.current = []; setBets([]);
+          resultMsgRef.current = null; setResultMsg(null);
         }
-        if (msg.state === 'flying' && msg.multiplier) {
+        if (state === 'flying' && msg.multiplier) {
           multiplierRef.current = msg.multiplier;
+          lastTickRef.current = { serverTime: getServerTime(), multiplier: msg.multiplier };
         }
-        if (msg.state === 'crashed') {
+        if (state === 'crashed') {
+          crashPointRef.current = msg.crash_point;
           setCrashPoint(msg.crash_point);
           multiplierRef.current = msg.crash_point;
           if (msg.results) {
             const tg = (window as any).Telegram?.WebApp;
             const myResult = msg.results.find((r: any) => tg?.initDataUnsafe?.user?.id === r.userId);
             if (myResult) {
-              setResultMsg(myResult.crashed
+              resultMsgRef.current = myResult.crashed
                 ? `Проиграно ${myResult.amount}⭐`
-                : `Выиграно ${myResult.won}⭐ (x${myResult.cashOutAt})`);
+                : `Выиграно ${myResult.won}⭐ (x${myResult.cashOutAt})`;
+              setResultMsg(resultMsgRef.current);
             }
           }
         }
-        if (msg.state === 'pause') setCountdown(msg.countdown);
-        if (msg.your_bet !== undefined) setYourBet(msg.your_bet);
-        if (msg.your_cash_out !== undefined) setYourCashOut(msg.your_cash_out);
+        if (msg.your_bet !== undefined) { yourBetRef.current = msg.your_bet; setYourBet(msg.your_bet); }
+        if (msg.your_cash_out !== undefined) { yourCashOutRef.current = msg.your_cash_out; setYourCashOut(msg.your_cash_out); }
         break;
-
-      case 'tick':
-        multiplierRef.current = msg.multiplier;
+      }
+      case 'tick': {
+        const m = msg.multiplier;
+        multiplierRef.current = m;
+        lastTickRef.current = { serverTime: getServerTime(), multiplier: m };
         break;
-
+      }
       case 'bets':
-        setBets(msg.bets);
+        betsRef.current = msg.bets; setBets(msg.bets);
         break;
-
       case 'bet_result':
-        if (msg.accepted) { setYourBet(msg.amount); setBalance(msg.balance); }
+        if (msg.accepted) { yourBetRef.current = msg.amount; setYourBet(msg.amount); balanceRef.current = msg.balance; setBalance(msg.balance); }
         break;
-
       case 'cash_out_result':
-        setYourCashOut(msg.multiplier);
-        setLastCashOut({ multiplier: msg.multiplier, won: msg.won });
+        yourCashOutRef.current = msg.multiplier; setYourCashOut(msg.multiplier);
+        lastCashOutRef.current = { multiplier: msg.multiplier, won: msg.won }; setLastCashOut(lastCashOutRef.current);
+        break;
+      case 'pong':
+        if (msg.t) {
+          const rtt = Date.now() - msg.t;
+          setPing(rtt);
+          const oneWay = rtt / 2;
+          serverTimeOffsetRef.current = msg.server_time - (msg.t + oneWay);
+        }
         break;
     }
   }, []);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
-
     const ws = new WebSocket(getWsUrl());
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log('🚀 Crash WS: connected');
       setGameState('waiting');
+      send({ type: 'ping', t: Date.now() });
     };
-
     ws.onmessage = (event) => {
       try { handleMessage(JSON.parse(event.data)); } catch { return; }
     };
-
     ws.onclose = () => {
       console.log('🚀 Crash WS: disconnected');
       wsRef.current = null;
       setGameState('loading');
       reconnectTimerRef.current = setTimeout(connect, 3000);
     };
-
     ws.onerror = () => {};
-  }, [getWsUrl, handleMessage]);
+  }, [getWsUrl, handleMessage, send]);
 
   useEffect(() => {
     connect();
@@ -180,10 +213,7 @@ export function Crash() {
       .then(data => {
         if (rocketRef.current) {
           lottieRef.current = lottie.loadAnimation({
-            container: rocketRef.current,
-            renderer: 'svg',
-            loop: true,
-            autoplay: false,
+            container: rocketRef.current, renderer: 'svg', loop: true, autoplay: false,
             animationData: data,
           });
           lottieRef.current.goToAndStop(0);
@@ -199,7 +229,43 @@ export function Crash() {
   }, [gameState]);
 
   useEffect(() => {
+    let pingTimer: ReturnType<typeof setInterval>;
+    let firstPingTimer: ReturnType<typeof setTimeout>;
+
+    firstPingTimer = setTimeout(() => {
+      send({ type: 'ping', t: Date.now() });
+      pingTimer = setInterval(() => send({ type: 'ping', t: Date.now() }), 10000);
+    }, 2000);
+
+    return () => {
+      clearTimeout(firstPingTimer);
+      clearInterval(pingTimer);
+    };
+  }, [send]);
+
+  useEffect(() => {
     const loop = () => {
+      const serverNow = getServerTime();
+      const state = gameStateRef.current;
+
+      if (state === 'waiting' || state === 'pause' || state === 'crashed') {
+        if (phaseEndsAtRef.current !== null) {
+          const remaining = Math.max(0, Math.ceil((phaseEndsAtRef.current - serverNow) / 1000));
+          setDisplayCountdown(remaining);
+        }
+      }
+
+      if (state === 'flying') {
+        if (lastTickRef.current) {
+          const dt = (serverNow - lastTickRef.current.serverTime) / 1000;
+          if (dt > 0 && dt < 1) {
+            const estimated = lastTickRef.current.multiplier * Math.pow(1.6, dt / 9);
+            const maxCp = crashPointRef.current || Infinity;
+            multiplierRef.current = Math.min(estimated, maxCp);
+          }
+        }
+      }
+
       setDisplayMultiplier(multiplierRef.current);
       rafRef.current = requestAnimationFrame(loop);
     };
@@ -243,7 +309,10 @@ export function Crash() {
 
       <div className="crash__top-bar">
         <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
-        <div className="crash__balance">{balance}⭐</div>
+        <div className="crash__top-right">
+          {ping > 0 && <div className="crash__ping">{ping}ms</div>}
+          <div className="crash__balance">{balance}⭐</div>
+        </div>
       </div>
 
       {gameState === 'loading' && (
@@ -258,7 +327,7 @@ export function Crash() {
         </div>
 
         {(gameState === 'waiting' || gameState === 'pause') && (
-          <div className="crash__countdown-num">{countdown}</div>
+          <div className="crash__countdown-num">{displayCountdown}</div>
         )}
 
         {(gameState === 'flying' || gameState === 'crashed') && (

@@ -121,6 +121,12 @@
   flex-shrink: 0;
 }
 
+.crash__top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* ---- Back button ---- */
 .crash__back-btn {
   background: rgba(255,255,255,0.08);
@@ -136,6 +142,18 @@
 
 .crash__back-btn:hover {
   background: rgba(255,255,255,0.15);
+}
+
+/* ---- Ping display ---- */
+.crash__ping {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  font-family: 'Gilroy', sans-serif;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
 }
 
 /* ---- Balance display ---- */
