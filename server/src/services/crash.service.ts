@@ -294,6 +294,7 @@ export class CrashGameService {
         userId: bet.userId,
         firstName: bet.firstName,
         amount: bet.amount,
+        cashOutAt: null,
         photoUrl: bet.photoUrl || null,
       },
       server_time: Date.now(),

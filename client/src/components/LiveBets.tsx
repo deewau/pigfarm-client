@@ -37,14 +37,17 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
 
   const isLost = gameState === 'crashed' || gameState === 'pause';
 
+  const isCashedOut = (bet: LiveBetInfo): boolean =>
+    bet.cashOutAt != null && typeof bet.cashOutAt === 'number';
+
   const getMultiplierColor = (bet: LiveBetInfo): string => {
-    if (bet.cashOutAt !== null) return '#4CAF50';
+    if (isCashedOut(bet)) return '#4CAF50';
     if (isLost) return '#FF0000';
     return '#888';
   };
 
   const getMultiplierText = (bet: LiveBetInfo): string => {
-    if (bet.cashOutAt !== null) return `x${bet.cashOutAt.toFixed(2)}`;
+    if (isCashedOut(bet)) return `x${bet.cashOutAt!.toFixed(2)}`;
     return `x${currentMultiplier.toFixed(2)}`;
   };
 
