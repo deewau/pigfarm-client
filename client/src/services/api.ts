@@ -87,6 +87,18 @@ export const giftApi = {
   },
 };
 
+// Crash
+export const crashApi = {
+  getHistory: async () => {
+    const response = await api.get('/api/crash/history');
+    return response.data;
+  },
+  getCurrent: async () => {
+    const response = await api.get('/api/crash/current');
+    return response.data;
+  },
+};
+
 // Win
 export const winApi = {
   spin: async (cost: number = 29) => {

@@ -3,10 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import lottie from 'lottie-web';
 import './Crash.css';
 
-function generateCrashPoint(): number {
-  const r = Math.random();
-  return Math.max(1.01, 1 / (1 - r));
+type CrashState = 'waiting' | 'flying' | 'crashed' | 'pause' | 'loading';
+
+interface BetInfo {
+  userId: number;
+  firstName: string;
+  amount: number;
+  cashOutAt: number | null;
 }
+
+const PRESETS = [10, 25, 50, 100, 250];
 
 function generateStars(count: number, big: boolean) {
   return Array.from({ length: count }, (_, i) => ({
@@ -43,95 +49,68 @@ const speedParticles = generateSpeedParticles(25);
 
 export function Crash() {
   const navigate = useNavigate();
-  const animRef = useRef<number | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const elapsedRef = useRef(0);
-  const crashPointRef = useRef(2.0);
-  const gameStateRef = useRef<'waiting' | 'flying' | 'crashed'>('waiting');
-  const rocketRef = useRef<HTMLDivElement>(null);
   const lottieRef = useRef<any>(null);
-  const waitingStartRef = useRef(0);
+  const rocketRef = useRef<HTMLDivElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [gameState, setGameState] = useState<'waiting' | 'flying' | 'crashed'>('waiting');
-  const [multiplier, setMultiplier] = useState(1.00);
-  const [countdown, setCountdown] = useState(5);
-  const [crashHistory, setCrashHistory] = useState<number[]>([]);
+  const [gameState, setGameState] = useState<CrashState>('loading');
+  const [multiplier, setMultiplier] = useState(1.0);
+  const [crashPoint, setCrashPoint] = useState(0);
+  const [countdown, setCountdown] = useState(0);
+  const [history, setHistory] = useState<number[]>([]);
+  const [bets, setBets] = useState<BetInfo[]>([]);
+  const [yourBet, setYourBet] = useState<number | null>(null);
+  const [yourCashOut, setYourCashOut] = useState<number | null>(null);
+  const [betAmount, setBetAmount] = useState(25);
+  const [balance, setBalance] = useState(0);
+  const [resultMsg, setResultMsg] = useState<string | null>(null);
+  const [lastCashOut, setLastCashOut] = useState<{ multiplier: number; won: number } | null>(null);
 
-  const cancelAll = useCallback(() => {
-    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+  const getWsUrl = useCallback(() => {
+    const isDev = window.location.port === '5173';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = isDev ? 'localhost:3000' : window.location.host;
+    const tg = (window as any).Telegram?.WebApp;
+    const initData = encodeURIComponent(tg?.initData || '');
+    return `${protocol}//${host}/ws/crash?initData=${initData}`;
   }, []);
 
-  const startFlying = useCallback(() => {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    const cp = generateCrashPoint();
-    crashPointRef.current = cp;
-    elapsedRef.current = 0;
-    setMultiplier(1.00);
-    gameStateRef.current = 'flying';
-    setGameState('flying');
+  const connect = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    if (lottieRef.current) lottieRef.current.play();
+    const ws = new WebSocket(getWsUrl());
+    wsRef.current = ws;
 
-    const tick = () => {
-      if (gameStateRef.current !== 'flying') return;
-      elapsedRef.current += 50;
-      const t = elapsedRef.current / 1000;
-      const m = Math.pow(1.6, t / 9);
-
-      if (m >= crashPointRef.current) {
-        gameStateRef.current = 'crashed';
-        setGameState('crashed');
-        const cp = crashPointRef.current;
-        setMultiplier(cp);
-        setCrashHistory(prev => [cp, ...prev].slice(0, 20));
-        if (lottieRef.current) lottieRef.current.stop();
-        timerRef.current = setTimeout(() => startWaiting(), 1500);
-        return;
-      }
-
-      setMultiplier(m);
-      animRef.current = requestAnimationFrame(tick);
+    ws.onopen = () => {
+      console.log('🚀 Crash WS: connected');
+      setGameState('waiting');
     };
 
-    animRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  const startWaiting = useCallback(() => {
-    gameStateRef.current = 'waiting';
-    setGameState('waiting');
-    setMultiplier(1.00);
-    setCountdown(5);
-    waitingStartRef.current = Date.now();
-
-    if (lottieRef.current) lottieRef.current.goToAndStop(0);
-
-    const tickWaiting = () => {
-      if (gameStateRef.current !== 'waiting') return;
-      const elapsed = (Date.now() - waitingStartRef.current) / 1000;
-      const remaining = Math.max(0, 5 - elapsed);
-      setCountdown(Math.ceil(remaining));
-
-      if (remaining <= 0) {
-        startFlying();
-        return;
-      }
-
-      timerRef.current = setTimeout(tickWaiting, 200);
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        handleMessage(msg);
+      } catch { return; }
     };
 
-    timerRef.current = setTimeout(tickWaiting, 200);
-  }, [startFlying]);
+    ws.onclose = () => {
+      console.log('🚀 Crash WS: disconnected');
+      wsRef.current = null;
+      setGameState('loading');
+      reconnectTimerRef.current = setTimeout(connect, 3000);
+    };
 
-  const handleBet = useCallback(() => {
-    if (gameState !== 'waiting') return;
-    startFlying();
-  }, [gameState, startFlying]);
+    ws.onerror = () => {};
+  }, [getWsUrl]);
 
   useEffect(() => {
-    startWaiting();
-    return () => cancelAll();
-  }, [startWaiting, cancelAll]);
+    connect();
+    return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (wsRef.current) { wsRef.current.close(); wsRef.current = null; }
+    };
+  }, [connect]);
 
   useEffect(() => {
     if (!rocketRef.current) return;
@@ -150,10 +129,93 @@ export function Crash() {
         }
       })
       .catch(() => {});
+    return () => { if (lottieRef.current) lottieRef.current.destroy(); };
+  }, []);
 
-    return () => {
-      if (lottieRef.current) lottieRef.current.destroy();
-    };
+  useEffect(() => {
+    if (gameState === 'flying' && lottieRef.current) lottieRef.current.play();
+    else if (lottieRef.current) lottieRef.current.goToAndStop(0);
+  }, [gameState]);
+
+  const handleMessage = useCallback((msg: any) => {
+    switch (msg.type) {
+      case 'state':
+        setGameState(msg.state);
+        if (msg.history) setHistory(msg.history);
+        if (msg.balance !== undefined) setBalance(msg.balance);
+        if (msg.state === 'waiting') {
+          setCountdown(msg.countdown);
+          setMultiplier(1.0);
+          setCrashPoint(0);
+          setYourBet(null);
+          setYourCashOut(null);
+          setLastCashOut(null);
+          setBets([]);
+          setResultMsg(null);
+        }
+        if (msg.state === 'flying') {
+          if (msg.multiplier) setMultiplier(msg.multiplier);
+        }
+        if (msg.state === 'crashed') {
+          setCrashPoint(msg.crash_point);
+          setMultiplier(msg.crash_point);
+          if (msg.results) {
+            const myResult = msg.results.find((r: any) => {
+              const tg = (window as any).Telegram?.WebApp;
+              return tg?.initDataUnsafe?.user?.id === r.userId;
+            });
+            if (myResult) {
+              if (myResult.crashed) setResultMsg(`Проиграно ${myResult.amount}⭐`);
+              else setResultMsg(`Выиграно ${myResult.won}⭐ (x${myResult.cashOutAt})`);
+            }
+          }
+        }
+        if (msg.state === 'pause') {
+          setCountdown(msg.countdown);
+        }
+        if (msg.your_bet !== undefined) setYourBet(msg.your_bet);
+        if (msg.your_cash_out !== undefined) setYourCashOut(msg.your_cash_out);
+        break;
+
+      case 'tick':
+        setMultiplier(msg.multiplier);
+        break;
+
+      case 'bets':
+        setBets(msg.bets);
+        break;
+
+      case 'bet_result':
+        if (msg.accepted) {
+          setYourBet(msg.amount);
+          setBalance(msg.balance);
+        }
+        break;
+
+      case 'cash_out_result':
+        setYourCashOut(msg.multiplier);
+        setLastCashOut({ multiplier: msg.multiplier, won: msg.won });
+        break;
+    }
+  }, []);
+
+  const send = useCallback((data: any) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(data));
+    }
+  }, []);
+
+  const handleBet = useCallback(() => {
+    send({ type: 'bet', amount: betAmount });
+  }, [send, betAmount]);
+
+  const handleCashOut = useCallback(() => {
+    send({ type: 'cash_out' });
+  }, [send]);
+
+  const cancelAll = useCallback(() => {
+    if (wsRef.current) { wsRef.current.close(); wsRef.current = null; }
+    if (reconnectTimerRef.current) { clearTimeout(reconnectTimerRef.current); }
   }, []);
 
   return (
@@ -163,73 +225,112 @@ export function Crash() {
       <div className="crash__nebula crash__nebula--pink" />
       <div className="crash__stars-layer">
         {[...smallStars, ...bigStars].map(s => (
-          <div
-            key={s.key}
-            className={s.cls}
-            style={{
-              left: s.left, top: s.top, width: s.w, height: s.h,
-              animationDelay: s.delay, animationDuration: s.dur,
-              '--min-opacity': s.minOp, '--max-opacity': s.maxOp,
-            } as React.CSSProperties}
-          />
+          <div key={s.key} className={s.cls}
+            style={{ left: s.left, top: s.top, width: s.w, height: s.h, animationDelay: s.delay, animationDuration: s.dur, '--min-opacity': s.minOp, '--max-opacity': s.maxOp } as React.CSSProperties} />
         ))}
       </div>
 
       {gameState === 'flying' && (
         <div className="crash__speed-layer">
           {speedParticles.map(p => (
-            <div
-              key={p.key}
-              className="crash__speed-particle"
-              style={{
-                left: p.left,
-                top: p.top,
-                width: p.w,
-                height: p.h,
-                animationDelay: p.delay,
-                animationDuration: p.dur,
-                opacity: p.op,
-              }}
-            />
+            <div key={p.key} className="crash__speed-particle"
+              style={{ left: p.left, top: p.top, width: p.w, height: p.h, animationDelay: p.delay, animationDuration: p.dur, opacity: p.op }} />
           ))}
         </div>
       )}
 
-      <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
+      <div className="crash__top-bar">
+        <button className="crash__back-btn" onClick={() => { cancelAll(); navigate('/play'); }}>← Назад</button>
+        <div className="crash__balance">{balance}⭐</div>
+      </div>
+
+      {gameState === 'loading' && (
+        <div className="crash__loading">
+          <div className="crash__loading-text">Подключение...</div>
+        </div>
+      )}
 
       <div className="crash__center">
-        <div className={`crash__rocket-wrap${gameState !== 'flying' ? ' crash__rocket-wrap--hidden' : ''}`}>
+        <div className={`crash__rocket-wrap${gameState === 'flying' ? '' : ' crash__rocket-wrap--hidden'}`}>
           <div className="crash__rocket" ref={rocketRef} />
         </div>
 
-        {gameState === 'waiting' && (
+        {(gameState === 'waiting' || gameState === 'pause') && (
           <div className="crash__countdown-num">{countdown}</div>
         )}
 
-        {gameState === 'flying' && (
-          <div className="crash__multiplier crash__multiplier--flying">
+        {(gameState === 'flying' || gameState === 'crashed') && (
+          <div className={`crash__multiplier ${gameState === 'crashed' ? 'crash__multiplier--crashed' : 'crash__multiplier--flying'}`}>
             {multiplier.toFixed(2)}x
           </div>
         )}
 
-        {gameState === 'crashed' && (
-          <div className="crash__multiplier crash__multiplier--crashed">
-            {multiplier.toFixed(2)}x
+        {resultMsg && (
+          <div className={`crash__result-msg ${crashPoint > 0 && yourBet !== null && yourCashOut === null ? 'crash__result-msg--lose' : 'crash__result-msg--win'}`}>
+            {resultMsg}
+          </div>
+        )}
+
+        {lastCashOut && gameState !== 'crashed' && (
+          <div className="crash__cashout-msg">
+            Забрал x{lastCashOut.multiplier.toFixed(2)} = +{lastCashOut.won}⭐
           </div>
         )}
 
         <div className="crash__history">
-          {crashHistory.map((cp, i) => (
+          {history.map((cp, i) => (
             <div key={i} className="crash__history-item">{cp.toFixed(2)}x</div>
           ))}
         </div>
 
-        {gameState === 'waiting' && (
-          <button className="crash__bet-btn" onClick={handleBet}>
-            Сделать ставку
+        {/* Bet controls - only show during waiting if we haven't bet yet */}
+        {gameState === 'waiting' && yourBet === null && (
+          <div className="crash__bet-controls">
+            <div className="crash__presets">
+              {PRESETS.map(p => (
+                <button key={p} className={`crash__preset-btn ${betAmount === p ? 'crash__preset-btn--active' : ''}`}
+                  onClick={() => setBetAmount(p)}>{p}</button>
+              ))}
+            </div>
+            <button className="crash__bet-btn" onClick={handleBet}>
+              Ставка {betAmount}⭐
+            </button>
+          </div>
+        )}
+
+        {gameState === 'waiting' && yourBet !== null && (
+          <div className="crash__bet-placed">
+            <div className="crash__bet-placed-text">Ставка {yourBet}⭐</div>
+            <div className="crash__bet-placed-wait">Ожидание раунда...</div>
+          </div>
+        )}
+
+        {/* Cash out button - only if we have a bet and haven't cashed out yet */}
+        {gameState === 'flying' && yourBet !== null && yourCashOut === null && (
+          <button className="crash__cashout-btn" onClick={handleCashOut}>
+            Забрать {Math.floor(yourBet * multiplier)}⭐
           </button>
         )}
+
+        {gameState === 'flying' && yourBet !== null && yourCashOut !== null && (
+          <div className="crash__cashout-done">
+            Забрал x{yourCashOut.toFixed(2)} = {Math.floor(yourBet * yourCashOut)}⭐
+          </div>
+        )}
       </div>
+
+      {/* Bets panel */}
+      {(gameState === 'waiting' || gameState === 'flying') && bets.length > 0 && (
+        <div className="crash__bets-panel">
+          {bets.slice(0, 10).map(b => (
+            <div key={b.userId} className="crash__bets-item">
+              <span className="crash__bets-name">{b.firstName}</span>
+              <span className="crash__bets-amount">{b.amount}⭐</span>
+              {b.cashOutAt && <span className="crash__bets-cashout">x{b.cashOutAt.toFixed(2)}</span>}
+            </div>
+          ))}
+        </div>
+      )}
 
       {gameState === 'crashed' && (
         <div className="crash__crashed-label">КРАХ</div>

@@ -21,6 +21,7 @@ import referralRoutes from './routes/referral.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import giftRoutes from './routes/gift.routes.js';
 import winRoutes from './routes/win.routes.js';
+import crashRoutes from './routes/crash.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,7 @@ app.use('/api/referral', referralRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/gifts', giftRoutes);
 app.use('/api/win', winRoutes);
+app.use('/api/crash', crashRoutes);
 
 // Отдаём анимации подарков (для обоих режимов)
 const giftsPath = path.join(__dirname, '../assets/gifts');

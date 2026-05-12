@@ -1,10 +1,12 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Server as HTTPServer } from 'http';
-import type { AddressInfo } from 'net';
+import { crashGameService } from './crash.service.js';
+import { validateTelegramInitData } from '../utils/telegram.js';
+import { userRepository } from '../db/repository.js';
 
 interface LiveWin {
   id: number;
-  user_id: number; // ID пользователя, который выиграл
+  user_id: number;
   gift_id: string;
   gift_name: string;
   gift_stars: number;
@@ -22,29 +24,59 @@ export function initWebSocket(server: HTTPServer) {
   wss = new WebSocketServer({ noServer: true });
 
   server.on('upgrade', (request, socket, head) => {
-    if (request.url === '/ws/live') {
+    const url = new URL(request.url || '/', `http://${request.headers.host}`);
+
+    if (url.pathname === '/ws/live') {
       wss!.handleUpgrade(request, socket, head, (ws) => {
         wss!.emit('connection', ws, request);
       });
+    } else if (url.pathname === '/ws/crash') {
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      if (!botToken) { socket.destroy(); return; }
+
+      const initData = url.searchParams.get('initData');
+      if (!initData) { socket.destroy(); return; }
+
+      const validated = validateTelegramInitData(decodeURIComponent(initData), botToken);
+      if (!validated) { socket.destroy(); return; }
+
+      wss!.handleUpgrade(request, socket, head, (ws) => {
+        (ws as any).__crashUser = validated.user;
+        wss!.emit('connection', ws, request);
+      });
+    } else {
+      socket.destroy();
     }
   });
 
   wss.on('connection', (ws, req) => {
-    clients.add(ws);
-    const clientIp = req.socket.remoteAddress;
-    console.log(`📡 WebSocket connected from ${clientIp}. Total clients: ${clients.size}`);
+    const url = new URL(req.url || '/', `http://${req.headers.host}`);
 
-    ws.on('close', () => {
-      clients.delete(ws);
-      console.log(`📡 WebSocket disconnected. Total clients: ${clients.size}`);
-    });
+    if (url.pathname === '/ws/live') {
+      clients.add(ws);
+      console.log(`📡 WebSocket connected. Total clients: ${clients.size}`);
 
-    ws.on('error', (error) => {
-      console.error(`📡 WebSocket error:`, error);
-    });
+      ws.on('close', () => {
+        clients.delete(ws);
+        console.log(`📡 WebSocket disconnected. Total clients: ${clients.size}`);
+      });
+
+      ws.on('error', () => {});
+    } else if (url.pathname === '/ws/crash') {
+      const telegramUser = (ws as any).__crashUser;
+      if (!telegramUser) { ws.close(); return; }
+
+      userRepository.findByTelegramId(telegramUser.id).then(user => {
+        if (!user) { ws.close(4001, 'User not found'); return; }
+        crashGameService.addClient(ws, user.id, user.first_name);
+        ws.on('message', (data) => crashGameService.handleMessage(ws, data.toString()));
+        ws.on('close', () => crashGameService.removeClient(ws));
+        ws.on('error', () => crashGameService.removeClient(ws));
+      }).catch(() => ws.close());
+    }
   });
 
-  console.log('📡 WebSocket server initialized on /ws/live');
+  console.log('📡 WebSocket server initialized on /ws/live and /ws/crash');
 }
 
 export function broadcastNewWin(win: LiveWin) {
