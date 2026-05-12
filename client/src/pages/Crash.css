@@ -427,33 +427,6 @@
   text-shadow: 0 0 20px rgba(52,199,89,0.3);
 }
 
-/* ---- Result message ---- */
-.crash__result-msg {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: 'Gilroy', sans-serif;
-  flex-shrink: 0;
-}
-
-.crash__result-msg--win {
-  color: #34C759;
-  text-shadow: 0 0 20px rgba(52,199,89,0.3);
-}
-
-.crash__result-msg--lose {
-  color: #ff453a;
-  text-shadow: 0 0 20px rgba(255,69,58,0.3);
-}
-
-/* ---- Cash out message ---- */
-.crash__cashout-msg {
-  font-size: 16px;
-  font-weight: 600;
-  color: #34C759;
-  font-family: 'Gilroy', sans-serif;
-  flex-shrink: 0;
-}
-
 /* ---- Crash history ---- */
 .crash__history {
   display: flex;

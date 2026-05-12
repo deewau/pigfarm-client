@@ -353,18 +353,6 @@ export function Crash() {
           </div>
         )}
 
-        {resultMsg && (
-          <div className={`crash__result-msg ${crashPoint > 0 && yourBet !== null && yourCashOut === null ? 'crash__result-msg--lose' : 'crash__result-msg--win'}`}>
-            {resultMsg}
-          </div>
-        )}
-
-        {lastCashOut && gameState !== 'crashed' && (
-          <div className="crash__cashout-msg">
-            x{lastCashOut.multiplier.toFixed(2)} = +{lastCashOut.won}⭐
-          </div>
-        )}
-
         <div className="crash__history">
           {history.map((cp, i) => (
             <div key={i} className="crash__history-item">{cp.toFixed(2)}x</div>
