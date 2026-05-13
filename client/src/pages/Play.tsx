@@ -22,6 +22,13 @@ export function Play() {
             <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/crash'); }}>Играть →</button>
           </div>
         </div>
+
+        <div className="play__mines-block" onClick={() => navigate('/play/mines')}>
+          <div className="play__cases-block-content">
+            <span className="play__cases-block-title">Mines</span>
+            <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/mines'); }}>Играть →</button>
+          </div>
+        </div>
       </div>
     </div>
   );

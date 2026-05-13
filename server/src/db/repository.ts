@@ -208,3 +208,92 @@ export const userGiftRepository = {
     return result.rows as (UserGift & { first_name: string; username: string | null })[];
   },
 };
+
+export interface GameRecord {
+  id: number;
+  user_id: number;
+  game_type: string;
+  status: 'active' | 'cashed_out' | 'lost' | 'completed';
+  bet_amount: number;
+  win_amount: number | null;
+  mines_count: number;
+  cells: string;
+  opened_cells: string;
+  current_multiplier: number;
+  server_seed: string;
+  server_seed_hash: string;
+  client_seed: string;
+  nonce: number;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export const gameRepository = {
+  async create(data: {
+    user_id: number;
+    bet_amount: number;
+    mines_count: number;
+    cells: string;
+    server_seed: string;
+    server_seed_hash: string;
+    client_seed: string;
+  }): Promise<GameRecord> {
+    const pool = getPool();
+    const result = await pool.query(
+      `INSERT INTO games (user_id, game_type, status, bet_amount, mines_count, cells, server_seed, server_seed_hash, client_seed, started_at)
+       VALUES ($1, 'mines', 'active', $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP) RETURNING *`,
+      [data.user_id, data.bet_amount, data.mines_count, data.cells, data.server_seed, data.server_seed_hash, data.client_seed]
+    );
+    return result.rows[0] as GameRecord;
+  },
+
+  async findById(id: number): Promise<GameRecord | undefined> {
+    const pool = getPool();
+    const result = await pool.query('SELECT * FROM games WHERE id = $1', [id]);
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as GameRecord;
+  },
+
+  async findActiveByUserId(userId: number): Promise<GameRecord | undefined> {
+    const pool = getPool();
+    const result = await pool.query(
+      "SELECT * FROM games WHERE user_id = $1 AND game_type = 'mines' AND status = 'active' LIMIT 1",
+      [userId]
+    );
+    if (result.rows.length === 0) return undefined;
+    return result.rows[0] as GameRecord;
+  },
+
+  async updateGame(id: number, data: Partial<{
+    status: string;
+    win_amount: number;
+    opened_cells: string;
+    current_multiplier: number;
+    finished_at: string;
+  }>): Promise<GameRecord> {
+    const pool = getPool();
+    const sets: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
+    for (const [key, val] of Object.entries(data)) {
+      sets.push(`${key} = $${idx++}`);
+      values.push(val);
+    }
+    values.push(id);
+    const result = await pool.query(
+      `UPDATE games SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    );
+    return result.rows[0] as GameRecord;
+  },
+
+  async findHistoryByUserId(userId: number, limit: number = 20, offset: number = 0): Promise<GameRecord[]> {
+    const pool = getPool();
+    const result = await pool.query(
+      "SELECT * FROM games WHERE user_id = $1 AND game_type = 'mines' ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+      [userId, limit, offset]
+    );
+    return result.rows as GameRecord[];
+  },
+};

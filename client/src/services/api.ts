@@ -99,6 +99,34 @@ export const crashApi = {
   },
 };
 
+// Mines
+export const minesApi = {
+  start: async (betAmount: number, minesCount: number, clientSeed?: string) => {
+    const response = await api.post('/api/mines/start', { betAmount, minesCount, clientSeed });
+    return response.data;
+  },
+  reveal: async (gameId: number, row: number, col: number) => {
+    const response = await api.post('/api/mines/reveal', { gameId, row, col });
+    return response.data;
+  },
+  cashout: async (gameId: number) => {
+    const response = await api.post('/api/mines/cashout', { gameId });
+    return response.data;
+  },
+  getActive: async () => {
+    const response = await api.get('/api/mines/active');
+    return response.data;
+  },
+  getHistory: async (limit = 20, offset = 0) => {
+    const response = await api.get(`/api/mines/history?limit=${limit}&offset=${offset}`);
+    return response.data;
+  },
+  verify: async (gameId: number) => {
+    const response = await api.get(`/api/mines/verify?gameId=${gameId}`);
+    return response.data;
+  },
+};
+
 // Win
 export const winApi = {
   spin: async (cost: number = 29) => {

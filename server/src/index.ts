@@ -22,6 +22,7 @@ import transactionRoutes from './routes/transaction.routes.js';
 import giftRoutes from './routes/gift.routes.js';
 import winRoutes from './routes/win.routes.js';
 import crashRoutes from './routes/crash.routes.js';
+import minesRoutes from './routes/mines.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +48,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/gifts', giftRoutes);
 app.use('/api/win', winRoutes);
 app.use('/api/crash', crashRoutes);
+app.use('/api/mines', minesRoutes);
 
 // Отдаём анимации подарков (для обоих режимов)
 const giftsPath = path.join(__dirname, '../assets/gifts');

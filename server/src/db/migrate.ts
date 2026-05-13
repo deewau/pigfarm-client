@@ -34,6 +34,41 @@ export async function runMigrations() {
       END $$;
     `);
 
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_name = 'games'
+        ) THEN
+          CREATE TABLE games (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            game_type TEXT NOT NULL DEFAULT 'mines',
+            status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'cashed_out', 'lost', 'completed')),
+            bet_amount INTEGER NOT NULL,
+            win_amount INTEGER,
+            mines_count INTEGER NOT NULL,
+            cells TEXT NOT NULL,
+            opened_cells TEXT NOT NULL DEFAULT '[]',
+            current_multiplier REAL NOT NULL DEFAULT 1.0,
+            server_seed TEXT NOT NULL,
+            server_seed_hash TEXT NOT NULL,
+            client_seed TEXT NOT NULL,
+            nonce INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            started_at TIMESTAMPTZ,
+            finished_at TIMESTAMPTZ
+          );
+          CREATE INDEX IF NOT EXISTS idx_games_user_id ON games(user_id);
+          CREATE INDEX IF NOT EXISTS idx_games_status ON games(status);
+          RAISE NOTICE 'Table games created';
+        ELSE
+          RAISE NOTICE 'Table games already exists';
+        END IF;
+      END $$;
+    `);
+
     console.log('✅ Migration completed');
   } catch (err) {
     console.error('❌ Migration failed:', err);

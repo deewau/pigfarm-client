@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Server as HTTPServer } from 'http';
 import { crashGameService } from './crash.service.js';
+import { minesGameService } from './mines.service.js';
 import { validateTelegramInitData } from '../utils/telegram.js';
 import { userRepository } from '../db/repository.js';
 
@@ -46,6 +47,20 @@ export function initWebSocket(server: HTTPServer) {
         (ws as any).__crashUser = validated.user;
         wss!.emit('connection', ws, request);
       });
+    } else if (url.pathname === '/ws/mines') {
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      if (!botToken) { socket.destroy(); return; }
+
+      const initData = url.searchParams.get('initData');
+      if (!initData) { socket.destroy(); return; }
+
+      const validated = validateTelegramInitData(decodeURIComponent(initData), botToken);
+      if (!validated) { socket.destroy(); return; }
+
+      wss!.handleUpgrade(request, socket, head, (ws) => {
+        (ws as any).__minesUser = validated.user;
+        wss!.emit('connection', ws, request);
+      });
     } else {
       socket.destroy();
     }
@@ -85,10 +100,21 @@ export function initWebSocket(server: HTTPServer) {
         ws.on('close', () => crashGameService.removeClient(ws));
         ws.on('error', () => crashGameService.removeClient(ws));
       }).catch(() => ws.close());
+    } else if (url.pathname === '/ws/mines') {
+      const telegramUser = (ws as any).__minesUser;
+      if (!telegramUser) { ws.close(); return; }
+
+      userRepository.findByTelegramId(telegramUser.id).then(user => {
+        if (!user) { ws.close(4001, 'User not found'); return; }
+        minesGameService.addClient(ws, user.id, user.first_name);
+        ws.on('message', (data) => minesGameService.handleMessage(ws, data.toString()));
+        ws.on('close', () => minesGameService.removeClient(ws));
+        ws.on('error', () => minesGameService.removeClient(ws));
+      }).catch(() => ws.close());
     }
   });
 
-  console.log('📡 WebSocket server initialized on /ws/live and /ws/crash');
+  console.log('📡 WebSocket server initialized on /ws/live, /ws/crash, and /ws/mines');
 }
 
 export function broadcastNewWin(win: LiveWin) {
