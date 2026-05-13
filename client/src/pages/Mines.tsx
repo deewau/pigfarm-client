@@ -80,19 +80,24 @@ export function Mines() {
   const [showAllMines, setShowAllMines] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [minesDropdownOpen, setMinesDropdownOpen] = useState(false);
+  const [betDropdownOpen, setBetDropdownOpen] = useState(false);
 
   const minesDropdownRef = useRef<HTMLDivElement>(null);
+  const betDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!minesDropdownOpen) return;
+    if (!minesDropdownOpen && !betDropdownOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (minesDropdownRef.current && !minesDropdownRef.current.contains(e.target as Node)) {
         setMinesDropdownOpen(false);
       }
+      if (betDropdownRef.current && !betDropdownRef.current.contains(e.target as Node)) {
+        setBetDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [minesDropdownOpen]);
+  }, [minesDropdownOpen, betDropdownOpen]);
 
   const getWsUrl = useCallback(() => {
     const isDev = window.location.port === '5173';
@@ -413,8 +418,36 @@ export function Mines() {
     <div className={`mines${pulseLose ? ' mines--lose-pulse' : ''}`}>
       <div className="mines__top-bar">
         <button className="mines__back-btn" onClick={() => navigate('/play')}>← Назад</button>
-        <span className="mines__title">Mines</span>
         <div className="mines__balance">{balance} ⭐</div>
+      </div>
+
+      <div className="mines__top-panel">
+        <div className="mines__panel-left" ref={minesDropdownRef}>
+          <button
+            className={`mines__dropdown-trigger${phase !== 'betting' ? ' mines__dropdown-trigger--disabled' : ''}`}
+            onClick={() => phase === 'betting' && setMinesDropdownOpen(!minesDropdownOpen)}
+            disabled={phase !== 'betting'}
+          >
+            <span className="mines__dropdown-label">Mines: {minesCount}</span>
+            <span className="mines__dropdown-arrow">▼</span>
+          </button>
+          {minesDropdownOpen && (
+            <div className="mines__dropdown-menu">
+              {Array.from({ length: 24 }, (_, i) => i + 1).map(n => (
+                <div
+                  key={n}
+                  className={`mines__dropdown-item${n === minesCount ? ' mines__dropdown-item--active' : ''}`}
+                  onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
+                >{n}</div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="mines__panel-right">
+          <div className="mines__next-badge">
+            Next: {nextWin} ★
+          </div>
+        </div>
       </div>
 
       <div className="mines__content">
@@ -428,10 +461,6 @@ export function Mines() {
                   ${cell.revealed ? (cell.state === 'diamond' ? 'mines__cell--diamond' : 'mines__cell--mine') : 'mines__cell--hidden'}
                   ${phase === 'playing' && !cell.revealed && !animatingCell ? 'mines__cell--clickable' : ''}
                   ${animatingCell?.row === cell.row && animatingCell?.col === cell.col ? 'mines__cell--animating' : ''}
-                  ${showAllMines && !cell.revealed && cells.some((_, j) => {
-                    const isMine = allMines.some(m => m.row === cell.row && m.col === cell.col);
-                    return false;
-                  }) ? 'mines__cell--show-mine' : ''}
                 `}
                 onClick={() => handleReveal(cell.row, cell.col)}
               >
@@ -450,61 +479,29 @@ export function Mines() {
         </div>
 
         <div className="mines__side-panel">
-          <div className="mines__top-panel">
-            <div className="mines__panel-left" ref={minesDropdownRef}>
-              <button
-                className={`mines__dropdown-trigger${phase !== 'betting' ? ' mines__dropdown-trigger--disabled' : ''}`}
-                onClick={() => phase === 'betting' && setMinesDropdownOpen(!minesDropdownOpen)}
-                disabled={phase !== 'betting'}
-              >
-                <span className="mines__dropdown-label">Mines: {minesCount}</span>
-                <span className="mines__dropdown-arrow">▼</span>
-              </button>
-              {minesDropdownOpen && (
-                <div className="mines__dropdown-menu">
-                  {Array.from({ length: 24 }, (_, i) => i + 1).map(n => (
-                    <div
-                      key={n}
-                      className={`mines__dropdown-item${n === minesCount ? ' mines__dropdown-item--active' : ''}`}
-                      onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
-                    >{n}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="mines__panel-right">
-              <div className="mines__next-badge">
-                Next: {nextWin} ★
-              </div>
-            </div>
-          </div>
-
           {phase === 'betting' && (
             <div className="mines__controls">
               <div className="mines__control-group">
                 <label className="mines__label">Сумма ставки</label>
-                <div className="mines__bet-input-row">
+                <div className="mines__bet-row" ref={betDropdownRef}>
                   <button
-                    className="mines__bet-btn"
-                    onClick={() => setBetAmount(Math.max(MIN_BET, betAmount - 5))}
-                    disabled={betAmount <= MIN_BET}
-                  >−</button>
-                  <input
-                    type="number"
-                    className="mines__bet-input"
-                    value={betAmount}
-                    onChange={e => {
-                      const v = parseInt(e.target.value) || MIN_BET;
-                      setBetAmount(Math.min(MAX_BET, Math.max(MIN_BET, v)));
-                    }}
-                    min={MIN_BET}
-                    max={MAX_BET}
-                  />
-                  <button
-                    className="mines__bet-btn"
-                    onClick={() => setBetAmount(Math.min(MAX_BET, betAmount + 5))}
-                    disabled={betAmount >= MAX_BET}
-                  >+</button>
+                    className="mines__bet-trigger"
+                    onClick={() => setBetDropdownOpen(!betDropdownOpen)}
+                  >
+                    <span className="mines__bet-label">{betAmount} ⭐</span>
+                    <span className="mines__dropdown-arrow">▼</span>
+                  </button>
+                  {betDropdownOpen && (
+                    <div className="mines__bet-dropdown-menu">
+                      {[1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 1000, 2500, 5000].map(n => (
+                        <div
+                          key={n}
+                          className={`mines__bet-dropdown-item${betAmount === n ? ' mines__bet-dropdown-item--active' : ''}`}
+                          onClick={() => { setBetAmount(Math.min(MAX_BET, n)); setBetDropdownOpen(false); }}
+                        >{n} ⭐</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="mines__presets">
                   {BET_PRESETS.map(p => (
@@ -548,7 +545,7 @@ export function Mines() {
                 {nextMultiplier > 0 && (
                   <div className="mines__stat-item">
                     <span className="mines__stat-label">Следующий</span>
-                    <span className="mines__stat-value" style={{ color: '#888' }}>x{nextMultiplier.toFixed(4)}</span>
+                    <span className="mines__stat-value" style={{ color: 'rgba(255,255,255,0.5)' }}>x{nextMultiplier.toFixed(4)}</span>
                   </div>
                 )}
                 <div className="mines__stat-item">
