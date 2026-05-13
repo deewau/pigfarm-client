@@ -18,8 +18,23 @@ api.interceptors.request.use((config) => {
   if (tg?.initData) {
     config.headers['X-Telegram-Init-Data'] = tg.initData;
   }
+  console.log('[API] request:', config.method?.toUpperCase(), config.url);
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    console.log('[API] response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('[API] error:', error.code, error.message, error.config?.url);
+    if (error.response) {
+      console.error('[API] response data:', JSON.stringify(error.response.data).slice(0, 300));
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth
 export const authApi = {

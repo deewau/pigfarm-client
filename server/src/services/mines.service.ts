@@ -122,21 +122,27 @@ export class MinesGameService {
   }
 
   async startGame(userId: number, betAmount: number, minesCount: number, clientSeed?: string): Promise<any> {
+    console.log('[MINES:SERVICE] startGame', { userId, betAmount, minesCount });
     if (betAmount < MIN_BET || betAmount > MAX_BET) {
+      console.log('[MINES:SERVICE] INVALID_BET_AMOUNT', { betAmount, MIN_BET, MAX_BET });
       return { success: false, error: 'INVALID_BET_AMOUNT' };
     }
     if (minesCount < 1 || minesCount > 24) {
+      console.log('[MINES:SERVICE] INVALID_MINES_COUNT', { minesCount });
       return { success: false, error: 'INVALID_MINES_COUNT' };
     }
 
     const existing = await gameRepository.findActiveByUserId(userId);
     if (existing) {
+      console.log('[MINES:SERVICE] CONCURRENT_GAME_EXISTS', { userId });
       return { success: false, error: 'CONCURRENT_GAME_EXISTS' };
     }
 
     const user = await userRepository.findById(userId);
+    console.log('[MINES:SERVICE] user found', { userId, balance: user?.balance });
     if (!user) return { success: false, error: 'User not found' };
     if (user.balance < betAmount) {
+      console.log('[MINES:SERVICE] INSUFFICIENT_BALANCE', { balance: user.balance, betAmount });
       return { success: false, error: 'INSUFFICIENT_BALANCE' };
     }
 

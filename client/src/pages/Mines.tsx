@@ -252,6 +252,7 @@ export function Mines() {
       const nm = getCumulativeMultiplier(minesCount, 1);
       setNextMultiplier(nm);
     } catch (err) {
+      console.error('[MINES] startGame error:', err);
       setError('Ошибка соединения');
     }
   };

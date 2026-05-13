@@ -9,10 +9,17 @@ router.use(authenticateTelegram);
 router.post('/start', async (req, res) => {
   try {
     const userId = req.user?.id;
+    console.log('[MINES] /start called', { userId, body: { betAmount: req.body.betAmount, minesCount: req.body.minesCount } });
     if (!userId) { res.status(401).json({ success: false, error: 'Unauthorized' }); return; }
 
     const { betAmount, minesCount, clientSeed } = req.body;
+    if (betAmount === undefined || minesCount === undefined) {
+      console.error('[MINES] Missing betAmount or minesCount', req.body);
+      res.status(400).json({ success: false, error: 'Missing betAmount or minesCount' });
+      return;
+    }
     const result = await minesGameService.startGame(userId, betAmount, minesCount, clientSeed);
+    console.log('[MINES] startGame result:', JSON.stringify(result).slice(0, 200));
     if (!result.success) {
       const status = result.error === 'INSUFFICIENT_BALANCE' ? 400 :
                      result.error === 'CONCURRENT_GAME_EXISTS' ? 409 : 400;
@@ -21,7 +28,7 @@ router.post('/start', async (req, res) => {
     }
     res.json(result);
   } catch (error) {
-    console.error('Mines start error:', error);
+    console.error('[MINES] start error:', error);
     res.status(500).json({ success: false, error: 'Failed to start game' });
   }
 });
