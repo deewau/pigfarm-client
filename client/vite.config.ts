@@ -11,15 +11,15 @@ export default defineConfig({
     allowedHosts: ['.local.lt'],
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.PORT || 3000}`,
         changeOrigin: true,
       },
       '/gifts': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.PORT || 3000}`,
         changeOrigin: true,
       },
       '/assets': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.PORT || 3000}`,
         changeOrigin: true,
       },
       // No proxy for /ws - connect directly to server
