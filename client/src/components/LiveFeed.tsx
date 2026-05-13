@@ -28,19 +28,11 @@ export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
     }
   };
 
-  const getLabelText = () => {
-    switch (connectionState) {
-      case 'connected': return 'LIVE';
-      case 'reconnecting': return '...';
-      case 'disconnected': return 'OFFLINE';
-    }
-  };
-
   return (
     <div className="live-feed">
       <div className="live-feed__label">
         <span className={`live-feed__dot ${getDotClass()}`} />
-        <span className="live-feed__label-text">{getLabelText()}</span>
+        <span className="live-feed__label-text">LIVE</span>
       </div>
       {wins.length === 0 ? (
         <div className="live-feed__empty">Пока никто не выигрывал</div>
@@ -54,14 +46,10 @@ export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
               >
                 <div className="live-feed__card-gift">
                   {win.animationSvg ? (
-                    <GiftImage svgContent={win.animationSvg} size={36} uniqueId={`feed-${win.id}`} />
+                    <GiftImage svgContent={win.animationSvg} size={40} uniqueId={`feed-${win.id}`} />
                   ) : (
-                    <GiftImage giftId={win.gift_id} size={36} fallbackEmoji="🎁" />
+                    <GiftImage giftId={win.gift_id} size={40} fallbackEmoji="🎁" />
                   )}
-                </div>
-                <div className="live-feed__card-info">
-                  <span className="live-feed__card-gift-name">{win.gift_name}</span>
-                  <span className="live-feed__card-player">{win.first_name}</span>
                 </div>
               </div>
             ))}
