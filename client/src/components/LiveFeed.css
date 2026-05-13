@@ -1,11 +1,18 @@
 .live-feed {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
   display: flex;
   align-items: stretch;
   gap: 12px;
   padding: 14px 16px;
-  background: linear-gradient(180deg, rgba(139, 92, 246, 0.2) 0%, rgba(20, 20, 35, 0.95) 100%);
-  border-bottom: 2px solid rgba(139, 92, 246, 0.5);
-  flex-shrink: 0;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(20, 20, 35, 0.98) 0%, rgba(15, 15, 30, 0.98) 100%);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.4);
+  z-index: 998;
   min-height: 76px;
 }
 

@@ -43,7 +43,7 @@ function Layout() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', background: 'var(--bg)' }}>
       {!isCrash && <AppHeader />}
       {!isCrash && <LiveFeed wins={liveWins} connectionState={connectionState} />}
-      <div style={{ flex: 1, overflow: isCrash ? 'hidden' : 'auto', paddingTop: isCrash ? '0' : '0px' }}>
+      <div style={{ flex: 1, overflow: isCrash ? 'hidden' : 'auto', paddingTop: isCrash ? '0' : '140px' }}>
         <Outlet />
       </div>
       {!isCrash && <BottomBar />}
