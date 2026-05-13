@@ -471,9 +471,7 @@ export function Mines() {
                   ) : (
                     <span className="mines__cell-icon">💣</span>
                   )
-                ) : (
-                  phase === 'betting' && <span className="mines__cell-question">?</span>
-                )}
+                ) : null}
               </div>
             ))}
           </div>
