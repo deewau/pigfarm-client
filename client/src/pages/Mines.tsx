@@ -445,7 +445,7 @@ export function Mines() {
         </div>
         <div className="mines__panel-right">
           <div className="mines__next-badge">
-            Next: {nextWin} ★
+            Next: x{(phase === 'playing' || phase === 'result' ? nextMultiplier || currentMultiplier : getCumulativeMultiplier(minesCount, 1)).toFixed(2)}
           </div>
         </div>
       </div>
@@ -535,31 +535,6 @@ export function Mines() {
 
           {phase === 'playing' && (
             <div className="mines__playing">
-              <div className="mines__stats">
-                <div className="mines__stat-item">
-                  <span className="mines__stat-label">Множитель</span>
-                  <span className="mines__stat-value" style={{ color: currentMultiplier > 1 ? '#4CAF50' : '#fff' }}>
-                    x{currentMultiplier.toFixed(4)}
-                  </span>
-                </div>
-                {nextMultiplier > 0 && (
-                  <div className="mines__stat-item">
-                    <span className="mines__stat-label">Следующий</span>
-                    <span className="mines__stat-value" style={{ color: 'rgba(255,255,255,0.5)' }}>x{nextMultiplier.toFixed(4)}</span>
-                  </div>
-                )}
-                <div className="mines__stat-item">
-                  <span className="mines__stat-label">Выигрыш</span>
-                  <span className="mines__stat-value" style={{ color: '#4CAF50' }}>
-                    {currentWin} ⭐
-                  </span>
-                </div>
-                <div className="mines__stat-item">
-                  <span className="mines__stat-label">Открыто</span>
-                  <span className="mines__stat-value">{openedCount}/{25 - minesCount}</span>
-                </div>
-              </div>
-
               <button
                 className={`mines__action-btn mines__cashout-btn${openedCount === 0 ? ' mines__action-btn--disabled' : ''}`}
                 onClick={handleCashOut}

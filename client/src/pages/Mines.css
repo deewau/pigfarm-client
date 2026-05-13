@@ -5,6 +5,7 @@
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
+  padding-bottom: 90px;
 }
 
 .mines--lose-pulse {
@@ -65,7 +66,6 @@
   flex: 1;
   padding: 8px 12px 12px;
   gap: 8px;
-  overflow: auto;
   flex-direction: column;
 }
 
@@ -90,7 +90,6 @@
   flex-shrink: 0;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   position: relative;
-  overflow: hidden;
 }
 .mines__top-panel::before {
   content: '';
