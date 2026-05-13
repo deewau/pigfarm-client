@@ -206,33 +206,107 @@
   letter-spacing: 0.5px;
 }
 
-.mines__mines-selector {
+.mines__top-panel {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.mines__mines-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
+.mines__panel-left {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mines__dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
   color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.mines__mines-btn:hover { background: rgba(255,255,255,0.15); }
-.mines__mines-btn:disabled { opacity: 0.3; cursor: default; }
-
-.mines__mines-value {
-  font-size: 28px;
+  font-size: 15px;
   font-weight: 700;
-  min-width: 48px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.mines__dropdown-trigger:hover { background: rgba(255,255,255,0.1); }
+.mines__dropdown-trigger--disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.mines__dropdown-trigger--disabled:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.mines__dropdown-label {
+  user-select: none;
+}
+
+.mines__dropdown-arrow {
+  font-size: 10px;
+  color: #888;
+  transition: transform 0.2s;
+}
+
+.mines__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 8px;
+  background: #1E1E2E;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  z-index: 100;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.mines__dropdown-item {
+  padding: 6px 4px;
   text-align: center;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mines__dropdown-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.mines__dropdown-item--active {
+  background: rgba(255,215,0,0.2);
   color: #FFD700;
+}
+
+.mines__panel-right {
+  flex-shrink: 0;
+}
+
+.mines__next-badge {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 8px;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(255,215,0,0.3);
 }
 
 .mines__presets {

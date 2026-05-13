@@ -79,6 +79,20 @@ export function Mines() {
   const [pulseLose, setPulseLose] = useState(false);
   const [showAllMines, setShowAllMines] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [minesDropdownOpen, setMinesDropdownOpen] = useState(false);
+
+  const minesDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!minesDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (minesDropdownRef.current && !minesDropdownRef.current.contains(e.target as Node)) {
+        setMinesDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [minesDropdownOpen]);
 
   const getWsUrl = useCallback(() => {
     const isDev = window.location.port === '5173';
@@ -391,6 +405,9 @@ export function Mines() {
   const safeCells = 25 - mines;
   const maxMultiplier = getMaxMultiplier(minesCount);
   const potentialWin = Math.floor(betAmount * maxMultiplier);
+  const nextWin = phase === 'playing' || phase === 'result'
+    ? Math.max(currentWin, resultWinAmount)
+    : Math.floor(betAmount * getCumulativeMultiplier(minesCount, 1));
 
   return (
     <div className={`mines${pulseLose ? ' mines--lose-pulse' : ''}`}>
@@ -433,43 +450,37 @@ export function Mines() {
         </div>
 
         <div className="mines__side-panel">
-          {phase === 'betting' && (
-            <div className="mines__controls">
-              <div className="mines__control-group">
-                <label className="mines__label">Количество мин</label>
-                <div className="mines__mines-selector">
-                  <button
-                    className="mines__mines-btn"
-                    onClick={() => setMinesCount(Math.max(1, minesCount - 1))}
-                    disabled={minesCount <= 1}
-                  >−</button>
-                  <span className="mines__mines-value">{minesCount}</span>
-                  <button
-                    className="mines__mines-btn"
-                    onClick={() => setMinesCount(Math.min(24, minesCount + 1))}
-                    disabled={minesCount >= 24}
-                  >+</button>
-                </div>
-                <div className="mines__presets">
-                  {MINES_PRESETS.map(p => (
-                    <button
-                      key={p}
-                      className={`mines__preset-btn${minesCount === p ? ' mines__preset-btn--active' : ''}`}
-                      onClick={() => setMinesCount(p)}
-                    >{p}</button>
+          <div className="mines__top-panel">
+            <div className="mines__panel-left" ref={minesDropdownRef}>
+              <button
+                className={`mines__dropdown-trigger${phase !== 'betting' ? ' mines__dropdown-trigger--disabled' : ''}`}
+                onClick={() => phase === 'betting' && setMinesDropdownOpen(!minesDropdownOpen)}
+                disabled={phase !== 'betting'}
+              >
+                <span className="mines__dropdown-label">Mines: {minesCount}</span>
+                <span className="mines__dropdown-arrow">▼</span>
+              </button>
+              {minesDropdownOpen && (
+                <div className="mines__dropdown-menu">
+                  {Array.from({ length: 24 }, (_, i) => i + 1).map(n => (
+                    <div
+                      key={n}
+                      className={`mines__dropdown-item${n === minesCount ? ' mines__dropdown-item--active' : ''}`}
+                      onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
+                    >{n}</div>
                   ))}
                 </div>
+              )}
+            </div>
+            <div className="mines__panel-right">
+              <div className="mines__next-badge">
+                Next: {nextWin} ★
               </div>
+            </div>
+          </div>
 
-              <div className="mines__info-row">
-                <span className="mines__info-label">Безопасно</span>
-                <span className="mines__info-value">{safeCells}/25</span>
-              </div>
-              <div className="mines__info-row">
-                <span className="mines__info-label">Макс. множитель</span>
-                <span className="mines__info-value" style={{ color: '#FFD700' }}>x{maxMultiplier.toFixed(2)}</span>
-              </div>
-
+          {phase === 'betting' && (
+            <div className="mines__controls">
               <div className="mines__control-group">
                 <label className="mines__label">Сумма ставки</label>
                 <div className="mines__bet-input-row">
@@ -511,11 +522,6 @@ export function Mines() {
                     onClick={() => setBetAmount(balance)}
                   >Max</button>
                 </div>
-              </div>
-
-              <div className="mines__info-row">
-                <span className="mines__info-label">К выигрышу</span>
-                <span className="mines__info-value" style={{ color: '#4CAF50' }}>{potentialWin.toLocaleString()} ⭐</span>
               </div>
 
               {error && <div className="mines__error">{error}</div>}
