@@ -151,78 +151,8 @@ export function Mines() {
   }, [cells]);
 
   const handleCellRevealed = useCallback((msg: any) => {
-    const { row, col, type, multiplier, winAmount, openedCount: oc, game_over, status } = msg;
-
-    setAnimatingCell({ row, col });
-
-    if (type === 'mine') {
-      setTimeout(() => {
-        setCells(prev => {
-          const next = [...prev];
-          const idx = row * GRID_SIZE + col;
-          next[idx] = { ...next[idx], state: 'mine', revealed: true };
-          // Show all mines after delay
-          if (msg.allMines) {
-            const mines = msg.allMines as { row: number; col: number }[];
-            setTimeout(() => {
-              setShowAllMines(true);
-              setCells(prev2 => {
-                const n2 = [...prev2];
-                mines.forEach(m => {
-                  const mi = m.row * GRID_SIZE + m.col;
-                  if (!n2[mi].revealed) {
-                    n2[mi] = { ...n2[mi], state: 'mine', revealed: true };
-                  }
-                });
-                return n2;
-              });
-              setPulseLose(true);
-              setTimeout(() => setPulseLose(false), 1500);
-            }, 300);
-          }
-          return next;
-        });
-        setAnimatingCell(null);
-        setPhase('result');
-        setResultType('loss');
-        setResultMessage(`Ты проиграл ${msg.lostAmount || betAmount} ⭐`);
-      }, 400);
-    } else {
-      setTimeout(() => {
-        setCells(prev => {
-          const next = [...prev];
-          const idx = row * GRID_SIZE + col;
-          next[idx] = { ...next[idx], state: 'diamond', revealed: true };
-          return next;
-        });
-        setAnimatingCell(null);
-        setCurrentMultiplier(multiplier);
-        setCurrentWin(winAmount);
-        setOpenedCount(oc);
-
-        if (msg.nextMultiplier) setNextMultiplier(msg.nextMultiplier);
-
-        if (game_over) {
-          setShowAllMines(true);
-          if (msg.allMines) {
-            setCells(prev => {
-              const n = [...prev];
-              (msg.allMines as { row: number; col: number }[]).forEach(m => {
-                const mi = m.row * GRID_SIZE + m.col;
-                if (!n[mi].revealed) {
-                  n[mi] = { ...n[mi], state: 'mine', revealed: true };
-                }
-              });
-              return n;
-            });
-          }
-          setPhase('result');
-          setResultType('win');
-          setResultWinAmount(winAmount);
-          setResultMessage(`Победа! ${winAmount} ⭐`);
-        }
-      }, 300);
-    }
+    setAnimatingCell({ row: msg.row, col: msg.col });
+    revealCellState(msg);
   }, [betAmount]);
 
   const handleCashOutResult = useCallback((msg: any) => {
@@ -307,6 +237,76 @@ export function Mines() {
     }
   };
 
+  const revealCellState = (msg: any) => {
+    const { row, col, type, multiplier, winAmount, openedCount: oc, game_over, status } = msg;
+
+    if (type === 'mine') {
+      setTimeout(() => {
+        setCells(prev => {
+          const next = [...prev];
+          const idx = row * GRID_SIZE + col;
+          next[idx] = { ...next[idx], state: 'mine', revealed: true };
+          if (msg.allMines) {
+            const mines = msg.allMines as { row: number; col: number }[];
+            setTimeout(() => {
+              setCells(prev2 => {
+                const n2 = [...prev2];
+                mines.forEach(m => {
+                  const mi = m.row * GRID_SIZE + m.col;
+                  if (!n2[mi].revealed) {
+                    n2[mi] = { ...n2[mi], state: 'mine', revealed: true };
+                  }
+                });
+                return n2;
+              });
+              setPulseLose(true);
+              setTimeout(() => setPulseLose(false), 1500);
+            }, 300);
+          }
+          return next;
+        });
+        setAnimatingCell(null);
+        setPhase('result');
+        setResultType('loss');
+        setResultMessage(`Ты проиграл ${msg.lostAmount || betAmount} ⭐`);
+      }, 400);
+    } else {
+      setTimeout(() => {
+        setCells(prev => {
+          const next = [...prev];
+          const idx = row * GRID_SIZE + col;
+          next[idx] = { ...next[idx], state: 'diamond', revealed: true };
+          return next;
+        });
+        setAnimatingCell(null);
+        setCurrentMultiplier(multiplier);
+        setCurrentWin(winAmount);
+        setOpenedCount(oc);
+        if (msg.nextMultiplier) setNextMultiplier(msg.nextMultiplier);
+
+        if (game_over) {
+          setShowAllMines(true);
+          if (msg.allMines) {
+            setCells(prev => {
+              const n = [...prev];
+              (msg.allMines as { row: number; col: number }[]).forEach(m => {
+                const mi = m.row * GRID_SIZE + m.col;
+                if (!n[mi].revealed) {
+                  n[mi] = { ...n[mi], state: 'mine', revealed: true };
+                }
+              });
+              return n;
+            });
+          }
+          setPhase('result');
+          setResultType('win');
+          setResultWinAmount(winAmount);
+          setResultMessage(`Победа! ${winAmount} ⭐`);
+        }
+      }, 300);
+    }
+  };
+
   const handleReveal = async (row: number, col: number) => {
     if (phase !== 'playing' || !gameId || animatingCell) return;
 
@@ -325,6 +325,7 @@ export function Mines() {
         }
         return;
       }
+      revealCellState(result.data);
     } catch {
       setAnimatingCell(null);
       setError('Ошибка соединения');
@@ -340,11 +341,28 @@ export function Mines() {
         setError(result.error || 'Ошибка кэшаута');
         return;
       }
-      setCurrentMultiplier(result.data.multiplier);
-      setCurrentWin(result.data.winAmount);
-      setResultWinAmount(result.data.winAmount);
-      if (result.data.balance !== undefined) setBalance(result.data.balance);
+      const d = result.data;
+      setCurrentMultiplier(d.multiplier);
+      setCurrentWin(d.winAmount);
+      setResultWinAmount(d.winAmount);
+      if (d.balance !== undefined) setBalance(d.balance);
       refreshBalance();
+
+      if (d.allMines) {
+        setCells(prev => {
+          const n = [...prev];
+          (d.allMines as { row: number; col: number }[]).forEach(m => {
+            const mi = m.row * GRID_SIZE + m.col;
+            if (!n[mi].revealed) {
+              n[mi] = { ...n[mi], state: 'mine', revealed: true };
+            }
+          });
+          return n;
+        });
+      }
+      setPhase('result');
+      setResultType('win');
+      setResultMessage(`Ты выиграл ${d.winAmount} ⭐ (x${d.multiplier.toFixed(2)})`);
     } catch {
       setError('Ошибка соединения');
     }
