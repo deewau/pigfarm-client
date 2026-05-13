@@ -13,9 +13,14 @@ export interface WinItem {
   animationSvg: string | null;
 }
 
+export type ConnectionState = 'connected' | 'disconnected' | 'reconnecting';
+
+const MAX_WINS = 50;
+const QUEUE_DELAY = 400;
+
 interface LiveFeedContextType {
   liveWins: WinItem[];
-  sliding: boolean;
+  connectionState: ConnectionState;
   addOwnWin: (win: WinItem) => void;
 }
 
@@ -25,14 +30,13 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
   console.log('📡 LiveFeedProvider: MOUNTED');
 
   const [liveWins, setLiveWins] = useState<WinItem[]>([]);
-  const [sliding, setSliding] = useState(false);
-  const slidingTimeoutRef = useRef<number | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
-  // Dedup: track recent win IDs (from DB) to prevent duplicates from WS + optimistic update
   const recentWinIdsRef = useRef(new Set<number>());
+  const queueRef = useRef<WinItem[]>([]);
+  const isProcessingQueueRef = useRef(false);
 
-  // Build WebSocket URL based on environment
   const getWsUrl = () => {
     const isDev = window.location.port === '5173';
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -40,11 +44,49 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
     return `${protocol}//${host}/ws/live`;
   };
 
-  // Fetch initial recent wins from API
+  const addWinToState = useCallback((win: WinItem) => {
+    if (recentWinIdsRef.current.has(win.id)) {
+      return;
+    }
+    recentWinIdsRef.current.add(win.id);
+    if (recentWinIdsRef.current.size > MAX_WINS + 10) {
+      const ids = Array.from(recentWinIdsRef.current);
+      ids.slice(0, ids.length - MAX_WINS).forEach(id => recentWinIdsRef.current.delete(id));
+    }
+
+    setLiveWins(prev => {
+      const newWins = [win, ...prev];
+      return newWins.slice(0, MAX_WINS);
+    });
+  }, []);
+
+  const processQueue = useCallback(async () => {
+    if (isProcessingQueueRef.current) return;
+    if (queueRef.current.length === 0) return;
+
+    isProcessingQueueRef.current = true;
+
+    while (queueRef.current.length > 0) {
+      const win = queueRef.current.shift()!;
+      addWinToState(win);
+      await new Promise(resolve => setTimeout(resolve, QUEUE_DELAY));
+    }
+
+    isProcessingQueueRef.current = false;
+  }, [addWinToState]);
+
+  const enqueueWin = useCallback((win: WinItem) => {
+    if (recentWinIdsRef.current.has(win.id)) {
+      return;
+    }
+    queueRef.current.push(win);
+    processQueue();
+  }, [processQueue]);
+
   useEffect(() => {
-    winApi.getRecent(5).then(res => {
+    winApi.getRecent(10).then(res => {
       if (res.data?.success && res.data.data?.wins) {
-        setLiveWins(res.data.data.wins.map((w: any) => ({
+        const initialWins = res.data.data.wins.map((w: any) => ({
           ...w,
           user_id: w.user_id ?? 0,
           gift_id: w.gift_id ?? '',
@@ -54,12 +96,13 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
           first_name: w.first_name ?? '',
           username: w.username ?? null,
           animationSvg: w.animationSvg ?? null,
-        })));
+        }));
+        setLiveWins(initialWins);
+        initialWins.forEach((w: WinItem) => recentWinIdsRef.current.add(w.id));
       }
     }).catch(err => console.warn('📡 Failed to load initial wins', err));
   }, []);
 
-  // Global WebSocket with auto-reconnect
   useEffect(() => {
     let cancelled = false;
 
@@ -67,19 +110,27 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       const wsUrl = getWsUrl();
       console.log('📡 WS: Connecting to', wsUrl);
+      setConnectionState('reconnecting');
 
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
-      ws.onopen = () => console.log('📡 WS: CONNECTED SUCCESSFULLY!');
+      ws.onopen = () => {
+        console.log('📡 WS: CONNECTED SUCCESSFULLY!');
+        setConnectionState('connected');
+      };
 
-      ws.onerror = (e) => console.error('📡 WS: ERROR', e);
+      ws.onerror = (e) => {
+        console.error('📡 WS: ERROR', e);
+        setConnectionState('disconnected');
+      };
 
       ws.onclose = (e) => {
         console.log('📡 WS: disconnected', e.code, e.reason);
         wsRef.current = null;
-        // Auto-reconnect after 3 seconds
+        setConnectionState('disconnected');
         if (!cancelled) {
+          setConnectionState('reconnecting');
           reconnectTimeoutRef.current = window.setTimeout(connect, 3000);
         }
       };
@@ -88,24 +139,25 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
         console.log('📡 WS: RAW MESSAGE RECEIVED', event.data);
         try {
           const msg = JSON.parse(event.data);
-          if (msg.type === 'new_win') {
+          
+          if (msg.type === 'history_init') {
+            console.log('📡 WS: History init received', msg.data?.wins?.length);
+            if (msg.data?.wins && msg.data.wins.length > 0) {
+              const historyWins = msg.data.wins.filter((w: WinItem) => !recentWinIdsRef.current.has(w.id));
+              if (historyWins.length > 0) {
+                setLiveWins(prev => {
+                  const allWins = [...historyWins, ...prev];
+                  const uniqueWins = allWins.filter((w, i, arr) => 
+                    arr.findIndex(x => x.id === w.id) === i
+                  );
+                  return uniqueWins.slice(0, MAX_WINS);
+                });
+                historyWins.forEach((w: WinItem) => recentWinIdsRef.current.add(w.id));
+              }
+            }
+          } else if (msg.type === 'new_win') {
             console.log('📡 WS: New win received!', msg.data);
-            // Dedup by win ID (from DB)
-            if (recentWinIdsRef.current.has(msg.data.id)) {
-              console.log('📡 WS: Duplicate win, skipping', msg.data.id);
-              return;
-            }
-            recentWinIdsRef.current.add(msg.data.id);
-            // Keep only last 20 IDs to avoid memory leak
-            if (recentWinIdsRef.current.size > 20) {
-              const ids = Array.from(recentWinIdsRef.current);
-              ids.slice(0, ids.length - 20).forEach(id => recentWinIdsRef.current.delete(id));
-            }
-
-            setSliding(true);
-            if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
-            slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
-            setLiveWins(prev => [msg.data].concat(prev).slice(0, 5));
+            enqueueWin(msg.data);
           }
         } catch (e) {
           console.warn('📡 WS: Parse error', e);
@@ -124,25 +176,15 @@ export function LiveFeedProvider({ children }: { children: ReactNode }) {
         wsRef.current = null;
       }
     };
-  }, []);
+  }, [enqueueWin]);
 
   const addOwnWin = useCallback((win: WinItem) => {
     console.log('📡 Adding own win:', win);
-    // Dedup: track by win ID (from DB) to sync with WS handler
-    if (recentWinIdsRef.current.has(win.id)) {
-      console.log('📡 addOwnWin: Duplicate, skipping', win.id);
-      return;
-    }
-    recentWinIdsRef.current.add(win.id);
-
-    setSliding(true);
-    if (slidingTimeoutRef.current) clearTimeout(slidingTimeoutRef.current);
-    slidingTimeoutRef.current = window.setTimeout(() => setSliding(false), 500);
-    setLiveWins(prev => [win].concat(prev).slice(0, 5));
-  }, []);
+    enqueueWin(win);
+  }, [enqueueWin]);
 
   return (
-    <LiveFeedContext.Provider value={{ liveWins, sliding, addOwnWin }}>
+    <LiveFeedContext.Provider value={{ liveWins, connectionState, addOwnWin }}>
       {children}
     </LiveFeedContext.Provider>
   );

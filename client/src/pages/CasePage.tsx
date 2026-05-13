@@ -6,9 +6,7 @@ import { GiftImage } from '../components/GiftAnimation';
 import { ResultModal } from '../components/ResultModal';
 import { GiftInfoModal } from '../components/GiftInfoModal';
 import { DepositModal } from '../components/DepositModal';
-import { LiveFeed } from '../components/LiveFeed';
 import { useAuth } from '../hooks/useAuth';
-import { useLiveFeed, type WinItem } from '../contexts/LiveFeedContext';
 
 interface TelegramGift {
   id: string;
@@ -209,7 +207,7 @@ export function CasePage() {
   const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
   
-  const { liveWins, sliding, addOwnWin } = useLiveFeed();
+
   
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -363,7 +361,6 @@ export function CasePage() {
   return (
     <div className="play">
       <button className="back-btn" onClick={() => navigate('/play')}>← Назад</button>
-      <LiveFeed wins={liveWins} sliding={sliding} />
       <div className="play__roulette-container" ref={containerRef}>
         <div className="play__roulette-pointer" />
         <div className="play__roulette" ref={rouletteRef}>

@@ -7,9 +7,10 @@ import { Crash } from './pages/Crash';
 import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
 import { AppHeader } from './components/AppHeader';
+import { LiveFeed } from './components/LiveFeed';
 import { ComingSoon } from './components/ComingSoon';
 import { GiftsIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
-import { LiveFeedProvider } from './contexts/LiveFeedContext';
+import { LiveFeedProvider, useLiveFeed } from './contexts/LiveFeedContext';
 
 function App() {
   return (
@@ -36,11 +37,13 @@ function App() {
 function Layout() {
   const location = useLocation();
   const isCrash = location.pathname === '/play/crash';
+  const { liveWins, connectionState } = useLiveFeed();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', background: 'var(--bg)' }}>
       {!isCrash && <AppHeader />}
-      <div style={{ flex: 1, overflow: isCrash ? 'hidden' : 'auto', paddingTop: isCrash ? '0' : '72px' }}>
+      {!isCrash && <LiveFeed wins={liveWins} connectionState={connectionState} />}
+      <div style={{ flex: 1, overflow: isCrash ? 'hidden' : 'auto', paddingTop: isCrash ? '0' : '0px' }}>
         <Outlet />
       </div>
       {!isCrash && <BottomBar />}

@@ -4,7 +4,7 @@ import { crashGameService } from './crash.service.js';
 import { validateTelegramInitData } from '../utils/telegram.js';
 import { userRepository } from '../db/repository.js';
 
-interface LiveWin {
+export interface LiveWin {
   id: number;
   user_id: number;
   gift_id: string;
@@ -16,7 +16,9 @@ interface LiveWin {
   animationSvg: string | null;
 }
 
+const MAX_HISTORY_SIZE = 50;
 const clients = new Set<WebSocket>();
+let winHistory: LiveWin[] = [];
 
 let wss: WebSocketServer | null = null;
 
@@ -56,6 +58,16 @@ export function initWebSocket(server: HTTPServer) {
       clients.add(ws);
       console.log(`📡 WebSocket connected. Total clients: ${clients.size}`);
 
+      if (winHistory.length > 0) {
+        const historyMsg = JSON.stringify({
+          type: 'history_init',
+          data: { wins: winHistory },
+        });
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(historyMsg);
+        }
+      }
+
       ws.on('close', () => {
         clients.delete(ws);
         console.log(`📡 WebSocket disconnected. Total clients: ${clients.size}`);
@@ -80,6 +92,8 @@ export function initWebSocket(server: HTTPServer) {
 }
 
 export function broadcastNewWin(win: LiveWin) {
+  winHistory = [win, ...winHistory].slice(0, MAX_HISTORY_SIZE);
+
   if (clients.size === 0) {
     console.log(`📡 No clients connected, skipping broadcast`);
     return;

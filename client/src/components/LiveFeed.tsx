@@ -1,4 +1,5 @@
 import { GiftImage } from './GiftAnimation';
+import { type ConnectionState } from '../contexts/LiveFeedContext';
 import './LiveFeed.css';
 
 export interface WinItem {
@@ -15,44 +16,58 @@ export interface WinItem {
 
 interface LiveFeedProps {
   wins: WinItem[];
-  sliding: boolean;
+  connectionState: ConnectionState;
 }
 
-export function LiveFeed({ wins, sliding }: LiveFeedProps) {
-  if (wins.length === 0) {
-    return (
-      <div className="live-feed">
-        <div className="live-feed__label">
-          <span className="live-feed__dot" />
-          LIVE
-        </div>
-        <div className="live-feed__empty">Пока никто не выигрывал</div>
-      </div>
-    );
-  }
+export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
+  const getDotClass = () => {
+    switch (connectionState) {
+      case 'connected': return 'live-feed__dot--connected';
+      case 'reconnecting': return 'live-feed__dot--reconnecting';
+      case 'disconnected': return 'live-feed__dot--disconnected';
+    }
+  };
+
+  const getLabelText = () => {
+    switch (connectionState) {
+      case 'connected': return 'LIVE';
+      case 'reconnecting': return '...';
+      case 'disconnected': return 'OFFLINE';
+    }
+  };
 
   return (
     <div className="live-feed">
       <div className="live-feed__label">
-        <span className="live-feed__dot" />
-        LIVE
+        <span className={`live-feed__dot ${getDotClass()}`} />
+        <span className="live-feed__label-text">{getLabelText()}</span>
       </div>
-      <div className={`live-feed__list ${sliding ? 'live-feed__list--sliding' : ''}`}>
-        {wins.map((win, index) => (
-          <div
-            key={win.id}
-            className={`live-feed__card ${index === 0 && sliding ? 'live-feed__card--new' : ''}`}
-          >
-            <div className="live-feed__card-gift">
-              {win.animationSvg ? (
-                <GiftImage svgContent={win.animationSvg} size={48} uniqueId={`feed-${win.id}`} />
-              ) : (
-                <GiftImage giftId={win.gift_id} size={48} fallbackEmoji="🎁" />
-              )}
-            </div>
+      {wins.length === 0 ? (
+        <div className="live-feed__empty">Пока никто не выигрывал</div>
+      ) : (
+        <div className="live-feed__scroll-container">
+          <div className="live-feed__list">
+            {wins.map((win, index) => (
+              <div
+                key={`${win.id}-${index}`}
+                className={`live-feed__card ${index === 0 ? 'live-feed__card--new' : ''}`}
+              >
+                <div className="live-feed__card-gift">
+                  {win.animationSvg ? (
+                    <GiftImage svgContent={win.animationSvg} size={36} uniqueId={`feed-${win.id}`} />
+                  ) : (
+                    <GiftImage giftId={win.gift_id} size={36} fallbackEmoji="🎁" />
+                  )}
+                </div>
+                <div className="live-feed__card-info">
+                  <span className="live-feed__card-gift-name">{win.gift_name}</span>
+                  <span className="live-feed__card-player">{win.first_name}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

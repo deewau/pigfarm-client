@@ -2,98 +2,155 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  margin-bottom: 16px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
   overflow: hidden;
-  border-top: 2px solid #8B5CF6;
-  border-bottom: 2px solid #8B5CF6;
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(139, 92, 246, 0.3);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .live-feed__label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: #2ed573 !important;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   white-space: nowrap;
   flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.live-feed__label-text {
+  min-width: 40px;
+  text-align: center;
 }
 
 .live-feed__dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.live-feed__dot--connected {
   background: #2ed573;
   animation: livePulse 1.5s ease-in-out infinite;
 }
 
+.live-feed__dot--reconnecting {
+  background: #ffa502;
+  animation: reconnectBlink 0.5s ease-in-out infinite;
+}
+
+.live-feed__dot--disconnected {
+  background: #747d8c;
+}
+
 @keyframes livePulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 rgba(46, 213, 115, 0.4); }
+  50% { opacity: 0.7; transform: scale(0.9); box-shadow: 0 0 6px rgba(46, 213, 115, 0.6); }
+}
+
+@keyframes reconnectBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-feed__scroll-container {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  margin: -10px 0;
+  padding: 10px 0;
+}
+
+.live-feed__scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .live-feed__list {
   display: flex;
-  gap: 8px;
-  transition: transform 0.5s ease-in-out;
-}
-
-.live-feed__list--sliding {
-  transform: translateX(64px);
+  gap: 10px;
+  min-width: min-content;
 }
 
 .live-feed__card {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
   flex-shrink: 0;
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .live-feed__card--new {
-  animation: cardEnter 0.5s ease-out both;
+  animation: cardEnter 0.4s ease-out both;
 }
 
 @keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateX(-64px);
+    transform: translateX(-20px) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 
 .live-feed__card-gift {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: giftPulse 2s ease-in-out infinite;
-}
-
-@keyframes giftPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(46, 213, 115, 0)); }
-  50% { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.6)); }
 }
 
 .live-feed__card-gift > div {
-  width: 48px !important;
-  height: 48px !important;
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.live-feed__card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.live-feed__card-gift-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+}
+
+.live-feed__card-player {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
 }
 
 .live-feed__empty {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 12px;
+  font-style: italic;
 }
