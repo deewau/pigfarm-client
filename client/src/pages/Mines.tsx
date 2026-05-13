@@ -419,7 +419,6 @@ export function Mines() {
     <div className={`mines${pulseLose ? ' mines--lose-pulse' : ''}`}>
       <div className="mines__top-bar">
         <button className="mines__back-btn" onClick={() => navigate('/play')}>← Назад</button>
-        <div className="mines__balance">{balance} ⭐</div>
       </div>
 
       <div className="mines__top-panel">
