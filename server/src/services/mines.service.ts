@@ -134,8 +134,13 @@ export class MinesGameService {
 
     const existing = await gameRepository.findActiveByUserId(userId);
     if (existing) {
-      console.log('[MINES:SERVICE] CONCURRENT_GAME_EXISTS', { userId });
-      return { success: false, error: 'CONCURRENT_GAME_EXISTS' };
+      console.log('[MINES:SERVICE] Closing previous active game', { userId, gameId: existing.id });
+      const now = new Date().toISOString();
+      await gameRepository.updateGame(existing.id, {
+        status: 'lost',
+        finished_at: now,
+      });
+      this.activeGames.delete(userId);
     }
 
     const user = await userRepository.findById(userId);
