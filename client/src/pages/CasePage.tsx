@@ -206,8 +206,9 @@ export function CasePage() {
   const [autoSpinAfterDeposit, setAutoSpinAfterDeposit] = useState(false);
   const [pendingTargetGift, setPendingTargetGift] = useState<TelegramGift | null>(null);
   const [infoGift, setInfoGift] = useState<TelegramGift | null>(null);
+  const [awaitingResponse, setAwaitingResponse] = useState(false);
   
-
+  
   
   const rouletteRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -317,23 +318,25 @@ export function CasePage() {
   }, [pendingTargetGift]);
 
   const handleSpin = async () => {
-    if (spinning || rouletteItems.length === 0) return;
+    if (spinning || awaitingResponse || rouletteItems.length === 0) return;
     const requiredBalance = spinCost;
     let targetGift: TelegramGift | null = null;
     if (!demoMode && user) {
       if (user.balance < requiredBalance) { setShowDeposit(true); return; }
+      setAwaitingResponse(true);
       try {
         const response = await winApi.spin(spinCost);
-        if (!response.success) { if (response.error === 'Insufficient balance') setShowDeposit(true); return; }
+        if (!response.success) { setAwaitingResponse(false); if (response.error === 'Insufficient balance') setShowDeposit(true); return; }
         targetGift = {
           id: response.data.gift.id, name: response.data.gift.name, stars: response.data.gift.stars,
           animationSvg: response.data.gift.animationSvg, animationData: response.data.gift.animationData,
           isSpecial: response.data.gift.isSpecial || false, isVirt: response.data.gift.isVirt || false,
         };
+        setAwaitingResponse(false);
         if (response.data?.data?.balance !== undefined) setBalanceValue(response.data.data.balance);
         else refreshBalance();
         refreshXp();
-      } catch (err) { return; }
+      } catch (err) { setAwaitingResponse(false); return; }
     } else {
       targetGift = weightedRandomSelect(getCurrentGifts(), getCurrentProbabilities());
       if (targetGift.isVirt) {
@@ -382,8 +385,8 @@ export function CasePage() {
       </div>
 
       <div className="play__controls">
-        <button className={`play__play-btn ${spinning ? 'play__play-btn--spinning' : ''}`} onClick={handleSpin} disabled={spinning}>
-          {spinning ? '🎰 Крутится...' : `🎲 ${costLabel}`}
+        <button className={`play__play-btn ${spinning || awaitingResponse ? 'play__play-btn--spinning' : ''}`} onClick={handleSpin} disabled={spinning || awaitingResponse}>
+          {awaitingResponse ? 'Подождите' : spinning ? '🎰 Крутится...' : `🎲 ${costLabel}`}
         </button>
         <div className="play__demo">
           <span className="play__demo-label">DEMO</span>

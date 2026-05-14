@@ -3,7 +3,7 @@ import { WebSocket } from 'ws';
 import { userRepository, transactionRepository } from '../db/repository.js';
 import { sendBalanceUpdate } from './websocket.js';
 
-const WAITING_DURATION = 5000;
+const WAITING_DURATION = 7000;
 const CRASH_SHOW_DURATION = 1500;
 const PAUSE_DURATION = 2000;
 const TICK_INTERVAL = 50;
