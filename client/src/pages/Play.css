@@ -957,9 +957,9 @@
 .play__mines-block-img {
   position: absolute;
   left: -30px;
-  top: 50%;
+  top: calc(50% - 15px);
   transform: translateY(-50%);
-  width: 182px;
-  height: 182px;
+  width: 197px;
+  height: 197px;
   object-fit: contain;
 }
