@@ -942,24 +942,24 @@
   border-radius: 16px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: url('/assets/cmn/minesbg.jpg') center/cover no-repeat;
   border: 2px solid #FFD700;
   color: #fff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
-.play__mines-block::before {
-  content: '💎';
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 72px;
-  opacity: 0.4;
-}
-
 .play__mines-block:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.play__mines-block-img {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 182px;
+  height: 182px;
+  object-fit: contain;
 }

@@ -24,6 +24,7 @@ export function Play() {
         </div>
 
         <div className="play__mines-block" onClick={() => navigate('/play/mines')}>
+          <img src="/gifts/svg/minesbg.svg" alt="Mines" className="play__mines-block-img" />
           <div className="play__cases-block-content">
             <span className="play__cases-block-title">Mines</span>
             <button className="play__cases-block-btn" onClick={(e) => { e.stopPropagation(); navigate('/play/mines'); }}>Играть →</button>
