@@ -14,16 +14,14 @@ const GAMES = [
     id: 'crash',
     title: 'CRASH',
     path: '/play/crash',
-    image: '/gifts/svg/rocketbg.svg',
-    gradient: 'linear-gradient(160deg, #2a3f8f 0%, #1a2555 50%, #121a3a 100%)',
+    cover: '/assets/cmn/rocketback.png',
     layout: 'half' as const,
   },
   {
     id: 'mines',
     title: 'MINES',
     path: '/play/mines',
-    image: '/gifts/svg/minesbg.svg',
-    gradient: 'linear-gradient(160deg, #1e5a9e 0%, #154878 50%, #0f3258 100%)',
+    cover: '/assets/cmn/minesbg.png',
     layout: 'half' as const,
   },
 ];
@@ -38,13 +36,19 @@ export function Play() {
           <button
             key={game.id}
             type="button"
-            className={`play__game-card play__game-card--${game.layout}`}
-            style={{ background: game.gradient }}
+            className={`play__game-card play__game-card--${game.layout}${'cover' in game ? ' play__game-card--cover' : ''}`}
+            style={
+              'cover' in game
+                ? { backgroundImage: `url(${game.cover})` }
+                : { background: game.gradient }
+            }
             onClick={() => navigate(game.path)}
           >
-            <div className="play__game-card__art">
-              <img src={game.image} alt="" className="play__game-card__img" draggable={false} />
-            </div>
+            {'image' in game && (
+              <div className="play__game-card__art">
+                <img src={game.image} alt="" className="play__game-card__img" draggable={false} />
+              </div>
+            )}
             <div className="play__game-card__footer">
               <span className="play__game-card__title">{game.title}</span>
               <span className="play__game-card__brand">PIGGIEGIFT</span>

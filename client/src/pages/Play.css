@@ -842,6 +842,20 @@
   aspect-ratio: 0.78 / 1;
 }
 
+.play__game-card--cover {
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.play__game-card--cover .play__game-card__footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.55) 100%);
+}
+
 .play__game-card__art {
   flex: 1;
   display: flex;
