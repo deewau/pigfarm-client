@@ -789,8 +789,137 @@
 
 /* Лобби вкладки Играть */
 .play--lobby {
+  align-items: stretch;
+  text-align: left;
+  padding-top: 8px;
+}
+
+.play__games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.play__game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.play__game-card:active {
+  transform: scale(0.98);
+}
+
+.play__game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.play__game-card--full {
+  grid-column: 1 / -1;
+  aspect-ratio: 2.15 / 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.play__game-card--half {
+  grid-column: span 1;
+  aspect-ratio: 0.78 / 1;
+}
+
+.play__game-card__art {
+  flex: 1;
+  display: flex;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  padding: 12px 10px 4px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.play__game-card--full .play__game-card__art {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px 12% 8px 8px;
+}
+
+.play__game-card--full .play__game-card__footer {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  z-index: 1;
+}
+
+.play__game-card__img {
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  max-width: 88%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+  user-select: none;
+}
+
+.play__game-card--full .play__game-card__img {
+  max-height: 88%;
+  max-width: 100%;
+}
+
+.play__game-card--half .play__game-card__img {
+  max-width: 95%;
+}
+
+.play__game-card__footer {
+  flex-shrink: 0;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.play__game-card__title {
+  font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1.1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.play__game-card--full .play__game-card__title {
+  font-size: 22px;
+}
+
+.play__game-card--half .play__game-card__title {
+  font-size: 15px;
+}
+
+.play__game-card__brand {
+  font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
 }
 
 .play__lobby-title {
