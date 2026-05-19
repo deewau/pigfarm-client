@@ -866,11 +866,31 @@
   object-position: 50% 42%;
 }
 
+.play__game-card--cases .play__game-card__cover {
+  object-position: 100% center;
+}
+
 .play__game-card--cover .play__game-card__footer {
   position: relative;
   z-index: 1;
   width: 100%;
   background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.play__game-card--full.play__game-card--cover {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.play__game-card--full.play__game-card--cover .play__game-card__footer {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 48%;
+  margin-top: 0;
+  background: none;
+  padding: 14px 16px 16px;
 }
 
 .play__game-card__art {

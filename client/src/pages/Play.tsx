@@ -6,8 +6,7 @@ const GAMES = [
     id: 'cases',
     title: 'КЕЙСЫ',
     path: '/play/cases',
-    image: '/gifts/svg/pepecase.svg',
-    gradient: 'linear-gradient(160deg, #1e6b45 0%, #0f3d28 55%, #0a2a1c 100%)',
+    cover: '/assets/cmn/casebg.png',
     layout: 'full' as const,
   },
   {
