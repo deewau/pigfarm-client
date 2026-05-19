@@ -36,14 +36,13 @@ export function Play() {
           <button
             key={game.id}
             type="button"
-            className={`play__game-card play__game-card--${game.layout}${'cover' in game ? ' play__game-card--cover' : ''}`}
-            style={
-              'cover' in game
-                ? { backgroundImage: `url(${game.cover})` }
-                : { background: game.gradient }
-            }
+            className={`play__game-card play__game-card--${game.layout}${'cover' in game ? ` play__game-card--cover play__game-card--${game.id}` : ''}`}
+            style={'cover' in game ? undefined : { background: game.gradient }}
             onClick={() => navigate(game.path)}
           >
+            {'cover' in game && (
+              <img src={game.cover} alt="" className="play__game-card__cover" draggable={false} />
+            )}
             {'image' in game && (
               <div className="play__game-card__art">
                 <img src={game.image} alt="" className="play__game-card__img" draggable={false} />
