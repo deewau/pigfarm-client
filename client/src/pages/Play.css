@@ -798,22 +798,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   width: 100%;
   max-width: 480px;
   margin: 0 auto 14px;
   padding: 0 16px;
   box-sizing: border-box;
-  font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 18px;
-  font-weight: 700;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -0.02em;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.25;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.play__section-title span {
+  font-weight: 600;
 }
 
 .play__section-title svg {
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: #a8b9c5;
 }
 
 .play__games-grid {
