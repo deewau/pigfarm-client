@@ -42,14 +42,11 @@ export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
             {wins.map((win, index) => (
               <div
                 key={`${win.id}-${index}`}
-                className={`live-feed__card ${index === 0 ? 'live-feed__card--new' : ''}`}
+                className={`live-feed__gift ${index === 0 ? 'live-feed__gift--new' : ''}`}
+                title={win.gift_name}
               >
-                <div className="live-feed__card-gift">
-                  {win.animationSvg ? (
-                    <GiftImage svgContent={win.animationSvg} size={30} uniqueId={`feed-${win.id}`} />
-                  ) : (
-                    <GiftImage giftId={win.gift_id} size={30} fallbackEmoji="🎁" />
-                  )}
+                <div className="live-feed__gift-inner">
+                  <GiftImage giftId={win.gift_id} size={34} fallbackEmoji="🎁" />
                 </div>
               </div>
             ))}
