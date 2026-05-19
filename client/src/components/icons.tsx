@@ -42,6 +42,27 @@ export const ReferralIcon: FC = () => (
   </svg>
 );
 
+// Иконка Giftoland (подарки)
+export const GiftolandIcon: FC<{ size?: number }> = ({ size = 22 }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size} aria-hidden>
+    <path d="M21 5h-3.35c.22-.46.35-.96.35-1.5C18 1.57 16.43 0 14.5 0c-.98 0-1.86.41-2.5 1.06A3.5 3.5 0 0 0 9.5 0C7.57 0 6 1.57 6 3.5c0 .54.13 1.04.35 1.5H3c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m-6.5-3c.83 0 1.5.67 1.5 1.5S15.33 5 14.5 5 13 4.33 13 3.5 13.67 2 14.5 2M8 3.5C8 2.67 8.67 2 9.5 2s1.5.67 1.5 1.5S10.33 5 9.5 5 8 4.33 8 3.5M3 21c0 1.1.9 2 2 2h6V12H3zm10 2h6c1.1 0 2-.9 2-2v-9h-8z" />
+  </svg>
+);
+
+// Иконка слотов (777)
+export const Slots777Icon: FC<{ size?: number; color?: string }> = ({
+  size = 24,
+  color = '#A8B9C5',
+}) => (
+  <svg viewBox="0 0 32 20" width={size} height={size * (20 / 32)} fill="none" aria-hidden>
+    <g fill={color} transform="skewX(-14)">
+      <path d="M1 4.3h7v2.3H4.3L8.1 15.4H5.2L1 6.6V4.3z" transform="translate(0 3) scale(0.78)" />
+      <path d="M1 1h9v3H4.2L8.8 16H5.4L1 5V1z" transform="translate(9.5 0)" />
+      <path d="M1 4.3h7v2.3H4.3L8.1 15.4H5.2L1 6.6V4.3z" transform="translate(20 3) scale(0.78)" />
+    </g>
+  </svg>
+);
+
 // Иконка инвентаря (рюкзак)
 export const InventoryIcon: FC = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">

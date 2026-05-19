@@ -794,6 +794,28 @@
   padding-top: 8px;
 }
 
+.play__section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 14px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  font-family: 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.play__section-title svg {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .play__games-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

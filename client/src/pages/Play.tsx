@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { GiftolandIcon } from '../components/icons';
 import './Play.css';
 
 const GAMES = [
@@ -30,6 +31,10 @@ export function Play() {
 
   return (
     <div className="play play--lobby">
+      <h2 className="play__section-title">
+        <GiftolandIcon size={22} />
+        <span>Игры Giftoland</span>
+      </h2>
       <div className="play__games-grid">
         {GAMES.map((game) => (
           <button

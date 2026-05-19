@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20" fill="none" aria-hidden="true">
+  <g fill="#A8B9C5" transform="skewX(-14)">
+    <path d="M1 4.3h7v2.3H4.3L8.1 15.4H5.2L1 6.6V4.3z" transform="translate(0 3) scale(0.78)" />
+    <path d="M1 1h9v3H4.2L8.8 16H5.4L1 5V1z" transform="translate(9.5 0)" />
+    <path d="M1 4.3h7v2.3H4.3L8.1 15.4H5.2L1 6.6V4.3z" transform="translate(20 3) scale(0.78)" />
+  </g>
+</svg>
