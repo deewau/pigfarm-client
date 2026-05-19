@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { minesApi } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { DepositModal } from '../components/DepositModal';
+import { MinesBetSheet } from '../components/MinesBetSheet';
 import './Mines.css';
 
 const GRID_SIZE = 5;
-const MINES_PRESETS = [1, 3, 5, 10, 15, 20, 24];
-const BET_PRESETS = [10, 25, 50, 100, 250];
 const MIN_BET = 1;
 const MAX_BET = 10000;
 const HOUSE_EDGE = 0.03;
@@ -80,24 +79,20 @@ export function Mines() {
   const [showAllMines, setShowAllMines] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [minesDropdownOpen, setMinesDropdownOpen] = useState(false);
-  const [betDropdownOpen, setBetDropdownOpen] = useState(false);
+  const [showBetSheet, setShowBetSheet] = useState(false);
 
   const minesDropdownRef = useRef<HTMLDivElement>(null);
-  const betDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!minesDropdownOpen && !betDropdownOpen) return;
+    if (!minesDropdownOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (minesDropdownRef.current && !minesDropdownRef.current.contains(e.target as Node)) {
         setMinesDropdownOpen(false);
       }
-      if (betDropdownRef.current && !betDropdownRef.current.contains(e.target as Node)) {
-        setBetDropdownOpen(false);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [minesDropdownOpen, betDropdownOpen]);
+  }, [minesDropdownOpen]);
 
   const getWsUrl = useCallback(() => {
     const isDev = window.location.port === '5173';
@@ -235,6 +230,7 @@ export function Mines() {
       setServerSeedHash(result.data.serverSeedHash);
       if (result.data.balance !== undefined) setBalance(result.data.balance);
       setPhase('playing');
+      setShowBetSheet(false);
       setCells(Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => ({
         state: 'hidden' as CellState,
         row: Math.floor(i / GRID_SIZE),
@@ -479,54 +475,8 @@ export function Mines() {
         <div className="mines__side-panel">
           {phase === 'betting' && (
             <div className="mines__controls">
-              <div className="mines__control-group">
-                <label className="mines__label">Сумма ставки</label>
-                <div className="mines__bet-row" ref={betDropdownRef}>
-                  <button
-                    className="mines__bet-trigger"
-                    onClick={() => setBetDropdownOpen(!betDropdownOpen)}
-                  >
-                    <span className="mines__bet-label">{betAmount} ⭐</span>
-                    <span className="mines__dropdown-arrow">▼</span>
-                  </button>
-                  {betDropdownOpen && (
-                    <div className="mines__bet-dropdown-menu">
-                      {[1, 5, 10, 25, 50, 75, 100, 150, 200, 250, 500, 1000, 2500, 5000].map(n => (
-                        <div
-                          key={n}
-                          className={`mines__bet-dropdown-item${betAmount === n ? ' mines__bet-dropdown-item--active' : ''}`}
-                          onClick={() => { setBetAmount(Math.min(MAX_BET, n)); setBetDropdownOpen(false); }}
-                        >{n} ⭐</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="mines__presets">
-                  {BET_PRESETS.map(p => (
-                    <button
-                      key={p}
-                      className={`mines__preset-btn${betAmount === p ? ' mines__preset-btn--active' : ''}`}
-                      onClick={() => {
-                        if (p > balance) { setShowDeposit(true); return; }
-                        setBetAmount(p);
-                      }}
-                    >{p}</button>
-                  ))}
-                  <button
-                    className="mines__preset-btn"
-                    onClick={() => setBetAmount(balance)}
-                  >Max</button>
-                </div>
-              </div>
-
-              {error && <div className="mines__error">{error}</div>}
-
-              <button
-                className="mines__action-btn"
-                onClick={handleStartGame}
-                disabled={betAmount < MIN_BET || betAmount > MAX_BET}
-              >
-                Сделать ставку {betAmount} ⭐
+              <button className="mines__action-btn" onClick={() => setShowBetSheet(true)}>
+                Сделать ставку
               </button>
             </div>
           )}
@@ -566,6 +516,18 @@ export function Mines() {
           )}
         </div>
       </div>
+
+      <MinesBetSheet
+        isOpen={showBetSheet}
+        onClose={() => setShowBetSheet(false)}
+        betAmount={betAmount}
+        onBetAmountChange={setBetAmount}
+        balance={balance}
+        minesCount={minesCount}
+        error={error}
+        onStartGame={handleStartGame}
+        onDeposit={() => setShowDeposit(true)}
+      />
 
       <DepositModal
         isOpen={showDeposit}
