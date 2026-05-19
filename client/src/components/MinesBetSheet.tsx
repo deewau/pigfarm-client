@@ -78,7 +78,7 @@ export const MinesBetSheet: FC<MinesBetSheetProps> = ({
     if (!draggingRef.current) return;
     currentYRef.current = e.touches[0].clientY;
     const diff = currentYRef.current - startYRef.current;
-    if (diff > 0 && sheetRef.current) {
+    if (diff < 0 && sheetRef.current) {
       sheetRef.current.style.transform = `translateY(${diff}px)`;
     }
   };
@@ -87,7 +87,7 @@ export const MinesBetSheet: FC<MinesBetSheetProps> = ({
     if (!draggingRef.current) return;
     draggingRef.current = false;
     const diff = currentYRef.current - startYRef.current;
-    if (diff > 100) {
+    if (diff < -100) {
       handleClose();
     } else if (sheetRef.current) {
       sheetRef.current.style.transform = '';
@@ -102,7 +102,7 @@ export const MinesBetSheet: FC<MinesBetSheetProps> = ({
     const onMouseMove = (ev: MouseEvent) => {
       currentYRef.current = ev.clientY;
       const diff = currentYRef.current - startYRef.current;
-      if (diff > 0 && sheetRef.current) {
+      if (diff < 0 && sheetRef.current) {
         sheetRef.current.style.transform = `translateY(${diff}px)`;
       }
     };
@@ -110,7 +110,7 @@ export const MinesBetSheet: FC<MinesBetSheetProps> = ({
     const onMouseUp = () => {
       draggingRef.current = false;
       const diff = currentYRef.current - startYRef.current;
-      if (diff > 100) {
+      if (diff < -100) {
         handleClose();
       } else if (sheetRef.current) {
         sheetRef.current.style.transform = '';
