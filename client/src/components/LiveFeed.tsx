@@ -30,7 +30,7 @@ export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
 
   return (
     <div className="live-feed">
-      <div className="live-feed__label">
+      <div className="live-feed__live">
         <span className={`live-feed__dot ${getDotClass()}`} />
         <span className="live-feed__label-text">LIVE</span>
       </div>
@@ -46,9 +46,9 @@ export function LiveFeed({ wins, connectionState }: LiveFeedProps) {
               >
                 <div className="live-feed__card-gift">
                   {win.animationSvg ? (
-                    <GiftImage svgContent={win.animationSvg} size={40} uniqueId={`feed-${win.id}`} />
+                    <GiftImage svgContent={win.animationSvg} size={30} uniqueId={`feed-${win.id}`} />
                   ) : (
-                    <GiftImage giftId={win.gift_id} size={40} fallbackEmoji="🎁" />
+                    <GiftImage giftId={win.gift_id} size={30} fallbackEmoji="🎁" />
                   )}
                 </div>
               </div>
