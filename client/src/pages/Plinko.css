@@ -1,0 +1,181 @@
+.plinko {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  padding-bottom: 100px;
+}
+
+.plinko__top-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.plinko__back-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.plinko__board-wrap {
+  position: relative;
+  margin: 8px 12px 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0f1428 0%, #151b35 55%, #0d1224 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.plinko__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.plinko__controls {
+  padding: 12px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plinko__row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.plinko__label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.plinko__risk-btn,
+.plinko__rows-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.plinko__risk-btn--active,
+.plinko__rows-btn--active {
+  border-color: var(--accent, #7c5cff);
+  background: rgba(124, 92, 255, 0.25);
+}
+
+.plinko__risk-btn:disabled,
+.plinko__rows-btn:disabled,
+.plinko__drop-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.plinko__rows-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.plinko__rows-scroll .plinko__rows-btn {
+  flex: 0 0 auto;
+  min-width: 44px;
+}
+
+.plinko__bet-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plinko__bet-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.plinko__bet-preset {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.plinko__drop-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c5cff 0%, #5a8cff 100%);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(124, 92, 255, 0.35);
+}
+
+.plinko__error {
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.plinko__result {
+  margin: 12px 16px 0;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plinko__result--win {
+  border-color: rgba(76, 217, 100, 0.4);
+  background: rgba(76, 217, 100, 0.12);
+}
+
+.plinko__result--loss {
+  border-color: rgba(255, 107, 107, 0.35);
+}
+
+.plinko__result-amount {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.plinko__fair {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  word-break: break-all;
+}

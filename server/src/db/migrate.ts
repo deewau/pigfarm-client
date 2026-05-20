@@ -69,6 +69,40 @@ export async function runMigrations() {
       END $$;
     `);
 
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_name = 'plinko_games'
+        ) THEN
+          CREATE TABLE plinko_games (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            bet_amount INTEGER NOT NULL CHECK(bet_amount > 0),
+            rows SMALLINT NOT NULL CHECK(rows >= 8 AND rows <= 16),
+            risk TEXT NOT NULL CHECK(risk IN ('low', 'medium', 'high')),
+            path JSONB NOT NULL,
+            bucket SMALLINT NOT NULL CHECK(bucket >= 0),
+            multiplier REAL NOT NULL CHECK(multiplier > 0),
+            win_amount INTEGER NOT NULL CHECK(win_amount >= 0),
+            profit INTEGER NOT NULL,
+            server_seed TEXT NOT NULL,
+            server_seed_hash TEXT NOT NULL,
+            client_seed TEXT NOT NULL,
+            nonce INTEGER NOT NULL CHECK(nonce >= 0),
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+          );
+          CREATE INDEX idx_plinko_games_user_id ON plinko_games(user_id);
+          CREATE INDEX idx_plinko_games_created_at ON plinko_games(created_at DESC);
+          CREATE UNIQUE INDEX idx_plinko_games_user_nonce ON plinko_games(user_id, nonce);
+          RAISE NOTICE 'Table plinko_games created';
+        ELSE
+          RAISE NOTICE 'Table plinko_games already exists';
+        END IF;
+      END $$;
+    `);
+
     console.log('✅ Migration completed');
   } catch (err) {
     console.error('❌ Migration failed:', err);

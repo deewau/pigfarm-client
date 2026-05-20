@@ -2,7 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { GiftolandIcon } from '../components/icons';
 import './Play.css';
 
-const GAMES = [
+type LobbyGame = {
+  id: string;
+  title: string;
+  path: string;
+  layout: 'full' | 'half';
+  cover?: string;
+  gradient?: string;
+  image?: string;
+};
+
+const GAMES: LobbyGame[] = [
   {
     id: 'cases',
     title: 'КЕЙСЫ',
@@ -22,6 +32,13 @@ const GAMES = [
     title: 'MINES',
     path: '/play/mines',
     cover: '/assets/cmn/minesbg.png',
+    layout: 'half' as const,
+  },
+  {
+    id: 'plinko',
+    title: 'PLINKO',
+    path: '/play/plinko',
+    gradient: 'linear-gradient(145deg, #0d2840 0%, #1a1040 50%, #2a0d35 100%)',
     layout: 'half' as const,
   },
 ];

@@ -114,6 +114,36 @@ export const crashApi = {
   },
 };
 
+// Plinko
+export const plinkoApi = {
+  getConfig: async () => {
+    const response = await api.get('/api/plinko/config');
+    return response.data;
+  },
+  drop: async (
+    betAmount: number,
+    rows: number,
+    risk: 'low' | 'medium' | 'high',
+    clientSeed?: string
+  ) => {
+    const response = await api.post('/api/plinko/drop', {
+      betAmount,
+      rows,
+      risk,
+      clientSeed,
+    });
+    return response.data;
+  },
+  getHistory: async (limit = 20, offset = 0) => {
+    const response = await api.get(`/api/plinko/history?limit=${limit}&offset=${offset}`);
+    return response.data;
+  },
+  verify: async (gameId: number) => {
+    const response = await api.get(`/api/plinko/verify?gameId=${gameId}`);
+    return response.data;
+  },
+};
+
 // Mines
 export const minesApi = {
   start: async (betAmount: number, minesCount: number, clientSeed?: string) => {

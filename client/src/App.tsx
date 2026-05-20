@@ -5,6 +5,7 @@ import { CasesPage } from './pages/CasesPage';
 import { CasePage } from './pages/CasePage';
 import { Crash } from './pages/Crash';
 import { Mines } from './pages/Mines';
+import { Plinko } from './pages/Plinko';
 import { Inventory } from './pages/Inventory';
 import { TabBar } from './components/TabBar';
 import { AppHeader } from './components/AppHeader';
@@ -24,6 +25,7 @@ function App() {
             <Route path="play" element={<Play />} />
             <Route path="play/crash" element={<Crash />} />
             <Route path="play/mines" element={<Mines />} />
+            <Route path="play/plinko" element={<Plinko />} />
             <Route path="play/cases" element={<CasesPage />} />
             <Route path="play/:cost" element={<CasePage />} />
             <Route path="inventory" element={<Inventory />} />
