@@ -2,11 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import './Play.css';
 
 const cases = [
-  { cost: 29, label: 'Basic', img: '/gifts/svg/5170521118301225164.svg', gradient: 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)' },
-  { cost: 49, label: 'Snake Box', img: '/gifts/svg/snakebox.svg', gradient: 'linear-gradient(135deg, #c0c0c0 0%, #808080 100%)' },
-  { cost: 99, label: 'Lol Pop', img: '/gifts/svg/lolpop.svg', gradient: 'linear-gradient(135deg, #ffd700 0%, #daa520 100%)' },
-  { cost: 249, label: 'B-Day Candle', img: '/gifts/svg/b-daycandle.svg', gradient: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)' },
-  { cost: 349, label: 'Lush Bouquet', img: '/gifts/svg/lushbouquet.svg', gradient: 'linear-gradient(135deg, #e84393 0%, #6c5ce7 100%)' },
+  { cost: 29, label: 'Basic', bg: '/assets/cmn/basic.png' },
+  { cost: 49, label: 'Snake Box', bg: '/assets/cmn/snakebox.png' },
+  { cost: 99, label: 'Lol Pop', bg: '/assets/cmn/lolpop.png' },
+  { cost: 249, label: 'B-Day Candle', bg: '/assets/cmn/b-daycandle.png' },
+  { cost: 349, label: 'Lush Bouquet', bg: '/assets/cmn/lushbouquet.png' },
 ];
 
 export function CasesPage() {
@@ -21,10 +21,9 @@ export function CasesPage() {
           <div
             key={c.cost}
             className="play__case-card"
-            style={{ background: c.gradient }}
+            style={{ backgroundImage: `url(${c.bg})` }}
             onClick={() => navigate(`/play/${c.cost}`)}
           >
-            <img src={c.img} alt={c.label} className="play__case-img" />
             <span className="play__case-name">{c.label}</span>
             <span className="play__case-cost">{c.cost} ⭐</span>
           </div>

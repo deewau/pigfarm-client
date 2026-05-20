@@ -924,18 +924,30 @@
 }
 
 .play__case-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px 16px;
+  justify-content: space-between;
+  min-height: 200px;
+  padding: 16px;
   border-radius: 16px;
   cursor: pointer;
+  background-size: cover;
+  background-position: center;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   color: #fff;
   font-weight: 600;
+  overflow: hidden;
+}
+
+.play__case-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 .play__case-card:hover {
@@ -943,26 +955,23 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
-.play__case-emoji {
-  font-size: 48px;
-}
-
-.play__case-img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-}
-
 .play__case-name {
-  font-size: 16px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 2;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  text-align: center;
 }
 
 .play__case-cost {
+  position: relative;
+  z-index: 2;
   font-size: 20px;
-  background: rgba(0,0,0,0.2);
-  padding: 4px 12px;
+  background: rgba(0,0,0,0.4);
+  padding: 6px 16px;
   border-radius: 20px;
+  backdrop-filter: blur(4px);
 }
 
 /* Кнопка назад в CasePage */
