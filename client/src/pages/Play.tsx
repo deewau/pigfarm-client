@@ -21,6 +21,13 @@ const GAMES: LobbyGame[] = [
     layout: 'full' as const,
   },
   {
+    id: 'plinko',
+    title: 'PLINKO',
+    path: '/play/plinko',
+    cover: '/assets/cmn/plinkobg.png',
+    layout: 'full' as const,
+  },
+  {
     id: 'crash',
     title: 'CRASH',
     path: '/play/crash',
@@ -32,13 +39,6 @@ const GAMES: LobbyGame[] = [
     title: 'MINES',
     path: '/play/mines',
     cover: '/assets/cmn/minesbg.png',
-    layout: 'half' as const,
-  },
-  {
-    id: 'plinko',
-    title: 'PLINKO',
-    path: '/play/plinko',
-    gradient: 'linear-gradient(145deg, #0d2840 0%, #1a1040 50%, #2a0d35 100%)',
     layout: 'half' as const,
   },
 ];
@@ -69,10 +69,6 @@ export function Play() {
                 <img src={game.image} alt="" className="play__game-card__img" draggable={false} />
               </div>
             )}
-            <div className="play__game-card__footer">
-              <span className="play__game-card__title">{game.title}</span>
-              <span className="play__game-card__brand">PIGGIEGIFT</span>
-            </div>
           </button>
         ))}
       </div>
