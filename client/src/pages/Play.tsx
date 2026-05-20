@@ -18,7 +18,7 @@ const GAMES: LobbyGame[] = [
     title: 'КЕЙСЫ',
     path: '/play/cases',
     cover: '/assets/cmn/casebg.png',
-    layout: 'full' as const,
+    layout: 'half' as const,
   },
   {
     id: 'plinko',
@@ -39,7 +39,7 @@ const GAMES: LobbyGame[] = [
     title: 'CRASH',
     path: '/play/crash',
     cover: '/assets/cmn/rocketback.png',
-    layout: 'full' as const,
+    layout: 'half' as const,
   },
 ];
 
