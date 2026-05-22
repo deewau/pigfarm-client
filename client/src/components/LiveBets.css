@@ -141,6 +141,15 @@
   flex: 1;
 }
 
+.lb__status {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: 'Gilroy', sans-serif;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
 .lb__name {
   font-size: 14px;
   font-weight: 600;

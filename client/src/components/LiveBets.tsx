@@ -34,6 +34,12 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
   const isCashedOut = (bet: LiveBetInfo): boolean =>
     bet.cashOutAt != null && typeof bet.cashOutAt === 'number';
 
+  const getLiveAmount = (bet: LiveBetInfo): number => {
+    if (isCashedOut(bet)) return Math.floor(bet.amount * bet.cashOutAt!);
+    if (isLost) return 0;
+    return Math.floor(bet.amount * currentMultiplier);
+  };
+
   const getMultiplierColor = (bet: LiveBetInfo): string => {
     if (isCashedOut(bet)) return '#4CAF50';
     if (isLost) return '#FF453A';
@@ -43,6 +49,12 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
   const getMultiplierText = (bet: LiveBetInfo): string => {
     if (isCashedOut(bet)) return `x${bet.cashOutAt!.toFixed(2)}`;
     return `x${currentMultiplier.toFixed(2)}`;
+  };
+
+  const getStatusLabel = (bet: LiveBetInfo): string => {
+    if (isCashedOut(bet)) return 'Кэшаут';
+    if (isLost) return 'Крах';
+    return '';
   };
 
   if (bets.length === 0) return null;
@@ -74,7 +86,8 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
               </div>
               <div className="lb__player">
                 <span className="lb__name">{truncateName(bet.firstName)}</span>
-                <span className="lb__bet">{bet.amount} <span className="lb__bet-unit">⭐</span></span>
+                <span className="lb__bet">{bet.amount} <span className="lb__bet-unit">→</span> {getLiveAmount(bet)} <span className="lb__bet-unit">⭐</span></span>
+                {getStatusLabel(bet) && <span className="lb__status">{getStatusLabel(bet)}</span>}
               </div>
             </div>
 
