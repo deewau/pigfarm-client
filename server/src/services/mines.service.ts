@@ -56,7 +56,7 @@ export class MinesGameService {
 
   getMultiplierForStep(minesCount: number, openedCount: number): number {
     const remainingCells = TOTAL_CELLS - openedCount;
-    const remainingMines = minesCount - openedCount < 0 ? 0 : minesCount;
+    const remainingMines = minesCount;
     const remainingSafe = remainingCells - remainingMines;
     const probability = remainingSafe / remainingCells;
     const fairMultiplier = 1 / probability;

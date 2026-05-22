@@ -24,7 +24,7 @@ interface CellData {
 function getMultiplierForStep(minesCount: number, openedCount: number): number {
   const TOTAL_CELLS = 25;
   const remainingCells = TOTAL_CELLS - openedCount;
-  const remainingMines = Math.max(0, minesCount - openedCount);
+  const remainingMines = minesCount;
   const remainingSafe = remainingCells - remainingMines;
   const probability = remainingSafe / remainingCells;
   const fairMultiplier = 1 / probability;
