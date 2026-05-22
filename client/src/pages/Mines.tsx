@@ -503,9 +503,11 @@ export function Mines() {
                   </span>
                 </div>
               )}
-              <div className={`mines__result-message ${resultType === 'win' ? 'mines__result-message--win' : 'mines__result-message--lose'}`}>
-                {resultMessage}
-              </div>
+              {resultType !== 'win' && (
+                <div className="mines__result-message mines__result-message--lose">
+                  {resultMessage}
+                </div>
+              )}
               {resultType === 'win' && resultWinAmount > 0 && (
                 <div className="mines__result-amount">{resultWinAmount} ⭐</div>
               )}
