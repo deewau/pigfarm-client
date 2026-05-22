@@ -18,13 +18,13 @@ const GAMES: LobbyGame[] = [
     title: 'КЕЙСЫ',
     path: '/play/cases',
     cover: '/assets/cmn/casebg.png',
-    layout: 'half' as const,
+    layout: 'full' as const,
   },
   {
-    id: 'plinko',
-    title: 'PLINKO',
-    path: '/play/plinko',
-    cover: '/assets/cmn/plinkobg.png',
+    id: 'crash',
+    title: 'CRASH',
+    path: '/play/crash',
+    cover: '/assets/cmn/rocketback.png',
     layout: 'half' as const,
   },
   {
@@ -32,13 +32,6 @@ const GAMES: LobbyGame[] = [
     title: 'MINES',
     path: '/play/mines',
     cover: '/assets/cmn/minesbg.png',
-    layout: 'half' as const,
-  },
-  {
-    id: 'crash',
-    title: 'CRASH',
-    path: '/play/crash',
-    cover: '/assets/cmn/rocketback.png',
     layout: 'half' as const,
   },
 ];
