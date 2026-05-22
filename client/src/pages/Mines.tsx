@@ -516,24 +516,16 @@ export function Mines() {
               <button className="mines__selector-close" onClick={() => setMinesDropdownOpen(false)}>✕</button>
             </div>
             <div className="mines__selector-list">
-              {Array.from({ length: 24 }, (_, i) => i + 1).map(n => {
-                const mult = getMaxMultiplier(n);
-                return (
+              {Array.from({ length: 24 }, (_, i) => i + 1).map(n => (
                   <div
                     key={n}
                     className={`mines__selector-item${n === minesCount ? ' mines__selector-item--active' : ''}`}
                     onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
                   >
-                    <div className="mines__selector-item-left">
-                      <span className="mines__selector-count">{n}</span>
-                      <span className="mines__selector-label">мин</span>
-                    </div>
-                    <div className="mines__selector-item-right">
-                      <span className="mines__selector-mult">x{mult.toFixed(2)}</span>
-                    </div>
+                    <span className="mines__selector-count">{n}</span>
+                    <span className="mines__selector-label">мин</span>
                   </div>
-                );
-              })}
+              ))}
             </div>
           </div>
         </div>
