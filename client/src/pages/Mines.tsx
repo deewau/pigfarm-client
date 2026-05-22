@@ -418,26 +418,15 @@ export function Mines() {
       </div>
 
       <div className="mines__top-panel">
-        <div className="mines__panel-left" ref={minesDropdownRef}>
+        <div className="mines__panel-left">
           <button
             className={`mines__dropdown-trigger${phase !== 'betting' ? ' mines__dropdown-trigger--disabled' : ''}`}
-            onClick={() => phase === 'betting' && setMinesDropdownOpen(!minesDropdownOpen)}
+            onClick={() => phase === 'betting' && setMinesDropdownOpen(true)}
             disabled={phase !== 'betting'}
           >
             <span className="mines__dropdown-label">Mines: {minesCount}</span>
             <span className="mines__dropdown-arrow">▼</span>
           </button>
-          {minesDropdownOpen && (
-            <div className="mines__dropdown-menu">
-              {Array.from({ length: 24 }, (_, i) => i + 1).map(n => (
-                <div
-                  key={n}
-                  className={`mines__dropdown-item${n === minesCount ? ' mines__dropdown-item--active' : ''}`}
-                  onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
-                >{n}</div>
-              ))}
-            </div>
-          )}
         </div>
         <div className="mines__panel-right">
           <div className="mines__next-badge">
@@ -518,6 +507,37 @@ export function Mines() {
           )}
         </div>
       </div>
+
+      {minesDropdownOpen && (
+        <div className="mines__overlay" onClick={() => setMinesDropdownOpen(false)}>
+          <div className="mines__selector" onClick={e => e.stopPropagation()}>
+            <div className="mines__selector-header">
+              <span className="mines__selector-title">Выбери количество мин</span>
+              <button className="mines__selector-close" onClick={() => setMinesDropdownOpen(false)}>✕</button>
+            </div>
+            <div className="mines__selector-list">
+              {Array.from({ length: 24 }, (_, i) => i + 1).map(n => {
+                const mult = getMaxMultiplier(n);
+                return (
+                  <div
+                    key={n}
+                    className={`mines__selector-item${n === minesCount ? ' mines__selector-item--active' : ''}`}
+                    onClick={() => { setMinesCount(n); setMinesDropdownOpen(false); }}
+                  >
+                    <div className="mines__selector-item-left">
+                      <span className="mines__selector-count">{n}</span>
+                      <span className="mines__selector-label">мин</span>
+                    </div>
+                    <div className="mines__selector-item-right">
+                      <span className="mines__selector-mult">x{mult.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <MinesBetSheet
         isOpen={showBetSheet}

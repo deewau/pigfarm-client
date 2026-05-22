@@ -146,40 +146,158 @@
   transition: transform 0.2s;
 }
 
-.mines__dropdown-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  display: grid;
-  grid-template-columns: repeat(6, 36px);
-  gap: 4px;
-  padding: 8px;
-  background: #1A0B2E;
-  border: 1px solid rgba(117, 71, 255, 0.15);
-  border-radius: 12px;
-  z-index: 100;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  max-height: 260px;
-  overflow-y: auto;
+/* ---- Mines Selector (Bottom Sheet) ---- */
+.mines__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: mines-overlay-in 0.2s ease;
 }
 
-.mines__dropdown-item {
-  padding: 6px 0;
-  text-align: center;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.6);
-  cursor: pointer;
-  transition: all 0.15s;
+@keyframes mines-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.mines__dropdown-item:hover {
-  background: var(--bg-surface-hover);
+
+.mines__selector {
+  width: 100%;
+  max-width: 420px;
+  max-height: 70vh;
+  background: rgba(12, 10, 30, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(130, 100, 255, 0.15);
+  border-bottom: none;
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(100, 70, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: mines-selector-in 0.3s ease;
+}
+
+@keyframes mines-selector-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.mines__selector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  flex-shrink: 0;
+}
+
+.mines__selector-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Gilroy', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.mines__selector-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mines__selector-close:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
-.mines__dropdown-item--active {
-  background: rgba(255, 215, 0, 0.15);
-  color: #FFD700;
+
+.mines__selector-list {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 8px 16px;
+  flex: 1;
+}
+
+.mines__selector-list::-webkit-scrollbar {
+  display: none;
+}
+
+.mines__selector-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 58px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+
+.mines__selector-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(130, 100, 255, 0.08);
+}
+
+.mines__selector-item--active {
+  background: rgba(130, 100, 255, 0.12);
+  border-color: rgba(130, 100, 255, 0.2);
+  box-shadow: 0 0 20px rgba(130, 100, 255, 0.06);
+}
+
+.mines__selector-item--active .mines__selector-count {
+  color: #fff;
+}
+
+.mines__selector-item-left {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.mines__selector-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Gilroy', sans-serif;
+  min-width: 28px;
+}
+
+.mines__selector-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'Gilroy', sans-serif;
+}
+
+.mines__selector-item-right {
+  display: flex;
+  align-items: center;
+}
+
+.mines__selector-mult {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 215, 0, 0.7);
+  font-family: 'Gilroy', sans-serif;
+  letter-spacing: 0.2px;
 }
 
 .mines__next-badge {
