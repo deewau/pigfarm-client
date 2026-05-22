@@ -36,8 +36,8 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
 
   const getMultiplierColor = (bet: LiveBetInfo): string => {
     if (isCashedOut(bet)) return '#4CAF50';
-    if (isLost) return '#FF0000';
-    return '#888';
+    if (isLost) return '#FF453A';
+    return 'rgba(255,255,255,0.5)';
   };
 
   const getMultiplierText = (bet: LiveBetInfo): string => {
@@ -48,58 +48,59 @@ export function LiveBets({ bets, gameState, currentMultiplier }: LiveBetsProps) 
   if (bets.length === 0) return null;
 
   return (
-    <div className="live-bets">
-      <div className="live-bets__header">
-        <span className="live-bets__header-left">Игрок / Сумма</span>
-        <span className="live-bets__header-right">Множитель</span>
+    <div className="lb">
+      <div className="lb__header">
+        <span className="lb__header-label">Игроки</span>
+        <span className="lb__header-count">{bets.length}</span>
       </div>
 
-      <div className="live-bets__body">
+      <div className="lb__body">
         {displayBets.map((bet, idx) => (
           <div
             key={bet.userId}
-            className="live-bets__item"
+            className="lb__row"
             style={{ animationDelay: `${idx * 0.04}s` }}
           >
-            <div className="live-bets__item-left">
-              {bet.photoUrl ? (
-                <img className="live-bets__avatar" src={bet.photoUrl} alt="" referrerPolicy="no-referrer" />
-              ) : (
-                <div className="live-bets__avatar live-bets__avatar--default">
-                  {getInitials(bet.firstName)}
-                </div>
-              )}
-              <div className="live-bets__player-info">
-                <span className="live-bets__name">{truncateName(bet.firstName)}</span>
-                <span className="live-bets__amount">{bet.amount} ⭐</span>
+            <div className="lb__row-left">
+              <div className="lb__avatar-wrap">
+                {bet.photoUrl ? (
+                  <img className="lb__avatar" src={bet.photoUrl} alt="" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="lb__avatar lb__avatar--default">
+                    {getInitials(bet.firstName)}
+                  </div>
+                )}
+                <span className="lb__online" />
+              </div>
+              <div className="lb__player">
+                <span className="lb__name">{truncateName(bet.firstName)}</span>
+                <span className="lb__bet">{bet.amount} <span className="lb__bet-unit">⭐</span></span>
               </div>
             </div>
 
-            <div className="live-bets__item-right">
-              <div className="live-bets__multiplier-wrap">
-                <span
-                  className="live-bets__multiplier"
-                  style={{ color: getMultiplierColor(bet) }}
-                >
-                  {getMultiplierText(bet)}
-                </span>
-                {bet.cashOutAt !== null && (
-                  <span className="live-bets__checkmark">✓</span>
-                )}
-              </div>
+            <div className="lb__row-right">
+              <span
+                className="lb__multiplier"
+                style={{ color: getMultiplierColor(bet) }}
+              >
+                {getMultiplierText(bet)}
+              </span>
+              {bet.cashOutAt !== null && (
+                <span className="lb__check">✓</span>
+              )}
             </div>
           </div>
         ))}
       </div>
 
       {hiddenCount > 0 && !expanded && (
-        <div className="live-bets__footer" onClick={() => setExpanded(true)}>
-          И ещё ставок: {hiddenCount}
+        <div className="lb__footer" onClick={() => setExpanded(true)}>
+          Ещё {hiddenCount} {hiddenCount === 1 ? 'ставка' : hiddenCount < 5 ? 'ставки' : 'ставок'}
         </div>
       )}
 
       {hiddenCount > 0 && expanded && (
-        <div className="live-bets__footer" onClick={() => setExpanded(false)}>
+        <div className="lb__footer" onClick={() => setExpanded(false)}>
           Свернуть
         </div>
       )}
