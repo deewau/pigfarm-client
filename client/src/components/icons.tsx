@@ -63,6 +63,13 @@ export const Slots777Icon: FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
+// Иконка лидерборда (пьедестал)
+export const LeaderboardIcon: FC = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+    <path d="M7.5 21H2V9l4.5 3V3l3 2.25V21h-2zM17.5 21H22v-9l-4.5 3V6l-3 2.25V21h2zM14.5 21h-5V13l4.5-3v11z" />
+  </svg>
+);
+
 // Иконка инвентаря (рюкзак)
 export const InventoryIcon: FC = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">

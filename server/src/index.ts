@@ -24,6 +24,7 @@ import winRoutes from './routes/win.routes.js';
 import crashRoutes from './routes/crash.routes.js';
 import minesRoutes from './routes/mines.routes.js';
 import plinkoRoutes from './routes/plinko.routes.js';
+import leaderboardRoutes from './routes/leaderboard.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,6 +52,7 @@ app.use('/api/win', winRoutes);
 app.use('/api/crash', crashRoutes);
 app.use('/api/mines', minesRoutes);
 app.use('/api/plinko', plinkoRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Отдаём анимации подарков (для обоих режимов)
 const giftsPath = path.join(__dirname, '../assets/gifts');

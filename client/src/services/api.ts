@@ -172,6 +172,14 @@ export const minesApi = {
   },
 };
 
+// Leaderboard
+export const leaderboardApi = {
+  get: async () => {
+    const response = await api.get('/api/leaderboard');
+    return response.data;
+  },
+};
+
 // Win
 export const winApi = {
   spin: async (cost: number = 29) => {

@@ -7,11 +7,12 @@ import { Crash } from './pages/Crash';
 import { Mines } from './pages/Mines';
 import { Plinko } from './pages/Plinko';
 import { Inventory } from './pages/Inventory';
+import { Leaderboard } from './pages/Leaderboard';
 import { TabBar } from './components/TabBar';
 import { AppHeader } from './components/AppHeader';
 import { LiveFeed } from './components/LiveFeed';
 import { ComingSoon } from './components/ComingSoon';
-import { GiftsIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
+import { LeaderboardIcon, GameIcon, InventoryIcon, ProfileIcon } from './components/icons';
 import { LiveFeedProvider, useLiveFeed } from './contexts/LiveFeedContext';
 
 function App() {
@@ -21,7 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Play />} />
-            <Route path="giveaways" element={<ComingSoon title="Розыгрыши" subtitle="Участвуй в розыгрышах и получай подарки!" icon="🎁" />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
             <Route path="play" element={<Play />} />
             <Route path="play/crash" element={<Crash />} />
             <Route path="play/mines" element={<Mines />} />
@@ -61,7 +62,7 @@ function BottomBar() {
 
   const getActiveTab = () => {
     const path = location.pathname;
-    if (path.includes('giveaways')) return 'giveaways';
+    if (path.includes('leaderboard')) return 'leaderboard';
     if (path.includes('inventory')) return 'inventory';
     if (path.includes('profile')) return 'profile';
     return 'play';
@@ -72,7 +73,7 @@ function BottomBar() {
       activeTab={getActiveTab()}
       onTabChange={(tabId) => {
         const tab = [
-          { id: 'giveaways', path: '/giveaways' },
+          { id: 'leaderboard', path: '/leaderboard' },
           { id: 'play', path: '/play' },
           { id: 'inventory', path: '/inventory' },
           { id: 'profile', path: '/profile' },
@@ -81,10 +82,10 @@ function BottomBar() {
       }}
       tabs={[
         {
-          id: 'giveaways',
-          label: 'Розыгрыши',
-          path: '/giveaways',
-          icon: <GiftsIcon />,
+          id: 'leaderboard',
+          label: 'Лидеры',
+          path: '/leaderboard',
+          icon: <LeaderboardIcon />,
         },
         {
           id: 'play',

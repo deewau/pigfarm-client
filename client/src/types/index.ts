@@ -62,3 +62,18 @@ export interface XpResponse {
   xp: number;
   level: UserLevel;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  id: number;
+  telegram_id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  total_volume: number;
+}
+
+export interface LeaderboardResponse {
+  top: LeaderboardEntry[];
+  currentUser: (LeaderboardEntry & { rank: number }) | null;
+}
