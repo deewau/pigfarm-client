@@ -23,20 +23,38 @@ export const GiftReceiveModal: FC<GiftReceiveModalProps> = ({ isOpen, gift, onCl
   const [sent, setSent] = useState(false);
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
+  const [animData, setAnimData] = useState<any>(null);
+  const [animLoading, setAnimLoading] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current || !gift?.animationData) return;
+    if (!gift) return;
+
+    setAnimData(null);
+    setAnimLoading(true);
+
+    fetch(`/gifts/${gift.gift_id}.json`)
+      .then(r => {
+        if (!r.ok) throw new Error('Not found');
+        return r.json();
+      })
+      .then(data => setAnimData(data))
+      .catch(() => setAnimData(null))
+      .finally(() => setAnimLoading(false));
+  }, [gift?.gift_id]);
+
+  useEffect(() => {
+    if (!containerRef.current || !animData) return;
 
     const animation = lottie.loadAnimation({
       container: containerRef.current,
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      animationData: gift.animationData,
+      animationData: animData,
     });
 
     return () => animation.destroy();
-  }, [gift?.animationData]);
+  }, [animData]);
 
   const handleSend = async () => {
     setSending(true);
