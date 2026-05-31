@@ -537,6 +537,87 @@
   text-align: center;
 }
 
+/* ---- Gift bet row ---- */
+.mines__bet-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mines__gift-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255,215,0,0.15);
+  color: #FFD700;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.15);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mines__gift-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255,215,0,0.25);
+}
+
+.mines__gift-btn:active {
+  transform: translateY(0);
+}
+
+.mines__gift-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 12px;
+}
+
+.mines__gift-selected-icon {
+  font-size: 18px;
+}
+
+.mines__gift-selected-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mines__gift-selected-stars {
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFD700;
+  margin-left: auto;
+}
+
+.mines__gift-selected-clear {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.mines__gift-selected-clear:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
 /* ---- Action Button ---- */
 .mines__action-btn {
   width: 100%;

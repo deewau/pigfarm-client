@@ -188,6 +188,16 @@ export const userGiftRepository = {
     await pool.query('DELETE FROM user_gifts WHERE id = $1', [id]);
   },
 
+  async deleteByIdAndUser(id: number, userId: number): Promise<UserGift | null> {
+    const pool = getPool();
+    const result = await pool.query(
+      'DELETE FROM user_gifts WHERE id = $1 AND user_id = $2 RETURNING *',
+      [id, userId]
+    );
+    if (result.rows.length === 0) return null;
+    return result.rows[0] as UserGift;
+  },
+
   async findRecent(limit: number = 20): Promise<(UserGift & { first_name: string; username: string | null })[]> {
     const pool = getPool();
     const result = await pool.query(

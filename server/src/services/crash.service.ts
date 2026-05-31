@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { WebSocket } from 'ws';
-import { userRepository, transactionRepository } from '../db/repository.js';
+import { userRepository, transactionRepository, userGiftRepository } from '../db/repository.js';
 import { sendBalanceUpdate } from './websocket.js';
 
 const WAITING_DURATION = 7000;
@@ -83,7 +83,7 @@ export class CrashGameService {
     try { data = JSON.parse(raw); } catch { return; }
     switch (data.type) {
       case 'bet':
-        this.placeBet(userId, data.amount).catch(console.error);
+        this.placeBet(userId, data.amount, data.giftId).catch(console.error);
         break;
       case 'cash_out':
         this.cashOut(userId);
@@ -94,26 +94,45 @@ export class CrashGameService {
     }
   }
 
-  private async placeBet(userId: number, amount: number) {
+  private async placeBet(userId: number, amount: number, giftId?: number) {
     if (!this.currentRound || this.currentRound.state !== 'waiting') return;
     if (this.currentRound.bets.has(userId)) return;
-    if (amount < 1 || !Number.isInteger(amount) || amount > 10000) return;
     const client = this.clients.get(userId);
     if (!client) return;
-    const user = await userRepository.findById(userId);
-    if (!user || user.balance < amount) {
-      this.sendTo(client.ws, { type: 'bet_result', accepted: false, error: 'Недостаточно средств' });
-      return;
+
+    if (giftId) {
+      const deleted = await userGiftRepository.deleteByIdAndUser(giftId, userId);
+      if (!deleted) {
+        this.sendTo(client.ws, { type: 'bet_result', accepted: false, error: 'Подарок не найден' });
+        return;
+      }
+      amount = deleted.gift_stars;
+      if (amount < 1 || amount > 10000) {
+        this.sendTo(client.ws, { type: 'bet_result', accepted: false, error: 'Неверная стоимость подарка' });
+        return;
+      }
+      await transactionRepository.create({
+        user_id: userId, amount, type: 'spend', status: 'completed',
+        description: `Crash: ставка подарком "${deleted.gift_name}" (${amount}⭐)`,
+      });
+    } else {
+      if (amount < 1 || !Number.isInteger(amount) || amount > 10000) return;
+      const user = await userRepository.findById(userId);
+      if (!user || user.balance < amount) {
+        this.sendTo(client.ws, { type: 'bet_result', accepted: false, error: 'Недостаточно средств' });
+        return;
+      }
+      await userRepository.addBalance(userId, -amount);
+      await transactionRepository.create({
+        user_id: userId, amount, type: 'spend', status: 'completed',
+        description: `Crash: ставка ${amount}⭐`,
+      });
     }
-    await userRepository.addBalance(userId, -amount);
-    await transactionRepository.create({
-      user_id: userId, amount, type: 'spend', status: 'completed',
-      description: `Crash: ставка ${amount}⭐`,
-    });
+
     const updated = await userRepository.findById(userId);
     if (updated) sendBalanceUpdate(userId, updated.balance);
     this.currentRound.bets.set(userId, { userId, firstName: client.firstName, amount, cashOutAt: null, photoUrl: client.photoUrl });
-    this.sendTo(client.ws, { type: 'bet_result', accepted: true, amount, balance: updated?.balance ?? 0 });
+    this.sendTo(client.ws, { type: 'bet_result', accepted: true, amount, balance: updated?.balance ?? 0, giftBet: !!giftId });
     this.broadcastNewBet(userId);
     this.broadcastBets();
   }

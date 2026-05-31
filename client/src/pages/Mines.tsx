@@ -4,6 +4,7 @@ import { minesApi } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { DepositModal } from '../components/DepositModal';
 import { MinesBetSheet } from '../components/MinesBetSheet';
+import { GiftBetSheet, type GiftItem } from '../components/GiftBetSheet';
 import './Mines.css';
 
 const GRID_SIZE = 5;
@@ -80,6 +81,8 @@ export function Mines() {
   const [error, setError] = useState<string | null>(null);
   const [minesDropdownOpen, setMinesDropdownOpen] = useState(false);
   const [showBetSheet, setShowBetSheet] = useState(false);
+  const [showGiftSheet, setShowGiftSheet] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
 
   const minesDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -205,11 +208,11 @@ export function Mines() {
   }, [user]);
 
   const handleStartGame = async () => {
-    if (betAmount < MIN_BET || betAmount > MAX_BET) {
+    if (!selectedGift && (betAmount < MIN_BET || betAmount > MAX_BET)) {
       setError(`Ставка от ${MIN_BET} до ${MAX_BET} ⭐`);
       return;
     }
-    if (balance < betAmount) {
+    if (!selectedGift && balance < betAmount) {
       setShowDeposit(true);
       return;
     }
@@ -218,7 +221,7 @@ export function Mines() {
     setShowAllMines(false);
 
     try {
-      const result = await minesApi.start(betAmount, minesCount);
+      const result = await minesApi.start(betAmount, minesCount, undefined, selectedGift?.id);
       if (!result.success) {
         if (result.error === 'INSUFFICIENT_BALANCE') { setShowDeposit(true); return; }
         if (result.error === 'CONCURRENT_GAME_EXISTS') { setError('Уже есть активная игра'); return; }
@@ -231,6 +234,7 @@ export function Mines() {
       if (result.data.balance !== undefined) setBalance(result.data.balance);
       setPhase('playing');
       setShowBetSheet(false);
+      setSelectedGift(null);
       setCells(Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => ({
         state: 'hidden' as CellState,
         row: Math.floor(i / GRID_SIZE),
@@ -388,6 +392,7 @@ export function Mines() {
     setPhase('betting');
     setGameId(null);
     setServerSeedHash(null);
+    setSelectedGift(null);
     setCells(Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => ({
       state: 'hidden' as CellState, row: Math.floor(i / GRID_SIZE), col: i % GRID_SIZE, revealed: false,
     })));
@@ -464,9 +469,28 @@ export function Mines() {
         <div className="mines__side-panel">
           {phase === 'betting' && (
             <div className="mines__controls">
-              <button className="mines__action-btn" onClick={() => setShowBetSheet(true)}>
-                Сделать ставку
-              </button>
+              {!selectedGift ? (
+                <div className="mines__bet-row">
+                  <button className="mines__action-btn" onClick={() => setShowBetSheet(true)}>
+                    Сделать ставку
+                  </button>
+                  <button className="mines__gift-btn" onClick={() => setShowGiftSheet(true)}>
+                    🎁
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="mines__gift-selected">
+                    <span className="mines__gift-selected-icon">🎁</span>
+                    <span className="mines__gift-selected-name">{selectedGift.gift_name}</span>
+                    <span className="mines__gift-selected-stars">⭐ {selectedGift.gift_stars}</span>
+                    <button className="mines__gift-selected-clear" onClick={() => setSelectedGift(null)}>✕</button>
+                  </div>
+                  <button className="mines__action-btn" onClick={() => { setBetAmount(selectedGift.gift_stars); setShowBetSheet(true); }}>
+                    Ставка {selectedGift.gift_stars}⭐
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -541,6 +565,15 @@ export function Mines() {
         error={error}
         onStartGame={handleStartGame}
         onDeposit={() => setShowDeposit(true)}
+      />
+
+      <GiftBetSheet
+        isOpen={showGiftSheet}
+        onClose={() => setShowGiftSheet(false)}
+        onSelect={(gift) => {
+          setSelectedGift(gift);
+          setBetAmount(gift.gift_stars);
+        }}
       />
 
       <DepositModal

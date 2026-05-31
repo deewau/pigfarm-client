@@ -12,13 +12,13 @@ router.post('/start', async (req, res) => {
     console.log('[MINES] /start called', { userId, body: { betAmount: req.body.betAmount, minesCount: req.body.minesCount } });
     if (!userId) { res.status(401).json({ success: false, error: 'Unauthorized' }); return; }
 
-    const { betAmount, minesCount, clientSeed } = req.body;
-    if (betAmount === undefined || minesCount === undefined) {
+    const { betAmount, minesCount, clientSeed, giftId } = req.body;
+    if ((giftId === undefined) && (betAmount === undefined || minesCount === undefined)) {
       console.error('[MINES] Missing betAmount or minesCount', req.body);
       res.status(400).json({ success: false, error: 'Missing betAmount or minesCount' });
       return;
     }
-    const result = await minesGameService.startGame(userId, betAmount, minesCount, clientSeed);
+    const result = await minesGameService.startGame(userId, betAmount, minesCount, clientSeed, giftId);
     console.log('[MINES] startGame result:', JSON.stringify(result).slice(0, 200));
     if (!result.success) {
       const status = result.error === 'INSUFFICIENT_BALANCE' ? 400 :

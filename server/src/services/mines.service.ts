@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { WebSocket } from 'ws';
-import { gameRepository, userRepository, transactionRepository } from '../db/repository.js';
+import { gameRepository, userRepository, transactionRepository, userGiftRepository } from '../db/repository.js';
 import { sendBalanceUpdate } from './websocket.js';
 
 const GRID_SIZE = 5;
@@ -121,15 +121,28 @@ export class MinesGameService {
     }
   }
 
-  async startGame(userId: number, betAmount: number, minesCount: number, clientSeed?: string): Promise<any> {
-    console.log('[MINES:SERVICE] startGame', { userId, betAmount, minesCount });
-    if (betAmount < MIN_BET || betAmount > MAX_BET) {
-      console.log('[MINES:SERVICE] INVALID_BET_AMOUNT', { betAmount, MIN_BET, MAX_BET });
-      return { success: false, error: 'INVALID_BET_AMOUNT' };
-    }
+  async startGame(userId: number, betAmount: number, minesCount: number, clientSeed?: string, giftId?: number): Promise<any> {
+    console.log('[MINES:SERVICE] startGame', { userId, betAmount, minesCount, giftId });
     if (minesCount < 1 || minesCount > 24) {
       console.log('[MINES:SERVICE] INVALID_MINES_COUNT', { minesCount });
       return { success: false, error: 'INVALID_MINES_COUNT' };
+    }
+
+    if (giftId) {
+      const deleted = await userGiftRepository.deleteByIdAndUser(giftId, userId);
+      if (!deleted) {
+        console.log('[MINES:SERVICE] GIFT_NOT_FOUND', { giftId, userId });
+        return { success: false, error: 'GIFT_NOT_FOUND' };
+      }
+      betAmount = deleted.gift_stars;
+      if (betAmount < MIN_BET || betAmount > MAX_BET) {
+        return { success: false, error: 'INVALID_GIFT_VALUE' };
+      }
+    } else {
+      if (betAmount < MIN_BET || betAmount > MAX_BET) {
+        console.log('[MINES:SERVICE] INVALID_BET_AMOUNT', { betAmount, MIN_BET, MAX_BET });
+        return { success: false, error: 'INVALID_BET_AMOUNT' };
+      }
     }
 
     const existing = await gameRepository.findActiveByUserId(userId);
@@ -146,26 +159,36 @@ export class MinesGameService {
     const user = await userRepository.findById(userId);
     console.log('[MINES:SERVICE] user found', { userId, balance: user?.balance });
     if (!user) return { success: false, error: 'User not found' };
-    if (user.balance < betAmount) {
+
+    if (!giftId && user.balance < betAmount) {
       console.log('[MINES:SERVICE] INSUFFICIENT_BALANCE', { balance: user.balance, betAmount });
       return { success: false, error: 'INSUFFICIENT_BALANCE' };
+    }
+
+    if (giftId) {
+      await transactionRepository.create({
+        user_id: userId,
+        amount: betAmount,
+        type: 'spend',
+        status: 'completed',
+        description: `Mines: ставка подарком (${betAmount}⭐, ${minesCount} мин)`,
+      });
+    } else {
+      await userRepository.addBalance(userId, -betAmount);
+      await transactionRepository.create({
+        user_id: userId,
+        amount: betAmount,
+        type: 'spend',
+        status: 'completed',
+        description: `Mines: ставка ${betAmount}⭐ (${minesCount} мин)`,
+      });
     }
 
     const serverSeed = this.generateSeed();
     const serverSeedHash = this.hashSeed(serverSeed);
     const clientSeedFinal = clientSeed || crypto.randomBytes(16).toString('hex');
     const minePositions = this.generateMinePositions(serverSeed, clientSeedFinal, 0, minesCount);
-
     const cells = Array.from({ length: TOTAL_CELLS }, (_, i) => minePositions.includes(i));
-
-    await userRepository.addBalance(userId, -betAmount);
-    await transactionRepository.create({
-      user_id: userId,
-      amount: betAmount,
-      type: 'spend',
-      status: 'completed',
-      description: `Mines: ставка ${betAmount}⭐ (${minesCount} мин)`,
-    });
 
     const game = await gameRepository.create({
       user_id: userId,

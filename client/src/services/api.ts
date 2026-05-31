@@ -146,8 +146,8 @@ export const plinkoApi = {
 
 // Mines
 export const minesApi = {
-  start: async (betAmount: number, minesCount: number, clientSeed?: string) => {
-    const response = await api.post('/api/mines/start', { betAmount, minesCount, clientSeed });
+  start: async (betAmount: number, minesCount: number, clientSeed?: string, giftId?: number) => {
+    const response = await api.post('/api/mines/start', { betAmount, minesCount, clientSeed, giftId });
     return response.data;
   },
   reveal: async (gameId: number, row: number, col: number) => {

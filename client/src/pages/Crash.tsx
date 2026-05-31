@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import lottie from 'lottie-web';
 import { LiveBets } from '../components/LiveBets';
+import { GiftBetSheet, type GiftItem } from '../components/GiftBetSheet';
 import './Crash.css';
 
 type CrashState = 'waiting' | 'flying' | 'crashed' | 'pause' | 'loading';
@@ -83,6 +84,8 @@ export function Crash() {
   const [resultMsg, setResultMsg] = useState<string | null>(null);
   const [lastCashOut, setLastCashOut] = useState<{ multiplier: number; won: number } | null>(null);
   const [ping, setPing] = useState(0);
+  const [showGiftSheet, setShowGiftSheet] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
   const hasSyncedRef = useRef(false);
   const isMountedRef = useRef(true);
 
@@ -134,6 +137,7 @@ export function Crash() {
           lastCashOutRef.current = null; setLastCashOut(null);
           betsRef.current = []; setBets([]);
           resultMsgRef.current = null; setResultMsg(null);
+          setSelectedGift(null);
         }
         if (state === 'flying' && msg.multiplier) {
           multiplierRef.current = msg.multiplier;
@@ -291,8 +295,12 @@ export function Crash() {
   }, []);
 
   const handleBet = useCallback(() => {
-    send({ type: 'bet', amount: betAmount });
-  }, [send, betAmount]);
+    if (selectedGift) {
+      send({ type: 'bet', amount: selectedGift.gift_stars, giftId: selectedGift.id });
+    } else {
+      send({ type: 'bet', amount: betAmount });
+    }
+  }, [send, betAmount, selectedGift]);
 
   const handleCashOut = useCallback(() => {
     send({ type: 'cash_out' });
@@ -361,15 +369,36 @@ export function Crash() {
 
         {gameState === 'waiting' && yourBet === null && (
           <div className="crash__bet-controls">
-            <div className="crash__presets">
-              {PRESETS.map(p => (
-                <button key={p} className={`crash__preset-btn ${betAmount === p ? 'crash__preset-btn--active' : ''}`}
-                  onClick={() => setBetAmount(p)}>{p}</button>
-              ))}
-            </div>
-            <button className="crash__bet-btn" onClick={handleBet}>
-              Ставка {betAmount}⭐
-            </button>
+            {!selectedGift ? (
+              <>
+                <div className="crash__presets">
+                  {PRESETS.map(p => (
+                    <button key={p} className={`crash__preset-btn ${betAmount === p ? 'crash__preset-btn--active' : ''}`}
+                      onClick={() => setBetAmount(p)}>{p}</button>
+                  ))}
+                </div>
+                <div className="crash__bet-row">
+                  <button className="crash__bet-btn" onClick={handleBet}>
+                    Ставка {betAmount}⭐
+                  </button>
+                  <button className="crash__gift-btn" onClick={() => setShowGiftSheet(true)}>
+                    🎁
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="crash__bet-controls">
+                <div className="crash__gift-selected">
+                  <span className="crash__gift-selected-icon">🎁</span>
+                  <span className="crash__gift-selected-name">{selectedGift.gift_name}</span>
+                  <span className="crash__gift-selected-stars">⭐ {selectedGift.gift_stars}</span>
+                  <button className="crash__gift-selected-clear" onClick={() => setSelectedGift(null)}>✕</button>
+                </div>
+                <button className="crash__bet-btn" onClick={handleBet}>
+                  Ставка {selectedGift.gift_stars}⭐
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -396,6 +425,15 @@ export function Crash() {
       {gameState === 'crashed' && (
         <div className="crash__crashed-label">КРАХ</div>
       )}
+
+      <GiftBetSheet
+        isOpen={showGiftSheet}
+        onClose={() => setShowGiftSheet(false)}
+        onSelect={(gift) => {
+          setSelectedGift(gift);
+          setBetAmount(gift.gift_stars);
+        }}
+      />
     </div>
   );
 }
