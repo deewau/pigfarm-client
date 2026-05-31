@@ -70,6 +70,7 @@ export interface LeaderboardEntry {
   first_name: string;
   last_name?: string;
   username?: string;
+  photo_url?: string | null;
   total_volume: number;
 }
 

@@ -32,6 +32,9 @@ export async function getLeaderboard(req: Request, res: Response) {
       last_name: row.last_name,
       username: row.username,
       total_volume: Number(row.total_volume),
+      photo_url: row.username
+        ? `https://t.me/i/userpic/320/${row.username}.jpg`
+        : null,
     }));
 
     let currentUser: (typeof top)[0] & { rank: number } | null = null;
@@ -68,6 +71,9 @@ export async function getLeaderboard(req: Request, res: Response) {
               last_name: u.last_name,
               username: u.username,
               total_volume: 0,
+              photo_url: u.username
+                ? `https://t.me/i/userpic/320/${u.username}.jpg`
+                : null,
             };
 
             const volResult = await pool.query(`

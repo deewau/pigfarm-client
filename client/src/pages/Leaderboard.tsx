@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useTelegram } from '../hooks/useTelegram';
 import { useAuth } from '../hooks/useAuth';
 import { leaderboardApi } from '../services/api';
 import type { LeaderboardEntry } from '../types';
@@ -20,7 +19,6 @@ function formatVolume(n: number): string {
 }
 
 export function Leaderboard() {
-  const { user: tgUser } = useTelegram();
   const { user } = useAuth();
   const [top, setTop] = useState<LeaderboardEntry[]>([]);
   const [currentUser, setCurrentUser] = useState<(LeaderboardEntry & { rank: number }) | null>(null);
@@ -64,8 +62,8 @@ export function Leaderboard() {
 
         <div className="leaderboard__avatar-wrapper">
           <div className={`leaderboard__avatar ${isFirst ? 'leaderboard__avatar--gold' : ''}`}>
-            {tgUser?.photo_url && isMe ? (
-              <img src={tgUser.photo_url} alt="" className="leaderboard__avatar-img" />
+            {entry.photo_url ? (
+              <img src={entry.photo_url} alt="" className="leaderboard__avatar-img" />
             ) : (
               <div className="leaderboard__avatar-placeholder">
                 {entry.first_name.charAt(0).toUpperCase()}
