@@ -486,8 +486,8 @@ export function Mines() {
                     <span className="mines__gift-selected-stars">⭐ {selectedGift.gift_stars}</span>
                     <button className="mines__gift-selected-clear" onClick={() => setSelectedGift(null)}>✕</button>
                   </div>
-                  <button className="mines__action-btn" onClick={() => { setBetAmount(selectedGift.gift_stars); setShowBetSheet(true); }}>
-                    Ставка {selectedGift.gift_stars}⭐
+                  <button className="mines__action-btn mines__action-btn--gift" onClick={() => { setBetAmount(selectedGift.gift_stars); setShowBetSheet(true); }}>
+                    Ставка 🎁
                   </button>
                 </>
               )}
@@ -570,9 +570,41 @@ export function Mines() {
       <GiftBetSheet
         isOpen={showGiftSheet}
         onClose={() => setShowGiftSheet(false)}
-        onSelect={(gift) => {
-          setSelectedGift(gift);
-          setBetAmount(gift.gift_stars);
+        onSelect={async (gift) => {
+          setShowGiftSheet(false);
+          setError(null);
+          setShowAllMines(false);
+
+          try {
+            const result = await minesApi.start(gift.gift_stars, minesCount, undefined, gift.id);
+            if (!result.success) {
+              setError(result.error === 'GIFT_NOT_FOUND' ? 'Подарок уже использован' : (result.error || 'Ошибка'));
+              return;
+            }
+
+            setGameId(result.data.gameId);
+            setServerSeedHash(result.data.serverSeedHash);
+            if (result.data.balance !== undefined) setBalance(result.data.balance);
+            setPhase('playing');
+            setShowBetSheet(false);
+            setSelectedGift(null);
+            setCells(Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => ({
+              state: 'hidden' as CellState,
+              row: Math.floor(i / GRID_SIZE),
+              col: i % GRID_SIZE,
+              revealed: false,
+            })));
+            setOpenedCount(0);
+            setCurrentMultiplier(1.0);
+            setCurrentWin(0);
+            setResultMessage(null);
+            setResultType(null);
+            setAllMines([]);
+            setPulseLose(false);
+            setNextMultiplier(getCumulativeMultiplier(minesCount, 1));
+          } catch {
+            setError('Ошибка соединения');
+          }
         }}
       />
 

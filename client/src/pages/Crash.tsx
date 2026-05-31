@@ -394,8 +394,8 @@ export function Crash() {
                   <span className="crash__gift-selected-stars">⭐ {selectedGift.gift_stars}</span>
                   <button className="crash__gift-selected-clear" onClick={() => setSelectedGift(null)}>✕</button>
                 </div>
-                <button className="crash__bet-btn" onClick={handleBet}>
-                  Ставка {selectedGift.gift_stars}⭐
+                <button className="crash__bet-btn crash__bet-btn--gift" onClick={handleBet}>
+                  Ставка 🎁
                 </button>
               </div>
             )}
@@ -430,8 +430,8 @@ export function Crash() {
         isOpen={showGiftSheet}
         onClose={() => setShowGiftSheet(false)}
         onSelect={(gift) => {
-          setSelectedGift(gift);
-          setBetAmount(gift.gift_stars);
+          setShowGiftSheet(false);
+          send({ type: 'bet', amount: gift.gift_stars, giftId: gift.id });
         }}
       />
     </div>
