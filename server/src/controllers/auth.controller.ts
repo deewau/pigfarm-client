@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { validateTelegramInitData } from '../utils/telegram.js';
 import { userRepository, userGiftRepository, transactionRepository } from '../db/repository.js';
-import { sendGiftToUser, GIFTS_DATA } from '../services/telegram.js';
-import type { TelegramGift } from '../services/telegram.js';
+import { sendGiftToUser, findGiftById } from '../services/telegram.js';
 
 // Простой дедупликатор - хранит recent запросы
 const recentGiftRequests = new Map<string, number>();
@@ -195,7 +194,7 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
     }
 
     // Находим данные подарка
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    const giftData = findGiftById(userGift.gift_id);
     if (!giftData) {
       console.log(`🎁 Gift data not found for ${userGift.gift_id}`);
       await sendTelegramMessage(recipientTelegramId, 'Подарок не найден в базе данных.');

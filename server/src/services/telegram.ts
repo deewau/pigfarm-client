@@ -381,8 +381,28 @@ export const GIFTS_DATA: TelegramGift[] = [
   },
 ];
 
+// Бинарный поиск подарка по ID в отсортированном массиве
+const GIFTS_DATA_SORTED: TelegramGift[] = [...GIFTS_DATA].sort((a, b) => a.id.localeCompare(b.id));
+
+function binarySearchGift(giftId: string): TelegramGift | undefined {
+  let lo = 0;
+  let hi = GIFTS_DATA_SORTED.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    const midId = GIFTS_DATA_SORTED[mid].id;
+    if (midId === giftId) return GIFTS_DATA_SORTED[mid];
+    if (midId < giftId) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  return undefined;
+}
+
+export function findGiftById(giftId: string): TelegramGift | undefined {
+  return binarySearchGift(giftId);
+}
+
 export async function getGiftById(giftId: string): Promise<TelegramGift | null> {
-  const gift = GIFTS_DATA.find(g => g.id === giftId);
+  const gift = binarySearchGift(giftId);
   if (!gift) {
     console.error(`Gift ${giftId} not found in static data`);
     return null;

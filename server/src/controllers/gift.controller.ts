@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
-import { GIFTS_DATA, TelegramGift, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
+import { GIFTS_DATA, TelegramGift, findGiftById, sendGiftToUser as sendGiftViaApi } from '../services/telegram.js';
 import { broadcastNewWin, sendBalanceUpdate } from '../services/websocket.js';
 
 const GIFT_PROBABILITIES: Record<string, number> = {
@@ -196,7 +196,7 @@ export async function spinRoulette(req: Request, res: Response) {
 
     // Broadcast new win to all live feed clients BEFORE sending response
     // This way the WS message arrives before client processes HTTP response
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === wonGift.id);
+    const giftData = findGiftById(wonGift.id);
     if (updatedUser) {
       const liveWinData = {
         id: gift.id,
@@ -315,13 +315,11 @@ export async function getUserGifts(req: Request, res: Response) {
 
     const gifts = await userGiftRepository.findByUserId(userId);
 
-    // Добавляем SVG данные к подаркам
     const giftsWithSvg = gifts.map(gift => {
-      const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === gift.gift_id);
+      const giftData = findGiftById(gift.gift_id);
       return {
         ...gift,
         animationSvg: giftData?.animationSvg || null,
-        animationData: giftData?.animationData || null,
       };
     });
 
@@ -380,7 +378,7 @@ export async function sendUserGift(req: Request, res: Response) {
       return;
     }
 
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    const giftData = findGiftById(userGift.gift_id);
     console.log('📤 giftData found:', giftData);
     
     if (!giftData) {
@@ -466,7 +464,7 @@ export async function transferGiftToFriend(req: Request, res: Response) {
       return;
     }
 
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    const giftData = findGiftById(userGift.gift_id);
     if (!giftData) {
       res.status(400).json({
         success: false,
@@ -543,7 +541,7 @@ export async function sendGiftToFriendHandler(req: Request, res: Response) {
       return;
     }
 
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    const giftData = findGiftById(userGift.gift_id);
     if (!giftData) {
       res.status(400).json({ success: false, error: 'Gift not found in database' });
       return;
@@ -576,7 +574,7 @@ export async function getRecentWins(req: Request, res: Response) {
     const wins = await userGiftRepository.findRecent(limit);
 
     const winsWithSvg = wins.map(win => {
-      const giftData = GIFTS_DATA.find((g: any) => g.id === win.gift_id);
+      const giftData = findGiftById(win.gift_id);
       return {
         ...win,
         animationSvg: giftData?.animationSvg || null,

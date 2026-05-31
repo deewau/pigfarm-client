@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { Request, Response } from 'express';
-import { handleSuccessfulPayment, handleRefundedPayment, sendGiftToUser, GIFTS_DATA } from '../services/telegram.js';
+import { handleSuccessfulPayment, handleRefundedPayment, sendGiftToUser, findGiftById } from '../services/telegram.js';
 import { userGiftRepository, userRepository, transactionRepository } from '../db/repository.js';
-import type { TelegramGift } from '../services/telegram.js';
 
 /**
  * Webhook для получения обновлений от Telegram
@@ -104,7 +103,7 @@ async function processGiftTransfer(giftId: number, fromUserId: number, recipient
     }
 
     // Находим данные подарка
-    const giftData = GIFTS_DATA.find((g: TelegramGift) => g.id === userGift.gift_id);
+    const giftData = findGiftById(userGift.gift_id);
     if (!giftData) {
       console.log(`🎁 Gift data not found for ${userGift.gift_id}`);
       await sendMessage(recipientId, 'Подарок не найден в базе данных.');
